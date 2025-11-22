@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Personnaliser le murmure – L’Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      background: #f7efe2;
+      color: #3c2f25;
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 40px;
+    }
+    .page {
+      max-width: 640px;
+      width: 100%;
+      background: #fffaf3;
+      border-radius: 24px;
+      padding: 22px 18px 26px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+      border: 1px solid rgba(170, 140, 90, 0.35);
+    }
+    h1 {
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b8833a;
+      margin: 0 0 4px;
+    }
+    .slogan {
+      font-size: 0.9rem;
+      color: #7f6248;
+      margin-bottom: 14px;
+    }
+    .intro {
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+      margin-bottom: 4px;
+    }
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      background: #fffdf8;
+      outline: none;
+    }
+    textarea {
+      border-radius: 16px;
+      min-height: 60px;
+      resize: vertical;
+    }
+    .ligne {
+      display: flex;
+      gap: 10px;
+    }
+    .ligne > div {
+      flex: 1;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #d6a85a;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+      margin-top: 6px;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .preview {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #f3e3cc;
+      font-size: 0.94rem;
+      min-height: 3em;
+      white-space: pre-wrap;
+    }
+    .etat {
+      font-size: 0.8rem;
+      color: #a08967;
+      margin-top: 8px;
+    }
+    .note-tech {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #8a735a;
+    }
+    .id-url {
+      font-family: monospace;
+      font-size: 0.78rem;
+      background: #f0e3cf;
+      padding: 6px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="slogan">Personnalisation du murmure du bijou.</div>
+
+    <p class="intro">
+      Ces informations permettent à l’IA de composer un murmure unique pour la personne
+      qui recevra l’objet. Cette page est une prévisualisation artisanale pour vous.
+    </p>
+
+    <div class="ligne">
+      <div>
+        <label for="idBijou">ID du bijou</label>
+        <input id="idBijou" type="text" placeholder="ex : BIJOU001" />
+      </div>
+      <div>
+        <label for="voix">Voix</label>
+        <select id="voix">
+          <option value="neutre">Neutre</option>
+          <option value="feminine">Féminine</option>
+          <option value="masculine">Masculine</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="prenom">Prénom de la personne</label>
+    <input id="prenom" type="text" placeholder="ex : Marie" />
+
+    <label for="intention">Pourquoi offrez-vous cet objet ?</label>
+    <textarea id="intention" placeholder="ex : Pour qu’elle se sente accompagnée dans un moment difficile."></textarea>
+
+    <label for="detail">Un détail personnel (lieu, date, livre, film, musique, souvenir…)</label>
+    <input id="detail" type="text" placeholder="ex : Toulouse, 18 avril, Le Petit Prince" />
+
+    <button id="btnTester">Tester le murmure</button>
+
+    <div class="etat" id="etat">En attente de vos informations…</div>
+
+    <div class="preview" id="preview">
+      Le murmure apparaîtra ici après le test.
+    </div>
+
+    <div class="note-tech">
+      URL NFC associée à ce bijou (à programmer plus tard dans la puce) :
+      <div class="id-url" id="urlExemple"></div>
+    </div>
+  </div>
+
+  <script>
+    const idInput = document.getElementById("idBijou");
+    const prenomInput = document.getElementById("prenom");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
+    const voixSelect = document.getElementById("voix");
+    const btnTester = document.getElementById("btnTester");
+    const etat = document.getElementById("etat");
+    const preview = document.getElementById("preview");
+    const urlExemple = document.getElementById("urlExemple");
+
+    function majUrlExemple() {
+      const id = idInput.value.trim() || "BIJOU001";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
+
+    idInput.addEventListener("input", majUrlExemple);
+    majUrlExemple();
+
+    btnTester.addEventListener("click", async () => {
+      const id = idInput.value.trim() || "BIJOU001";
+      const prenom = prenomInput.value.trim();
+      const intention = intentionInput.value.trim();
+      const detail = detailInput.value.trim();
+      const voix = voixSelect.value;
+
+      etat.textContent = "L’IA compose le murmure…";
+      btnTester.disabled = true;
+      preview.textContent = "";
+
+      const params = new URLSearchParams({
+        id,
+        prenom,
+        intention,
+        detail,
+        voix
+      });
+
+      try {
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        etat.textContent = "Murmure généré (prévisualisation).";
+      } catch (e) {
+        console.error(e);
+        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        etat.textContent = "Erreur de connexion à l’IA.";
+      } finally {
+        btnTester.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
