@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { BIJOUS } from "../bijous.js";
+import { supabase } from "../supabase.js";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,49 +11,65 @@ export default async function handler(req, res) {
     return;
   }
 
-  const id = (req.query.id || "BIJOU").trim();
+  const id = req.query.id;
 
-  // Valeurs éventuelles envoyées par la page de personnalisation (prévisualisation)
-  let prenom = (req.query.prenom || "").trim();
-  let intention = (req.query.intention || "").trim();
-  let detail = (req.query.detail || "").trim();
-  let voix = (req.query.voix || "neutre").trim();
-
-  // On essaie d'abord de trouver le bijou dans la "base" bijous.js
-  const bijou = BIJOUS.find((b) => b.id === id);
-
-  if (bijou) {
-    // Si on a une fiche enregistrée, on l'utilise en priorité
-    prenom = bijou.prenom || prenom;
-    intention = bijou.intention || intention;
-    detail = bijou.detail || detail;
-    voix = bijou.voix || voix;
+  if (!id) {
+    res.status(400).json({ error: "ID manquant" });
+    return;
   }
 
+  // 1️⃣ Récupérer le bijou dans Supabase
+  const { data: bijou, error } = await supabase
+    .from("bijous")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !bijou) {
+    res.status(404).json({ error: "Bijou inconnu" });
+    return;
+  }
+
+  let { prenom, intention, detail, voix, messages_restants } = bijou;
+
+  // 2️⃣ Si plus de messages → message spécial
+  if (messages_restants <= 0) {
+    res.status(200).json({
+      text:
+        "Ce bijou a offert tous ses murmures. Vous pouvez demander une recharge auprès de l’Atelier des Liens Invisibles.",
+    });
+    return;
+  }
+
+  // 3️⃣ Décrémenter le compteur dans Supabase
+  await supabase
+    .from("bijous")
+    .update({
+      messages_restants: messages_restants - 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  // 4️⃣ Déterminer le ton de la voix
   let ton = "neutre, doux, réconfortant";
-  if (voix === "feminine") {
-    ton = "doux, lumineux, légèrement maternel";
-  } else if (voix === "masculine") {
-    ton = "rassurant, posé, chaleureux";
-  }
+  if (voix === "feminine") ton = "doux, lumineux, légèrement maternel";
+  if (voix === "masculine") ton = "rassurant, posé, chaleureux";
 
+  // 5️⃣ Construire le prompt IA
   const prompt = `
-Tu es la voix d'un objet en bois artisanal de "L’Atelier des Liens Invisibles".
-L'objet a pour identifiant : ${id}.
+Tu es la voix d'un bijou artisanal en bois équipé d'une puce NFC.
+ID du bijou : ${id}.
+Prénom : ${prenom || "(non précisé)"}.
+Intention : ${intention || "(non précisée)"}.
+Détail personnel : ${detail || "(non précisé)"}.
+Ton : ${ton}.
 
-Prénom de la personne : ${prenom || "(non précisé)"}
-Intention du cadeau : ${intention || "(non précisée)"}
-Détail personnel (lieu, date, livre, film, musique, souvenir) : ${detail || "(non précisé)"}
+Écris UNE seule phrase, courte, poétique et intime.
+Ne mentionne jamais l'IA, la technologie ou l'atelier.
+S'adresse à la personne en utilisant "tu".
+  `;
 
-Consignes :
-- Écris UNE SEULE phrase, courte, en français.
-- Le ton doit être : ${ton}.
-- Tu t'adresses directement à la personne ("tu").
-- Ne commence pas par "Cher" ou "Chère".
-- Ne mentionne pas l’IA, la technologie, ni l’atelier.
-- Si des infos manquent, compose quand même un message doux et présent.
-`;
-
+  // 6️⃣ Appel IA OpenAI
   try {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
