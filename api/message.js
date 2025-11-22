@@ -10,13 +10,36 @@ export default async function handler(req, res) {
     return;
   }
 
-  const id = req.query.id || "TEST";
+  const id = req.query.id || "BIJOU";
+  const prenom = (req.query.prenom || "").trim();
+  const intention = (req.query.intention || "").trim();
+  const detail = (req.query.detail || "").trim();
+  const voix = (req.query.voix || "neutre").trim();
+
+  let ton = "neutre, doux, réconfortant";
+  if (voix === "feminine") {
+    ton = "doux, lumineux, légèrement maternel";
+  } else if (voix === "masculine") {
+    ton = "rassurant, posé, chaleureux";
+  }
 
   const prompt = `
-Tu es un petit bijou ou objet en bois de "L’Atelier des Liens Invisibles".
-L'objet a pour identifiant : ${id}.
-Écris UNE SEULE phrase courte, en français, douce et réconfortante,
-pour la personne qui le tient. Ne parle pas de technologie, ni d'IA.
+Tu es la voix d'un objet en bois artisanal, équipé d'une puce NFC,
+créé par "L’Atelier des Liens Invisibles".
+L’objet a pour identifiant : ${id}.
+
+Informations facultatives fournies par la personne qui offre l'objet :
+- Prénom de la personne qui reçoit : ${prenom || "(non précisé)"}
+- Intention du cadeau : ${intention || "(non précisée)"}
+- Détail personnel (lieu, date, livre, film, musique, souvenir) : ${detail || "(non précisé)"}
+
+Consignes :
+- Écris UNE SEULE phrase courte, en français.
+- Le ton doit être : ${ton}.
+- Parle directement à la personne (tu).
+- Ne commence pas par "Cher" ou "Chère".
+- Ne mentionne pas l’IA, ni la technologie, ni l’atelier.
+- Si des informations sont absentes, compose quand même un message doux et présent.
 `;
 
   try {
