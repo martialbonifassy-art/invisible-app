@@ -13,7 +13,7 @@
       --text-main: #3b2f24;
       --text-soft: #6b4f3f;
       --border-soft: rgba(170, 140, 90, 0.35);
-      --shadow-soft: 0 12px 30px rgba(0,0,0,0.14);
+      --shadow-soft: 0 12px 30px rgba(0,0,0,0.22);
       --radius-xl: 26px;
     }
 
@@ -25,11 +25,32 @@
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(circle at top, #fff5e7 0, var(--bg) 55%, #e2d3c3 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fond forêt flouté */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(4px);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+
+    /* Voile beige par-dessus pour garder la lisibilité */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255,245,231,0.92), rgba(247,239,226,0.9), rgba(200,186,166,0.9));
+      z-index: -1;
     }
 
     header {
@@ -41,6 +62,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 16px;
+      backdrop-filter: blur(6px);
     }
 
     .logo-zone {
@@ -73,11 +95,12 @@
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid transparent;
+      background: rgba(255,250,243,0.5);
     }
 
     nav a:hover {
       border-color: var(--accent-soft);
-      background: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.9);
     }
 
     main {
@@ -90,7 +113,7 @@
     .page {
       max-width: 980px;
       width: 100%;
-      background: var(--bg-card);
+      background: rgba(255,250,243,0.9);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
@@ -107,9 +130,7 @@
       }
       .page {
         grid-template-columns: 1fr;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
+        border-radius: 18px;
       }
     }
 
@@ -193,15 +214,16 @@
     .hero-note {
       font-size: 0.78rem;
       color: var(--text-soft);
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
     .side-card {
       border-radius: 22px;
-      background: radial-gradient(circle at top left, #f3e2c7 0, #f6ecdd 40%, #f0dfcc 100%);
+      background: radial-gradient(circle at top left, rgba(243,226,199,0.96) 0, rgba(246,236,221,0.96) 40%, rgba(240,223,204,0.96) 100%);
       padding: 16px 14px 18px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
     }
 
     .side-title {
@@ -251,7 +273,7 @@
     .block {
       padding: 12px 12px 14px;
       border-radius: 14px;
-      background: #f4e6d3;
+      background: rgba(244,230,211,0.94);
       border: 1px solid rgba(179,144,97,0.35);
     }
 
@@ -277,6 +299,8 @@
       display: flex;
       justify-content: space-between;
       color: #8a735a;
+      position: relative;
+      z-index: 1;
     }
 
     @media (max-width: 700px) {
@@ -374,4 +398,3 @@
   </footer>
 </body>
 </html>
-
