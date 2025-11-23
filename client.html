@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Espace bijou – L’Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      background: #f7efe2;
+      color: #3c2f25;
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 40px;
+    }
+    .page {
+      max-width: 640px;
+      width: 100%;
+      background: #fffaf3;
+      border-radius: 24px;
+      padding: 22px 18px 26px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+      border: 1px solid rgba(170, 140, 90, 0.35);
+    }
+    h1 {
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b8833a;
+      margin: 0 0 4px;
+    }
+    .intro {
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      color: #6b4f3f;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+      margin-bottom: 4px;
+    }
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      background: #fffdf8;
+      outline: none;
+    }
+    textarea {
+      border-radius: 16px;
+      min-height: 60px;
+      resize: vertical;
+    }
+    .ligne {
+      display: flex;
+      gap: 10px;
+    }
+    .ligne > div {
+      flex: 1;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #b8833a;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+      margin-top: 6px;
+      width: 100%;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .etat {
+      font-size: 0.8rem;
+      color: #a08967;
+      margin-top: 8px;
+    }
+    .compteur {
+      font-size: 0.82rem;
+      margin-top: 10px;
+      color: #7c6149;
+    }
+    .id-url {
+      font-family: monospace;
+      font-size: 0.78rem;
+      background: #f0e3cf;
+      padding: 6px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>ESPACE BIJOU</h1>
+    <p class="intro">
+      Ici, vous pouvez ajuster les informations qui nourrissent le murmure de votre bijou.
+      Entrez d’abord l’identifiant gravé ou fourni avec l’objet.
+    </p>
+
+    <div class="ligne">
+      <div>
+        <label for="idBijou">ID du bijou</label>
+        <input id="idBijou" type="text" placeholder="ex : TEST001" />
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button id="btnCharger">Charger</button>
+      </div>
+    </div>
+
+    <label for="prenom">Prénom de la personne</label>
+    <input id="prenom" type="text" placeholder="ex : Marie" />
+
+    <label for="intention">Intention du bijou</label>
+    <textarea id="intention" placeholder="ex : Qu’elle se sente accompagnée."></textarea>
+
+    <label for="detail">Un détail personnel (lieu, date, musique, livre…)</label>
+    <input id="detail" type="text" placeholder="ex : Toulouse, 18 avril, Le Petit Prince" />
+
+    <label for="voix">Voix du murmure</label>
+    <select id="voix">
+      <option value="neutre">Neutre</option>
+      <option value="feminine">Féminine</option>
+      <option value="masculine">Masculine</option>
+    </select>
+
+    <button id="btnSave">Enregistrer les modifications</button>
+
+    <div class="etat" id="etat">En attente de chargement du bijou…</div>
+
+    <div class="compteur" id="compteur"></div>
+
+    <div class="compteur">
+      URL NFC de ce bijou :
+      <div class="id-url" id="urlExemple"></div>
+    </div>
+  </div>
+
+  <script>
+    const idInput = document.getElementById("idBijou");
+    const prenomInput = document.getElementById("prenom");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
+    const voixSelect = document.getElementById("voix");
+    const btnCharger = document.getElementById("btnCharger");
+    const btnSave = document.getElementById("btnSave");
+    const etat = document.getElementById("etat");
+    const compteurDiv = document.getElementById("compteur");
+    const urlExemple = document.getElementById("urlExemple");
+
+    function majUrlExemple() {
+      const id = idInput.value.trim() || "BIJOU";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
+
+    idInput.addEventListener("input", majUrlExemple);
+    majUrlExemple();
+
+    // Si un id= est dans l'URL, on le pré-remplit
+    (function initFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (id) {
+        idInput.value = id;
+        majUrlExemple();
+      }
+    })();
+
+    btnCharger.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      if (!id) {
+        alert("Merci d’indiquer l’ID du bijou.");
+        return;
+      }
+
+      etat.textContent = "Chargement des informations du bijou…";
+      btnCharger.disabled = true;
+
+      try {
+        const r = await fetch(`/api/getBijou?id=${encodeURIComponent(id)}`);
+        if (!r.ok) {
+          etat.textContent = "Bijou introuvable. Vérifiez l’ID.";
+          btnCharger.disabled = false;
+          return;
+        }
+        const data = await r.json();
+        prenomInput.value = data.prenom || "";
+        intentionInput.value = data.intention || "";
+        detailInput.value = data.detail || "";
+        voixSelect.value = data.voix || "neutre";
+
+        compteurDiv.textContent =
+          `Murmures restants : ${data.messages_restants} / ${data.messages_max || 100}`;
+
+        etat.textContent = "Bijou chargé. Vous pouvez ajuster les informations.";
+        majUrlExemple();
+      } catch (e) {
+        console.error(e);
+        etat.textContent = "Erreur de connexion. Impossible de charger le bijou.";
+      } finally {
+        btnCharger.disabled = false;
+      }
+    });
+
+    btnSave.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      if (!id) {
+        alert("Merci d’indiquer l’ID du bijou.");
+        return;
+      }
+
+      const body = {
+        id,
+        prenom: prenomInput.value.trim(),
+        intention: intentionInput.value.trim(),
+        detail: detailInput.value.trim(),
+        voix: voixSelect.value.trim()
+      };
+
+      etat.textContent = "Enregistrement en cours…";
+      btnSave.disabled = true;
+
+      try {
+        const r = await fetch("/api/saveBijou", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+
+        const result = await r.json();
+
+        if (result.ok) {
+          etat.textContent = "Modifications enregistrées.";
+        } else {
+          etat.textContent = "Erreur : " + (result.error || "Impossible d’enregistrer.");
+        }
+      } catch (e) {
+        console.error(e);
+        etat.textContent = "Erreur de connexion. Impossible d’enregistrer.";
+      } finally {
+        btnSave.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
