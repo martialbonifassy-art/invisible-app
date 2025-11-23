@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion artisan – Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      background: #f7efe2;
+      color: #3b2f24;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fffaf3;
+      padding: 24px 22px 26px;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      max-width: 360px;
+      width: 100%;
+      border: 1px solid rgba(184,131,58,0.4);
+    }
+    h1 {
+      font-size: 1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b8833a;
+      margin: 0 0 10px;
+      text-align: center;
+    }
+    p {
+      font-size: 0.9rem;
+      margin: 0 0 18px;
+      text-align: center;
+      color: #6b4f3f;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #856549;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.5);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      background: #fffdf8;
+    }
+    button {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      background: #b8833a;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 4px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #8a735a;
+      text-align: center;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>ACCÈS ARTISAN</h1>
+    <p>Connexion à l’espace de gestion des bijoux.</p>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="artisan@atelier.com" />
+
+    <label for="password">Mot de passe</label>
+    <input id="password" type="password" placeholder="••••••••" />
+
+    <button id="btnLogin">Se connecter</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const emailInput = document.getElementById("email");
+    const passInput = document.getElementById("password");
+    const btnLogin = document.getElementById("btnLogin");
+    const msg = document.getElementById("msg");
+
+    btnLogin.addEventListener("click", async () => {
+      msg.textContent = "";
+      btnLogin.disabled = true;
+
+      const email = emailInput.value.trim();
+      const password = passInput.value.trim();
+
+      if (!email || !password) {
+        msg.textContent = "Merci de remplir email et mot de passe.";
+        btnLogin.disabled = false;
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error(error);
+        msg.textContent = "Connexion impossible : " + error.message;
+        btnLogin.disabled = false;
+        return;
+      }
+
+      msg.textContent = "Connexion réussie, redirection en cours…";
+      // Redirection vers le dashboard
+      window.location.href = "/dashboard.html";
+    });
+
+    // Si déjà connecté, on redirige directement vers le dashboard
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        window.location.href = "/dashboard.html";
+      }
+    })();
+  </script>
+</body>
+</html>
