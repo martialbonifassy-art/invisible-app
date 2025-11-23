@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Dashboard Artisan – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       margin: 0;
@@ -11,40 +12,33 @@
       font-family: system-ui, sans-serif;
       background: #f7efe2;
       color: #3b2f24;
-    }<div id="authZone" style="text-align:center; margin-top:40px;">
-  <h2>Accès réservé à l’artisan</h2>
-  <input id="pass" type="password" placeholder="mot de passe" style="padding:10px; border-radius:8px; margin-bottom:12px; width:60%; max-width:260px;">
-  <br>
-  <button onclick="verifPass()" style="padding:10px 16px; border-radius:8px; cursor:pointer; background:#b8833a; color:white;">Entrer</button>
-</div>
-
-<script>
-  function verifPass() {
-    const mdp = document.getElementById("pass").value;
-    if (mdp === "atelier2025") {
-      document.getElementById("authZone").style.display = "none";
-      document.body.classList.add("ok");
-      chargerBijoux();
-    } else {
-      alert("Mot de passe incorrect.");
     }
-  }
-</script>
-
-<style>
-  body:not(.ok) #tableBijoux,
-  body:not(.ok) #msg,
-  body:not(.ok) h1 {
-    display: none;
-  }
-</style>
-
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
     h1 {
       text-transform: uppercase;
-      font-size: 1.4rem;
-      margin-bottom: 20px;
+      font-size: 1.1rem;
+      margin: 0;
       letter-spacing: 0.15em;
       color: #b8833a;
+    }
+    .user-info {
+      font-size: 0.85rem;
+      color: #6b4f3f;
+    }
+    .logout-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      background: #b83a3a;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-left: 8px;
     }
     table {
       width: 100%;
@@ -66,7 +60,7 @@
       font-size: 0.8rem;
     }
     .btn {
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
@@ -91,7 +85,12 @@
 </head>
 <body>
 
-<h1>DASHBOARD ARTISAN</h1>
+<header>
+  <h1>DASHBOARD ARTISAN</h1>
+  <div class="user-info" id="userInfo">
+    Connexion en cours…
+  </div>
+</header>
 
 <table id="tableBijoux">
   <thead>
@@ -110,17 +109,48 @@
 <div class="zone-msg" id="msg"></div>
 
 <script>
+  const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const msg = document.getElementById("msg");
+  const userInfo = document.getElementById("userInfo");
+
+  async function requireAuth() {
+    const { data } = await supabase.auth.getSession();
+    const session = data.session;
+
+    if (!session) {
+      // Pas connecté → on redirige vers login
+      window.location.href = "/login.html";
+      return;
+    }
+
+    const email = session.user.email;
+    userInfo.innerHTML = `
+      Connecté en tant que ${email}
+      <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+    `;
+
+    chargerBijoux();
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = "/login.html";
+  }
+
   async function chargerBijoux() {
-    const msg = document.getElementById("msg");
-    msg.textContent = "Chargement des données...";
-    
+    msg.textContent = "Chargement des données…";
+
     const r = await fetch("/api/listBijoux");
     const data = await r.json();
 
     const tbody = document.querySelector("#tableBijoux tbody");
     tbody.innerHTML = "";
 
-    data.forEach(b => {
+    data.forEach((b) => {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
@@ -143,22 +173,24 @@
   }
 
   async function recharger(id) {
-    await fetch(`/api/rechargeBijou?id=${id}`);
-    document.getElementById("msg").textContent = `Bijou ${id} rechargé.`;
+    await fetch(`/api/rechargeBijou?id=${encodeURIComponent(id)}`);
+    msg.textContent = `Bijou ${id} rechargé.`;
     chargerBijoux();
   }
 
   async function supprimerBijou(id) {
-    await fetch(`/api/deleteBijou?id=${id}`);
-    document.getElementById("msg").textContent = `Bijou ${id} supprimé.`;
+    if (!confirm(`Supprimer le bijou ${id} ?`)) return;
+    await fetch(`/api/deleteBijou?id=${encodeURIComponent(id)}`);
+    msg.textContent = `Bijou ${id} supprimé.`;
     chargerBijoux();
   }
 
   function modifier(id) {
-    window.location.href = `/personnalisation.html?id=${id}`;
+    window.location.href = `/personnalisation.html?id=${encodeURIComponent(id)}`;
   }
 
-  chargerBijoux();
+  // Démarrage : vérifie qu'on est connecté
+  requireAuth();
 </script>
 
 </body>
