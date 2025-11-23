@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Artisan – Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, sans-serif;
+      background: #f7efe2;
+      color: #3b2f24;
+    }
+    h1 {
+      text-transform: uppercase;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      letter-spacing: 0.15em;
+      color: #b8833a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fffaf3;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e0d4c3;
+      text-align: left;
+    }
+    th {
+      background: #eadcc8;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.8rem;
+    }
+    .btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #fff;
+    }
+    .btn-recharge {
+      background: #82a738;
+    }
+    .btn-modif {
+      background: #b8833a;
+    }
+    .btn-suppr {
+      background: #b83a3a;
+    }
+    .zone-msg {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: #6b4f3f;
+    }
+  </style>
+</head>
+<body>
+
+<h1>DASHBOARD ARTISAN</h1>
+
+<table id="tableBijoux">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Prénom</th>
+      <th>Restants</th>
+      <th>Max</th>
+      <th>Voix</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="zone-msg" id="msg"></div>
+
+<script>
+  async function chargerBijoux() {
+    const msg = document.getElementById("msg");
+    msg.textContent = "Chargement des données...";
+    
+    const r = await fetch("/api/listBijoux");
+    const data = await r.json();
+
+    const tbody = document.querySelector("#tableBijoux tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(b => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${b.id}</td>
+        <td>${b.prenom || "-"}</td>
+        <td>${b.messages_restants}</td>
+        <td>${b.messages_max}</td>
+        <td>${b.voix || "-"}</td>
+        <td>
+          <button class="btn btn-recharge" onclick="recharger('${b.id}')">Recharger</button>
+          <button class="btn btn-modif" onclick="modifier('${b.id}')">Modifier</button>
+          <button class="btn btn-suppr" onclick="supprimerBijou('${b.id}')">Supprimer</button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    msg.textContent = "Données chargées.";
+  }
+
+  async function recharger(id) {
+    await fetch(`/api/rechargeBijou?id=${id}`);
+    document.getElementById("msg").textContent = `Bijou ${id} rechargé.`;
+    chargerBijoux();
+  }
+
+  async function supprimerBijou(id) {
+    await fetch(`/api/deleteBijou?id=${id}`);
+    document.getElementById("msg").textContent = `Bijou ${id} supprimé.`;
+    chargerBijoux();
+  }
+
+  function modifier(id) {
+    window.location.href = `/personnalisation.html?id=${id}`;
+  }
+
+  chargerBijoux();
+</script>
+
+</body>
+</html>
