@@ -11,7 +11,34 @@
       font-family: system-ui, sans-serif;
       background: #f7efe2;
       color: #3b2f24;
+    }<div id="authZone" style="text-align:center; margin-top:40px;">
+  <h2>Accès réservé à l’artisan</h2>
+  <input id="pass" type="password" placeholder="mot de passe" style="padding:10px; border-radius:8px; margin-bottom:12px; width:60%; max-width:260px;">
+  <br>
+  <button onclick="verifPass()" style="padding:10px 16px; border-radius:8px; cursor:pointer; background:#b8833a; color:white;">Entrer</button>
+</div>
+
+<script>
+  function verifPass() {
+    const mdp = document.getElementById("pass").value;
+    if (mdp === "atelier2025") {
+      document.getElementById("authZone").style.display = "none";
+      document.body.classList.add("ok");
+      chargerBijoux();
+    } else {
+      alert("Mot de passe incorrect.");
     }
+  }
+</script>
+
+<style>
+  body:not(.ok) #tableBijoux,
+  body:not(.ok) #msg,
+  body:not(.ok) h1 {
+    display: none;
+  }
+</style>
+
     h1 {
       text-transform: uppercase;
       font-size: 1.4rem;
