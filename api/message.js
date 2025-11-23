@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 1️⃣ Récupérer le bijou dans Supabase
+  // 1️⃣ Charger le bijou dans Supabase
   const { data: bijou, error } = await supabase
     .from("bijous")
     .select("*")
@@ -30,18 +30,28 @@ export default async function handler(req, res) {
     return;
   }
 
-  let { prenom, intention, detail, voix, messages_restants } = bijou;
+  let {
+    prenom,
+    intention,
+    detail,
+    voix,
+    messages_restants,
+    messages_max,
+  } = bijou;
 
-  // 2️⃣ Si plus de messages → message spécial
+  // 2️⃣ Si le bijou n’a plus de messages → message spécial
   if (messages_restants <= 0) {
     res.status(200).json({
       text:
-        "Ce bijou a offert tous ses murmures. Vous pouvez demander une recharge auprès de l’Atelier des Liens Invisibles.",
+        "Ce bijou a offert tous ses murmures. Une recharge est disponible auprès de l’Atelier des Liens Invisibles.",
+      messages_restants: 0,
+      messages_max,
+      depleted: true,
     });
     return;
   }
 
-  // 3️⃣ Décrémenter le compteur dans Supabase
+  // 3️⃣ Mettre à jour le compteur dans Supabase (décrémentation)
   await supabase
     .from("bijous")
     .update({
@@ -50,26 +60,34 @@ export default async function handler(req, res) {
     })
     .eq("id", id);
 
-  // 4️⃣ Déterminer le ton de la voix
-  let ton = "neutre, doux, réconfortant";
-  if (voix === "feminine") ton = "doux, lumineux, légèrement maternel";
-  if (voix === "masculine") ton = "rassurant, posé, chaleureux";
+  // 4️⃣ Définir le ton en fonction de la voix
+  let ton =
+    voix === "feminine"
+      ? "doux, lumineux, maternel"
+      : voix === "masculine"
+      ? "rassurant, posé, chaleureux"
+      : "neutre, délicat, intime";
 
-  // 5️⃣ Construire le prompt IA
+  // 5️⃣ Préparer le prompt IA
   const prompt = `
-Tu es la voix d'un bijou artisanal en bois équipé d'une puce NFC.
-ID du bijou : ${id}.
-Prénom : ${prenom || "(non précisé)"}.
-Intention : ${intention || "(non précisée)"}.
-Détail personnel : ${detail || "(non précisé)"}.
-Ton : ${ton}.
+Tu es la voix d’un bijou artisanal en bois.
+Crée une phrase courte, poétique et intime.
 
-Écris UNE seule phrase, courte, poétique et intime.
-Ne mentionne jamais l'IA, la technologie ou l'atelier.
-S'adresse à la personne en utilisant "tu".
-  `;
+Informations :
+Prénom : ${prenom}
+Intention : ${intention}
+Détail : ${detail}
+Ton : ${ton}
 
-  // 6️⃣ Appel IA OpenAI
+La phrase doit être :
+- personnelle
+- émotionnelle
+- en “tu”
+- jamais technologique
+- jamais bruyante
+  `.trim();
+
+  // 6️⃣ Appeler OpenAI
   try {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
@@ -78,11 +96,17 @@ S'adresse à la personne en utilisant "tu".
 
     const text =
       response.output?.[0]?.content?.[0]?.text?.trim() ||
-      "Je suis là, silencieux, mais présent pour toi.";
+      "Je suis là, dans le silence, pour t’accompagner.";
 
-    res.status(200).json({ text });
+    res.status(200).json({
+      text,
+      messages_restants: messages_restants - 1,
+      messages_max,
+    });
   } catch (e) {
     console.error("Erreur IA:", e);
-    res.status(500).json({ error: "Erreur IA" });
+    res.status(500).json({
+      error: "Erreur IA",
+    });
   }
 }
