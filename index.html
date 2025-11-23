@@ -4,10 +4,374 @@
   <meta charset="UTF-8" />
   <title>L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f7efe2;
+      --bg-card: #fffaf3;
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #3b2f24;
+      --text-soft: #6b4f3f;
+      --border-soft: rgba(170, 140, 90, 0.35);
+      --shadow-soft: 0 12px 30px rgba(0,0,0,0.14);
+      --radius-xl: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top, #fff5e7 0, var(--bg) 55%, #e2d3c3 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      max-width: 980px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-zone {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo-title {
+      font-size: 1rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .logo-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    nav {
+      display: flex;
+      gap: 14px;
+      font-size: 0.86rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--text-soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      border-color: var(--accent-soft);
+      background: rgba(255,255,255,0.4);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 12px 12px 32px;
+    }
+
+    .page {
+      max-width: 980px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 18px 26px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 800px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .page {
+        grid-template-columns: 1fr;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(234, 220, 200, 0.9);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #82a738;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-slogan {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      margin-bottom: 18px;
+    }
+
+    .hero-text {
+      font-size: 0.93rem;
+      color: var(--text-soft);
+      margin-bottom: 18px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .btn-main,
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-main {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+    }
+
+    .btn-main span.icon {
+      font-size: 1.1rem;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+    }
+
+    .hero-note {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      opacity: 0.85;
+    }
+
+    .side-card {
+      border-radius: 22px;
+      background: radial-gradient(circle at top left, #f3e2c7 0, #f6ecdd 40%, #f0dfcc 100%);
+      padding: 16px 14px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .side-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
+
+    .side-quote {
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .side-meta {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .side-orbit {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      border: 1px dashed rgba(133,101,73,0.35);
+      right: -40px;
+      bottom: -40px;
+    }
+
+    .blocks {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 800px) {
+      .blocks {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .block {
+      padding: 12px 12px 14px;
+      border-radius: 14px;
+      background: #f4e6d3;
+      border: 1px solid rgba(179,144,97,0.35);
+    }
+
+    .block-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .block p {
+      margin: 0;
+      color: var(--text-main);
+    }
+
+    footer {
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto 18px;
+      padding: 0 16px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      color: #8a735a;
+    }
+
+    @media (max-width: 700px) {
+      footer {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>L’Atelier des Liens Invisibles</h1>
-  <p>Page d’accueil de test.</p>
+  <header>
+    <div class="logo-zone">
+      <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
+    </div>
+    <nav>
+      <a href="#concept">Concept</a>
+      <a href="#fonctionnement">Comment ça marche ?</a>
+      <a href="/client.html">J’ai déjà un bijou</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page" id="concept">
+      <section>
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          <div>Objets en bois & murmures numériques</div>
+        </div>
+
+        <h1>L’émotion programmée de la matière.</h1>
+
+        <div class="hero-slogan">
+          Des bijoux et objets en bois, équipés d’une puce NFC, qui murmurent
+          des messages uniques écrits par une IA poétique.
+        </div>
+
+        <div class="hero-text">
+          Chaque pièce est créée à l’atelier, puis reliée à une intelligence artificielle
+          qui compose des phrases intimes, en fonction d’un prénom, d’un souvenir,
+          d’une date ou d’un lieu. À chaque passage du téléphone, le bijou
+          souffle un nouveau murmure – jusqu’à épuisement de ses 100 messages,
+          rechargeables sur demande.
+        </div>
+
+        <div class="cta-row">
+          <a class="btn-main" href="/bijou.html?id=TEST001">
+            <span class="icon">✨</span>
+            <span>Écouter un murmure de démo</span>
+          </a>
+          <a class="btn-ghost" href="/client.html">
+            Je possède déjà un bijou
+          </a>
+        </div>
+
+        <div class="hero-note">
+          Scannez simplement la puce NFC avec un smartphone compatible pour entendre le message du jour.
+        </div>
+
+        <div class="blocks" id="fonctionnement">
+          <div class="block">
+            <div class="block-title">1. L’objet</div>
+            <p>Un bijou ou objet en bois, façonné à la main, avec une puce NFC discrètement intégrée.</p>
+          </div>
+          <div class="block">
+            <div class="block-title">2. La personnalisation</div>
+            <p>Vous choisissez un prénom, une intention, quelques détails. L’IA tisse à partir de ces éléments.</p>
+          </div>
+          <div class="block">
+            <div class="block-title">3. Le murmure</div>
+            <p>À chaque contact avec le téléphone, un nouveau message intime est généré, jusqu’à 100 murmures.</p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <div class="side-title">Exemple de murmure</div>
+        <div class="side-quote">
+          « Marie, comme au printemps à Toulouse, sache que chaque pas de ce nouveau chemin est accompagné
+          d’une lumière douce et silencieuse. »
+        </div>
+        <div class="side-meta">
+          Bijou démo · ID TEST001 · Voix féminine<br />
+          <small>Message généré en temps réel par l’IA de l’atelier.</small>
+        </div>
+        <div class="side-orbit"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <div>© L’Atelier des Liens Invisibles · Auto-entreprise</div>
+    <div>Objets en bois, NFC, IA poétique · atelierdesliensinvisibles.fr</div>
+  </footer>
 </body>
 </html>
 
