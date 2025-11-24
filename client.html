@@ -2,260 +2,229 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Espace bijou – L’Atelier des Liens Invisibles</title>
+  <title>Personnalisation du bijou – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-dark: #8a5f25;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.26);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Helvetica Neue", Arial, sans-serif;
-      background: #f7efe2;
-      color: #3c2f25;
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 24px 12px 40px;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow: hidden;
     }
-    .page {
-      max-width: 640px;
+
+    /* 🌲 Fond forêt identique aux autres pages */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    /* Carte centrale */
+    .card {
+      max-width: 520px;
       width: 100%;
-      background: #fffaf3;
-      border-radius: 24px;
-      padding: 22px 18px 26px;
-      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
-      border: 1px solid rgba(170, 140, 90, 0.35);
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 20px 26px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.5s ease;
     }
-    h1 {
-      font-size: 1.1rem;
-      letter-spacing: 0.16em;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #b8833a;
-      margin: 0 0 4px;
-    }
-    .intro {
-      font-size: 0.9rem;
-      margin-bottom: 16px;
-      color: #6b4f3f;
-    }
-    label {
-      display: block;
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.11em;
-      color: #856549;
+      color: var(--accent);
+      text-align: center;
       margin-bottom: 4px;
     }
-    input, textarea, select {
-      width: 100%;
-      box-sizing: border-box;
+
+    .subtitle {
+      font-size: 0.83rem;
+      color: var(--text-soft);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(133,101,73,0.4);
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      margin-bottom: 12px;
-      background: #fffdf8;
+      border: 1px solid var(--accent-soft);
+      background: rgba(250, 240, 225, 0.95);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0 auto 18px;
+      display: block;
+      width: fit-content;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-size: 0.87rem;
+      color: var(--text-soft);
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(255,255,255,0.9);
+      margin-top: 6px;
+      font-size: 0.88rem;
+      color: var(--text-main);
       outline: none;
     }
+
     textarea {
-      border-radius: 16px;
-      min-height: 60px;
-      resize: vertical;
+      resize: none;
+      height: 70px;
     }
-    .ligne {
-      display: flex;
-      gap: 10px;
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
-    .ligne > div {
-      flex: 1;
-    }
+
     button {
-      border-radius: 999px;
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: #b8833a;
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
-      margin-top: 6px;
       width: 100%;
+      margin-top: 20px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--accent-dark);
+      background: var(--accent);
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+      transition: 0.2s;
     }
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
+
+    button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
     }
-    .etat {
-      font-size: 0.8rem;
-      color: #a08967;
-      margin-top: 8px;
-    }
-    .compteur {
-      font-size: 0.82rem;
-      margin-top: 10px;
-      color: #7c6149;
-    }
-    .id-url {
-      font-family: monospace;
-      font-size: 0.78rem;
-      background: #f0e3cf;
-      padding: 6px 8px;
-      border-radius: 8px;
-      margin-top: 4px;
-      word-break: break-all;
+
+    #result {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-soft);
     }
   </style>
 </head>
+
 <body>
-  <div class="page">
-    <h1>ESPACE BIJOU</h1>
-    <p class="intro">
-      Ici, vous pouvez ajuster les informations qui nourrissent le murmure de votre bijou.
-      Entrez d’abord l’identifiant gravé ou fourni avec l’objet.
-    </p>
+  <div class="card">
 
-    <div class="ligne">
-      <div>
-        <label for="idBijou">ID du bijou</label>
-        <input id="idBijou" type="text" placeholder="ex : TEST001" />
-      </div>
-      <div style="display:flex;align-items:flex-end;">
-        <button id="btnCharger">Charger</button>
-      </div>
-    </div>
+    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+    <div class="subtitle">Personnalisez la voix associée à votre bijou.</div>
 
-    <label for="prenom">Prénom de la personne</label>
-    <input id="prenom" type="text" placeholder="ex : Marie" />
+    <div class="id-badge" id="idBadge">ID : inconnu</div>
 
-    <label for="intention">Intention du bijou</label>
-    <textarea id="intention" placeholder="ex : Qu’elle se sente accompagnée."></textarea>
+    <label for="prenom">Prénom :</label>
+    <input type="text" id="prenom" placeholder="Ex : Marie">
 
-    <label for="detail">Un détail personnel (lieu, date, musique, livre…)</label>
-    <input id="detail" type="text" placeholder="ex : Toulouse, 18 avril, Le Petit Prince" />
+    <label for="souvenir">Souvenir / lieu / détail personnel :</label>
+    <textarea id="souvenir" placeholder="Ex : Le printemps à Toulouse…"></textarea>
 
-    <label for="voix">Voix du murmure</label>
+    <label for="voix">Choix de la voix :</label>
     <select id="voix">
-      <option value="neutre">Neutre</option>
-      <option value="feminine">Féminine</option>
-      <option value="masculine">Masculine</option>
+      <option value="femme">Voix féminine</option>
+      <option value="homme">Voix masculine</option>
     </select>
 
-    <button id="btnSave">Enregistrer les modifications</button>
+    <button id="saveBtn">Enregistrer les paramètres</button>
 
-    <div class="etat" id="etat">En attente de chargement du bijou…</div>
+    <div id="result"></div>
 
-    <div class="compteur" id="compteur"></div>
-
-    <div class="compteur">
-      URL NFC de ce bijou :
-      <div class="id-url" id="urlExemple"></div>
-    </div>
   </div>
 
   <script>
-    const idInput = document.getElementById("idBijou");
-    const prenomInput = document.getElementById("prenom");
-    const intentionInput = document.getElementById("intention");
-    const detailInput = document.getElementById("detail");
-    const voixSelect = document.getElementById("voix");
-    const btnCharger = document.getElementById("btnCharger");
-    const btnSave = document.getElementById("btnSave");
-    const etat = document.getElementById("etat");
-    const compteurDiv = document.getElementById("compteur");
-    const urlExemple = document.getElementById("urlExemple");
+    // Récupérer l'ID du bijou depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id") || "INCONNU";
+    document.getElementById("idBadge").textContent = "ID : " + id;
 
-    function majUrlExemple() {
-      const id = idInput.value.trim() || "BIJOU";
-      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
-      urlExemple.textContent = url;
-    }
+    // Enregistrement vers Supabase via API
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const result = document.getElementById("result");
 
-    idInput.addEventListener("input", majUrlExemple);
-    majUrlExemple();
-
-    // Si un id= est dans l'URL, on le pré-remplit
-    (function initFromQuery() {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("id");
-      if (id) {
-        idInput.value = id;
-        majUrlExemple();
-      }
-    })();
-
-    btnCharger.addEventListener("click", async () => {
-      const id = idInput.value.trim();
-      if (!id) {
-        alert("Merci d’indiquer l’ID du bijou.");
-        return;
-      }
-
-      etat.textContent = "Chargement des informations du bijou…";
-      btnCharger.disabled = true;
-
-      try {
-        const r = await fetch(`/api/getBijou?id=${encodeURIComponent(id)}`);
-        if (!r.ok) {
-          etat.textContent = "Bijou introuvable. Vérifiez l’ID.";
-          btnCharger.disabled = false;
-          return;
-        }
-        const data = await r.json();
-        prenomInput.value = data.prenom || "";
-        intentionInput.value = data.intention || "";
-        detailInput.value = data.detail || "";
-        voixSelect.value = data.voix || "neutre";
-
-        compteurDiv.textContent =
-          `Murmures restants : ${data.messages_restants} / ${data.messages_max || 100}`;
-
-        etat.textContent = "Bijou chargé. Vous pouvez ajuster les informations.";
-        majUrlExemple();
-      } catch (e) {
-        console.error(e);
-        etat.textContent = "Erreur de connexion. Impossible de charger le bijou.";
-      } finally {
-        btnCharger.disabled = false;
-      }
-    });
-
-    btnSave.addEventListener("click", async () => {
-      const id = idInput.value.trim();
-      if (!id) {
-        alert("Merci d’indiquer l’ID du bijou.");
-        return;
-      }
-
-      const body = {
-        id,
-        prenom: prenomInput.value.trim(),
-        intention: intentionInput.value.trim(),
-        detail: detailInput.value.trim(),
-        voix: voixSelect.value.trim()
+      const data = {
+        id: id,
+        prenom: document.getElementById("prenom").value.trim(),
+        souvenir: document.getElementById("souvenir").value.trim(),
+        voix: document.getElementById("voix").value
       };
 
-      etat.textContent = "Enregistrement en cours…";
-      btnSave.disabled = true;
+      result.textContent = "Enregistrement…";
 
       try {
-        const r = await fetch("/api/saveBijou", {
+        const r = await fetch("/api/save", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
         });
 
-        const result = await r.json();
+        const res = await r.json();
 
-        if (result.ok) {
-          etat.textContent = "Modifications enregistrées.";
-        } else {
-          etat.textContent = "Erreur : " + (result.error || "Impossible d’enregistrer.");
+        if (!r.ok || res.error) {
+          result.textContent = "❌ Erreur : " + (res.error || "Impossible d'enregistrer");
+          return;
         }
+
+        result.textContent = "✔️ Paramètres enregistrés avec succès !";
+
       } catch (e) {
         console.error(e);
-        etat.textContent = "Erreur de connexion. Impossible d’enregistrer.";
-      } finally {
-        btnSave.disabled = false;
+        result.textContent = "❌ Erreur de connexion au serveur.";
       }
     });
   </script>
