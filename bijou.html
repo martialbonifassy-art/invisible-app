@@ -2,29 +2,194 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Murmure du bijou</title>
+  <title>Murmure du bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 🌲 Fond forêt (même style que l'accueil) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 20px 18px 20px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-bottom: 12px;
+    }
+
+    .id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(250, 240, 225, 0.95);
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      margin-bottom: 14px;
+    }
+
+    .id-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #82a738;
+    }
+
+    .etat {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-bottom: 12px;
+      min-height: 1.2em;
+    }
+
+    .message {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      font-style: italic;
+      margin-bottom: 16px;
+      padding: 8px 4px;
+    }
+
+    .compteur {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #7c6450;
+    }
+  </style>
 </head>
 <body>
-  <h1>Message du bijou</h1>
-  <p id="msg">Chargement du murmure…</p>
+  <div class="card">
+    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+    <div class="subtitle">Murmure associé à cet objet en bois.</div>
+
+    <div class="id-badge">
+      <div class="id-dot"></div>
+      <span id="idBijouLabel">Bijou — ID inconnu</span>
+    </div>
+
+    <div class="etat" id="etat">Connexion au murmure en cours…</div>
+
+    <div class="message" id="message">
+      <!-- Le texte du murmure apparaîtra ici -->
+    </div>
+
+    <div class="compteur" id="compteur"></div>
+
+    <div class="note">
+      Chaque ouverture consomme un murmure parmi ceux offerts à ce bijou.
+    </div>
+  </div>
 
   <script>
-    // Récupérer l'id dans l'URL : ?id=XXX
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id") || "TEST";
+    async function chargerMurmure() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id") || "BIJOU";
 
-    fetch(`/api/message?id=${encodeURIComponent(id)}`)
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById("msg").textContent =
-          data.text || "Je suis là, silencieux, mais présent pour toi.";
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("msg").textContent =
-          "Impossible de joindre la voix du bijou.";
-      });
+      const idLabel = document.getElementById("idBijouLabel");
+      const etat = document.getElementById("etat");
+      const messageEl = document.getElementById("message");
+      const compteurEl = document.getElementById("compteur");
+
+      idLabel.textContent = "Bijou — ID " + id;
+
+      etat.textContent = "Connexion au murmure en cours…";
+      messageEl.textContent = "";
+      compteurEl.textContent = "";
+
+      try {
+        const r = await fetch("/api/message?id=" + encodeURIComponent(id));
+        const data = await r.json();
+
+        if (!r.ok || data.error) {
+          etat.textContent = "Impossible de joindre la voix de ce bijou.";
+          messageEl.textContent = data.error || "Erreur inattendue.";
+          return;
+        }
+
+        messageEl.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        etat.textContent = "Murmure reçu.";
+
+        if (typeof data.messages_restants === "number") {
+          const max = data.messages_max || 100;
+          compteurEl.textContent =
+            "Murmures restants : " + data.messages_restants + " / " + max;
+        }
+      } catch (e) {
+        console.error(e);
+        etat.textContent = "Erreur de connexion.";
+        messageEl.textContent = "Le bijou ne parvient pas à parler pour le moment.";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", chargerMurmure);
   </script>
 </body>
 </html>
