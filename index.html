@@ -6,13 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg-card: rgba(255,250,243,0.92);
+      --bg-card: rgba(255,250,243,0.98); /* carte plus opaque */
       --accent: #b8833a;
       --accent-soft: #eadcc8;
-      --text-main: #3b2f24;
-      --text-soft: #6b4f3f;
-      --border-soft: rgba(170, 140, 90, 0.35);
-      --shadow-soft: 0 12px 30px rgba(0,0,0,0.22);
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
       --radius-xl: 26px;
     }
 
@@ -30,23 +30,23 @@
       overflow-x: hidden;
     }
 
-    /* 🌲 FOND FORÊT TRÈS VISIBILE */
+    /* 🌲 FOND FORÊT un peu flouté, un peu assombri */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
-      filter: brightness(0.78);
-      transform: scale(1.02);
+      filter: blur(3px) brightness(0.7); /* plus flou + plus sombre */
+      transform: scale(1.03);
       z-index: -2;
     }
 
-    /* voile très léger */
+    /* voile léger mais plus présent pour bien faire ressortir le texte */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 250, 240, 0.22);
+      background: rgba(246, 236, 220, 0.6);
       z-index: -1;
     }
 
@@ -55,12 +55,16 @@
       max-width: 980px;
       width: 100%;
       margin: 16px auto 0;
-      padding: 8px 16px;
+      padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(8px);
+      background: rgba(255, 248, 236, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(200, 176, 130, 0.7);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
     }
 
     .logo-zone { display: flex; flex-direction: column; }
@@ -71,26 +75,32 @@
       color: var(--accent);
     }
     .logo-sub {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-soft);
     }
 
-    nav { display: flex; gap: 14px; font-size: 0.86rem; }
+    nav { display: flex; gap: 10px; font-size: 0.86rem; }
     nav a {
       text-decoration: none;
-      color: var(--text-soft);
-      padding: 6px 10px;
+      color: var(--text-main);
+      padding: 7px 12px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.4);
+      background: #fff;
+      border: 1px solid var(--accent-soft);
+      font-weight: 500;
     }
-    nav a:hover { background: white; border-color: var(--accent-soft); }
+    nav a:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
     /* MAIN */
     main {
       flex: 1;
       display: flex;
       justify-content: center;
-      padding: 12px 12px 32px;
+      padding: 18px 12px 32px;
     }
 
     .page {
@@ -100,14 +110,15 @@
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 22px 18px 26px;
+      padding: 24px 20px 26px;
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      gap: 22px;
+      gap: 24px;
+      backdrop-filter: blur(10px); /* renforce la lisibilité dessus la forêt */
     }
 
     @media (max-width: 800px) {
-      .page { grid-template-columns: 1fr; }
+      .page { grid-template-columns: 1fr; border-radius: 18px; }
       header { flex-direction: column; align-items: flex-start; }
     }
 
@@ -116,7 +127,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(234, 220, 200, 0.9);
+      background: rgba(234, 220, 200, 0.98);
       border-radius: 999px;
       padding: 4px 10px;
       font-size: 0.78rem;
@@ -129,55 +140,88 @@
       width: 6px; height: 6px; border-radius: 999px; background: #82a738;
     }
 
-    h1 { font-size: 1.8rem; margin: 0 0 8px; }
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 10px;
+      color: #231a13;
+    }
 
-    .hero-slogan { font-size: 0.95rem; color: var(--text-soft); margin-bottom: 18px; }
-    .hero-text { font-size: 0.93rem; color: var(--text-soft); margin-bottom: 18px; }
+    .hero-slogan {
+      font-size: 1rem;
+      color: var(--text-soft);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+    .hero-text {
+      font-size: 0.96rem;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
 
-    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
 
     .btn-main, .btn-ghost {
       border-radius: 999px;
-      padding: 10px 18px;
-      font-size: 0.9rem;
+      padding: 11px 20px;
+      font-size: 0.95rem;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .btn-main {
-      background: var(--accent);
+      background: #d39633;
       color: white;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+      border: 1px solid #a86b1e;
+    }
+    .btn-main:hover {
+      background: #b67622;
     }
 
     .btn-ghost {
-      background: transparent;
+      background: #fff;
       color: var(--accent);
       border: 1px solid var(--accent-soft);
     }
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
 
-    .hero-note { font-size: 0.78rem; color: var(--text-soft); opacity: 0.9; }
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      opacity: 0.95;
+    }
 
     /* ASIDE */
     .side-card {
       border-radius: 22px;
-      background: rgba(250,240,225,0.92);
-      padding: 16px 14px;
+      background: rgba(250,240,225,0.98);
+      padding: 16px 14px 18px;
       position: relative;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      border: 1px solid rgba(180,145,98,0.6);
     }
     .side-title {
       font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.14em;
       color: var(--text-soft); margin-bottom: 10px;
     }
     .side-quote {
-      font-size: 0.9rem; font-style: italic; margin-bottom: 12px; color: var(--text-main);
+      font-size: 0.92rem; font-style: italic; margin-bottom: 12px; color: var(--text-main);
     }
-    .side-meta { font-size: 0.78rem; color: var(--text-soft); }
+    .side-meta { font-size: 0.8rem; color: var(--text-soft); }
 
     .side-orbit {
       position: absolute;
@@ -193,19 +237,19 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
       gap: 12px;
-      font-size: 0.86rem;
+      font-size: 0.88rem;
     }
     @media (max-width: 800px) { .blocks { grid-template-columns: 1fr; } }
 
     .block {
       padding: 12px;
       border-radius: 14px;
-      background: rgba(244,230,211,0.94);
-      border: 1px solid rgba(179,144,97,0.35);
+      background: rgba(244,230,211,0.98);
+      border: 1px solid rgba(179,144,97,0.6);
     }
     .block-title {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em;
-      color: var(--text-soft); margin-bottom: 6px;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-soft); margin-bottom: 6px; font-weight: 600;
     }
 
     footer {
@@ -216,8 +260,10 @@
       font-size: 0.78rem;
       display: flex;
       justify-content: space-between;
-      color: #8a735a;
+      color: #f5eee4;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     }
+    @media (max-width: 700px) { footer { flex-direction: column; gap: 4px; } }
   </style>
 </head>
 <body>
@@ -251,30 +297,36 @@
         <div class="hero-text">
           Chaque pièce est créée à l’atelier, puis reliée à une intelligence artificielle
           qui compose des messages intimes, en fonction d’un prénom, d’un souvenir,
-          d’une date ou d’un lieu.
+          d’une date ou d’un lieu. À chaque contact avec le téléphone, le bijou
+          souffle un nouveau murmure – jusqu’à épuisement de ses 100 messages,
+          rechargeables sur demande.
         </div>
 
         <div class="cta-row">
           <a class="btn-main" href="/bijou.html?id=TEST001">
-            ✨ Écouter un murmure
+            ✨ Écouter un murmure de démo
           </a>
           <a class="btn-ghost" href="/client.html">
             Je possède déjà un bijou
           </a>
         </div>
 
+        <div class="hero-note">
+          Scannez simplement la puce NFC avec un smartphone compatible pour entendre le message du jour.
+        </div>
+
         <div class="blocks" id="fonctionnement">
           <div class="block">
             <div class="block-title">1. L’objet</div>
-            <p>Un bijou en bois, façonné à la main, contenant une puce NFC invisible.</p>
+            <p>Un bijou ou objet en bois, façonné à la main, avec une puce NFC discrètement intégrée.</p>
           </div>
           <div class="block">
             <div class="block-title">2. La personnalisation</div>
-            <p>Prénom, intention, détail… L’IA tisse un univers intimiste.</p>
+            <p>Vous choisissez un prénom, une intention, quelques détails. L’IA tisse à partir de ces éléments.</p>
           </div>
           <div class="block">
             <div class="block-title">3. Le murmure</div>
-            <p>À chaque contact, un nouveau message poétique apparaît.</p>
+            <p>À chaque contact avec le téléphone, un nouveau message intime est généré, jusqu’à 100 murmures.</p>
           </div>
         </div>
       </section>
