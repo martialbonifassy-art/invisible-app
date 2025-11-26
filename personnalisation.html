@@ -139,3 +139,104 @@
       text-transform: none;
       letter-spacing: 0.04em;
       font-size: 0.8rem;
+      margin-bottom: 3px;
+    }
+    .field small {
+      display: block;
+      margin-top: -6px;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      color: #9b8269;
+    }
+
+    /* Champs techniques cachés (intention / détail) – conservés pour l’API */
+    .hidden-tech {
+      display: none;
+    }
+
+    #promptPreview {
+      font-size: 0.82rem;
+      background: #fffdf8;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="slogan">Personnalisation du murmure du bijou.</div>
+
+    <p class="intro">
+      Ces informations permettent à l’IA de composer un murmure unique pour la personne
+      qui recevra l’objet.
+    </p>
+
+    <div class="ligne">
+      <div>
+        <label for="idBijou">ID du bijou</label>
+        <input id="idBijou" type="text" placeholder="ex : BIJOU001" />
+      </div>
+      <div>
+        <label for="voix">Voix</label>
+        <select id="voix">
+          <option value="neutre">Neutre</option>
+          <option value="feminine">Féminine</option>
+          <option value="masculine">Masculine</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="prenom">Prénom de la personne</label>
+    <input id="prenom" type="text" placeholder="ex : Marie" />
+
+    <!-- Bloc de personnalisation par thèmes -->
+    <div class="bloc-theme">
+      <div class="field">
+        <label for="themeSelect">Thème principal du murmure</label>
+        <select id="themeSelect"></select>
+      </div>
+
+      <div id="definition" class="definition"></div>
+
+      <div class="field">
+        <label for="subthemeSelect">Sous-thème</label>
+        <select id="subthemeSelect"></select>
+        <small>Affinez l’angle du message (par exemple : gratitude envers un ami, courage pour un défi, etc.).</small>
+      </div>
+
+      <div id="parametersContainer"></div>
+
+      <div class="field">
+        <label for="noteLibre">Une précision libre (optionnel)</label>
+        <textarea id="noteLibre" rows="3" placeholder="Exemple : &quot;Je souhaite un ton très doux, presque chuchoté.&quot;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="promptPreview">Brief IA (rempli automatiquement)</label>
+        <textarea id="promptPreview" rows="5" readonly></textarea>
+        <small>Ce texte est envoyé en coulisses à l’IA comme description détaillée du murmure à composer.</small>
+      </div>
+    </div>
+
+    <!-- Champs techniques gardés pour compatibilité API : remplis automatiquement -->
+    <textarea id="intention" class="hidden-tech"></textarea>
+    <input id="detail" class="hidden-tech" type="text" />
+
+    <button id="btnTester">Tester le murmure</button>
+    <button id="saveBtn">Enregistrer ce bijou</button>
+
+    <div class="etat" id="etat">En attente de vos informations…</div>
+
+    <div class="preview" id="preview">
+      Le murmure apparaîtra ici après le test.
+    </div>
+
+    <div class="note-tech">
+      URL NFC associée à ce bijou :
+      <div class="id-url" id="urlExemple"></div>
+    </div>
+  </div>
+
+  <!-- Script externe -->
+  <script src="personnalisation.js"></script>
+</body>
+</html>
