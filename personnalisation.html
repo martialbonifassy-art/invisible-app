@@ -64,6 +64,9 @@
       min-height: 60px;
       resize: vertical;
     }
+    select {
+      border-radius: 999px;
+    }
     .ligne {
       display: flex;
       gap: 10px;
@@ -115,144 +118,24 @@
       margin-top: 4px;
       word-break: break-all;
     }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="slogan">Personnalisation du murmure du bijou.</div>
 
-    <p class="intro">
-      Ces informations permettent à l’IA de composer un murmure unique pour la personne
-      qui recevra l’objet.
-    </p>
-
-    <div class="ligne">
-      <div>
-        <label for="idBijou">ID du bijou</label>
-        <input id="idBijou" type="text" placeholder="ex : BIJOU001" />
-      </div>
-      <div>
-        <label for="voix">Voix</label>
-        <select id="voix">
-          <option value="neutre">Neutre</option>
-          <option value="feminine">Féminine</option>
-          <option value="masculine">Masculine</option>
-        </select>
-      </div>
-    </div>
-
-    <label for="prenom">Prénom de la personne</label>
-    <input id="prenom" type="text" placeholder="ex : Marie" />
-
-    <label for="intention">Pourquoi offrez-vous cet objet ?</label>
-    <textarea id="intention" placeholder="ex : Pour qu’elle se sente accompagnée."></textarea>
-
-    <label for="detail">Un détail personnel (lieu, date, musique, livre…)</label>
-    <input id="detail" type="text" placeholder="ex : Toulouse, 18 avril, Le Petit Prince" />
-
-    <button id="btnTester">Tester le murmure</button>
-    <button id="saveBtn">Enregistrer ce bijou</button>
-
-    <div class="etat" id="etat">En attente de vos informations…</div>
-
-    <div class="preview" id="preview">
-      Le murmure apparaîtra ici après le test.
-    </div>
-
-    <div class="note-tech">
-      URL NFC associée à ce bijou :
-      <div class="id-url" id="urlExemple"></div>
-    </div>
-  </div>
-
-  <script>
-    const idInput = document.getElementById("idBijou");
-    const prenomInput = document.getElementById("prenom");
-    const intentionInput = document.getElementById("intention");
-    const detailInput = document.getElementById("detail");
-    const voixSelect = document.getElementById("voix");
-    const btnTester = document.getElementById("btnTester");
-    const btnSave = document.getElementById("saveBtn");
-    const etat = document.getElementById("etat");
-    const preview = document.getElementById("preview");
-    const urlExemple = document.getElementById("urlExemple");
-
-    function majUrlExemple() {
-      const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
-      urlExemple.textContent = url;
+    /* Bloc de personnalisation par thèmes */
+    .bloc-theme {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: #f7ecdd;
+      border: 1px solid rgba(182, 147, 97, 0.35);
     }
-
-    idInput.addEventListener("input", majUrlExemple);
-    majUrlExemple();
-
-    // ▬▬▬ Previsualisation du murmure ▬▬▬
-
-    btnTester.addEventListener("click", async () => {
-      const id = idInput.value.trim() || "BIJOU001";
-      const prenom = prenomInput.value.trim();
-      const intention = intentionInput.value.trim();
-      const detail = detailInput.value.trim();
-      const voix = voixSelect.value;
-
-      etat.textContent = "L’IA compose le murmure…";
-      btnTester.disabled = true;
-      preview.textContent = "";
-
-      const params = new URLSearchParams({
-        id,
-        prenom,
-        intention,
-        detail,
-        voix
-      });
-
-      try {
-        const r = await fetch(`/api/message?${params.toString()}`);
-        const data = await r.json();
-        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
-        etat.textContent = "Murmure généré (prévisualisation).";
-      } catch (e) {
-        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
-        etat.textContent = "Erreur de connexion à l’IA.";
-      } finally {
-        btnTester.disabled = false;
-      }
-    });
-
-    // ▬▬▬ Enregistrement du bijou dans Supabase ▬▬▬
-
-    btnSave.addEventListener("click", async () => {
-      const body = {
-        id: idInput.value.trim(),
-        prenom: prenomInput.value.trim(),
-        intention: intentionInput.value.trim(),
-        detail: detailInput.value.trim(),
-        voix: voixSelect.value.trim()
-      };
-
-      if (!body.id) {
-        alert("Veuillez entrer un ID de bijou.");
-        return;
-      }
-
-      const r = await fetch("/api/saveBijou", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-
-      const result = await r.json();
-
-      if (result.ok) {
-        alert("Bijou enregistré avec succès !");
-      } else {
-        alert("Erreur : " + result.error);
-      }
-    });
-  </script>
-</body>
-</html>
+    .definition {
+      font-size: 0.86rem;
+      color: #72563c;
+      margin: 2px 0 8px;
+    }
+    .field {
+      margin-bottom: 8px;
+    }
+    .field label {
+      text-transform: none;
+      letter-spacing: 0.04em;
+      font-size: 0.8rem;
