@@ -3,6 +3,7 @@
 // Génère un murmure pour un bijou de la table "bijous"
 // et met à jour : messages_restants, date_dernier_murmure.
 // Gère la langue (fr/en), l'état (non configuré), et locked/messages épuisés.
+// + Nettoie l'ancien format "Thème principal / Sous-thème / Texte libre fourni".
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -32,9 +33,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "ID du bijou manquant." });
     }
 
-    // ─────────────────────────────────────
-    // 1) Récupération du bijou
-    // ─────────────────────────────────────
+    // 1) Récup bijou
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select(
@@ -64,26 +63,21 @@ export default async function handler(req, res) {
     }
 
     if (!bijou) {
-      // Bijou inconnu → on garde un message doux
       return res.status(200).json({
         text: "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal."
       });
     }
 
-    // ─────────────────────────────────────
     // 2) Langue effective
-    // ─────────────────────────────────────
     const langueFromDb = (bijou.langue || "").toLowerCase();
     const langFromReq = (langParam || "").toLowerCase();
     const langue = langFromReq || langueFromDb || "fr";
     const isEn = langue === "en";
 
-    // ─────────────────────────────────────
-    // 3) Cas : bijou non configuré
-    // ─────────────────────────────────────
-    const etat = (bijou.etat || "").toLowerCase(); // ex : "non configuré", "configuré"
+    // 3) Bijou non configuré ?
+    const etat = (bijou.etat || "").toLowerCase();
     const estNonConfigure =
-      etat.includes("non") && etat.includes("configur"); // tolérant à l'accent & casse
+      etat.includes("non") && etat.includes("configur");
 
     if (estNonConfigure) {
       const text = isEn
@@ -92,9 +86,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ text });
     }
 
-    // ─────────────────────────────────────
-    // 4) Cas : locked ou plus de murmures
-    // ─────────────────────────────────────
+    // 4) locked / plus de murmures
     const locked = bijou.locked === true;
     const messagesRestants =
       typeof bijou.messages_restants === "number"
@@ -115,20 +107,37 @@ export default async function handler(req, res) {
       return res.status(200).json({ text });
     }
 
-    // ─────────────────────────────────────
-    // 5) Construire le contexte du message
-    // (on fusionne ce qui vient de l’URL et ce qui est stocké)
-    // ─────────────────────────────────────
+    // 5) Contexte du message (fusion URL + base)
     const prenom = prenomParam || bijou.prenom || "";
-    const intention = intentionParam || bijou.intention || "";
+    const rawIntention = intentionParam || bijou.intention || "";
     const detail = detailParam || bijou.detail || "";
-    const theme = bijou.theme || "";
-    const sousTheme = bijou.sous_theme || "";
+    let theme = bijou.theme || "";
+    let sousTheme = bijou.sous_theme || "";
     const voix = (voixParam || bijou.voix || "neutre").toLowerCase();
 
-    // ─────────────────────────────────────
-    // 6) Générer un murmure "simple" (placeholder IA)
-    // ─────────────────────────────────────
+    // ───────────────────────────────
+    // 5bis) Nettoyage de l'ancien format :
+    // "Thème principal : ... Sous-thème choisi : ... Texte libre fourni : ..."
+    // ───────────────────────────────
+    let intention = rawIntention;
+
+    if (!theme && rawIntention.startsWith("Thème principal")) {
+      const themeMatch = rawIntention.match(/Thème principal\s*:\s*(.+?)\s*Sous-thème/i);
+      const sousThemeMatch = rawIntention.match(/Sous-thème(?: choisi)?\s*:\s*(.+?)\s*Personne concernée/i);
+      const texteLibreMatch = rawIntention.match(/Texte libre fourni\s*:\s*(.+)$/i);
+
+      if (themeMatch && themeMatch[1]) {
+        theme = themeMatch[1].trim();
+      }
+      if (sousThemeMatch && sousThemeMatch[1]) {
+        sousTheme = sousThemeMatch[1].trim();
+      }
+      if (texteLibreMatch && texteLibreMatch[1]) {
+        intention = texteLibreMatch[1].trim();
+      }
+    }
+
+    // 6) Génération du murmure simple
     const texte = genererMurmureSimple({
       langue,
       prenom,
@@ -139,9 +148,7 @@ export default async function handler(req, res) {
       voix
     });
 
-    // ─────────────────────────────────────
-    // 7) Mettre à jour la base : messages_restants & date_dernier_murmure
-    // ─────────────────────────────────────
+    // 7) Mise à jour des compteurs
     const now = new Date().toISOString();
     let nouveauSolde = messagesRestants;
 
@@ -154,19 +161,18 @@ export default async function handler(req, res) {
       .update({
         langue,
         messages_restants: nouveauSolde,
-        date_dernier_murmure: now
+        date_dernier_murmure: now,
+        theme: theme || null,
+        sous_theme: sousTheme || null,
+        intention: intention || rawIntention || null
       })
       .eq("id", id);
 
     if (updateError) {
       console.error("Erreur update messages_restants:", updateError);
-      // On renvoie quand même le texte au client
       return res.status(200).json({ text: texte });
     }
 
-    // ─────────────────────────────────────
-    // 8) Réponse finale
-    // ─────────────────────────────────────
     return res.status(200).json({ text: texte });
   } catch (e) {
     console.error("Erreur interne /api/message:", e);
@@ -178,7 +184,6 @@ export default async function handler(req, res) {
 
 // ─────────────────────────────────────────
 // Générateur de murmure "simple"
-// (on pourra plus tard brancher OpenAI ici)
 // ─────────────────────────────────────────
 function genererMurmureSimple({
   langue,
