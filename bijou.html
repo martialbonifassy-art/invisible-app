@@ -302,27 +302,35 @@
     // ─────────────────────────────────────────────────────────────
     // Particules lumineuses (halo vivant)
     // ─────────────────────────────────────────────────────────────
-    function spawnParticle() {
-      if (!murmureEl) return;
-      const rect = murmureEl.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
+   function spawnParticle() {
+  if (!murmureEl) return;
+  const rect = murmureEl.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
 
-      const p = document.createElement("span");
-      p.className = "murmure-particle";
+  // On crée 3 particules d’un coup pour que ce soit vraiment visible
+  for (let i = 0; i < 3; i++) {
+    const p = document.createElement("span");
+    p.className = "murmure-particle";
 
-      const leftPercent = Math.random() * 100;
-      p.style.left = leftPercent + "%";
+    const leftPercent = Math.random() * 100;
+    p.style.left = leftPercent + "%";
 
-      const drift = (Math.random() * 40 - 20).toFixed(1) + "px";
-      p.style.setProperty("--driftX", drift);
+    const drift = (Math.random() * 80 - 40).toFixed(1) + "px";
+    p.style.setProperty("--driftX", drift);
 
-      murmureEl.appendChild(p);
+    murmureEl.appendChild(p);
 
-      p.addEventListener("animationend", () => {
-        p.remove();
-      });
-    }
-    function startParticles() {
+    p.addEventListener("animationend", () => {
+      p.remove();
+    });
+  }
+}
+
+function startParticles() {
+  if (particlesInterval) return;
+  // Une "vague" de particules toutes les 700ms
+  particlesInterval = setInterval(spawnParticle, 700);
+}
   if (particlesInterval) return;
   particlesInterval = setInterval(spawnParticle, 450); // 2x plus souvent
     }
