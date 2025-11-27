@@ -1,7 +1,7 @@
 // api/saveBijou.js
 //
-// Enregistre ou met à jour un bijou dans la table "bijoux"
-// avec génération automatique d'un public_id unique pour chaque bijou.
+// Enregistre ou met à jour un bijou dans la table "bijous"
+// avec génération automatique d'un public_id unique.
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -15,7 +15,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Génération d'un code public court (6 caractères)
 // ─────────────────────────────────────────
 function generateRandomPublicId(length = 6) {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0, 1, I, O pour éviter les confusions
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0,1,I,O
   let out = "";
   for (let i = 0; i < length; i++) {
     out += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -23,24 +23,20 @@ function generateRandomPublicId(length = 6) {
   return out;
 }
 
-// Vérifie que le code généré n'existe pas déjà dans la table "bijoux"
 async function generateUniquePublicId() {
   const maxTries = 8;
   for (let i = 0; i < maxTries; i++) {
     const candidate = generateRandomPublicId();
     const { data, error } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .select("id")
       .eq("public_id", candidate)
       .maybeSingle();
 
-    // Si aucune ligne trouvée et pas d'erreur, on peut utiliser ce code
     if (!error && !data) {
       return candidate;
     }
   }
-  // Si jamais on ne trouve pas, on renvoie quand même un code,
-  // mais le risque de collision est extrêmement faible.
   return generateRandomPublicId();
 }
 
@@ -71,7 +67,7 @@ export default async function handler(req, res) {
 
     // Vérifier si le bijou existe déjà
     const { data: existing, error: checkError } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .select("id, public_id")
       .eq("id", id)
       .maybeSingle();
@@ -84,12 +80,12 @@ export default async function handler(req, res) {
     }
 
     if (!existing) {
-      // ─────────────────────────────────────────
+      // ─────────────────────────────
       // INSERT : nouveau bijou
-      // ─────────────────────────────────────────
+      // ─────────────────────────────
       const publicId = await generateUniquePublicId();
 
-      const { error: insertError } = await supabase.from("bijoux").insert({
+      const { error: insertError } = await supabase.from("bijous").insert({
         id,
         public_id: publicId,
         prenom: prenom || null,
@@ -99,13 +95,11 @@ export default async function handler(req, res) {
         theme: theme || null,
         sous_theme: sous_theme || null,
         langue: langueFinale,
-        etat: "configure",
+        etat: "configuré",
         messages_max: 100,
         messages_restants: 100,
         date_creation: now,
         date_configure: now
-        // client_email, origin, paid, locked...
-        // pourront être remplis plus tard
       });
 
       if (insertError) {
@@ -115,19 +109,17 @@ export default async function handler(req, res) {
           .json({ error: "Impossible d’enregistrer le bijou (création)." });
       }
     } else {
-      // ─────────────────────────────────────────
+      // ─────────────────────────────
       // UPDATE : bijou existant
-      // ─────────────────────────────────────────
-
+      // ─────────────────────────────
       let publicIdToUse = existing.public_id;
 
-      // Si le bijou existant n'a PAS encore de public_id, on en génère un
       if (!publicIdToUse) {
         publicIdToUse = await generateUniquePublicId();
       }
 
       const { error: updateError } = await supabase
-        .from("bijoux")
+        .from("bijous")
         .update({
           public_id: publicIdToUse,
           prenom: prenom || null,
@@ -137,10 +129,8 @@ export default async function handler(req, res) {
           theme: theme || null,
           sous_theme: sous_theme || null,
           langue: langueFinale,
-          etat: "configure",
+          etat: "configuré",
           date_configure: now
-          // on NE touche PAS aux messages_restants / messages_max ici,
-          // pour ne pas les réinitialiser à chaque modification.
         })
         .eq("id", id);
 
