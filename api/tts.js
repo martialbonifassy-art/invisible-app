@@ -1,39 +1,26 @@
 // api/tts.js
-// Génère un MP3 à partir d'un texte en utilisant OpenAI TTS
+// Génère un MP3 à partir d'un texte en utilisant OpenAI TTS (côté serveur)
 
-export const config = {
-  runtime: "edge", // plus simple pour parser le body + utiliser fetch
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
-    const { text, voice = "coral" } = await req.json();
+    const { text, voice = "coral" } = req.body || {};
 
     if (!text || !text.trim()) {
-      return new Response(
-        JSON.stringify({ error: "Texte manquant pour la synthèse vocale." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return res
+        .status(400)
+        .json({ error: "Texte manquant pour la synthèse vocale." });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return new Response(
-        JSON.stringify({
-          error: "OPENAI_API_KEY non configurée sur le serveur.",
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return res.status(500).json({
+        error: "OPENAI_API_KEY non configurée sur le serveur.",
+      });
     }
 
     const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
@@ -43,9 +30,9 @@ export default async function handler(req) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini-tts", // ou "tts-1" si tu préfères
+        model: "gpt-4o-mini-tts", // tu peux mettre "tts-1" aussi
         input: text,
-        voice, // ex : "coral", "alloy", "nova", "onyx"...
+        voice, // ex : "coral", "nova", "alloy", "fable" etc.
         response_format: "mp3",
       }),
     });
@@ -53,32 +40,21 @@ export default async function handler(req) {
     if (!ttsRes.ok) {
       const errText = await ttsRes.text();
       console.error("Erreur TTS OpenAI:", errText);
-      return new Response(
-        JSON.stringify({ error: "Erreur lors de la génération audio." }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return res
+        .status(500)
+        .json({ error: "Erreur lors de la génération audio." });
     }
 
     const audioBuffer = await ttsRes.arrayBuffer();
 
-    return new Response(audioBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "audio/mpeg",
-        "Cache-Control": "no-store",
-      },
-    });
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "no-store");
+
+    return res.status(200).send(Buffer.from(audioBuffer));
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "Erreur interne du serveur TTS." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return res
+      .status(500)
+      .json({ error: "Erreur interne du serveur TTS." });
   }
 }
