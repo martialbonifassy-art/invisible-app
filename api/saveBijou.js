@@ -1,17 +1,48 @@
 // api/saveBijou.js
 //
 // Enregistre ou met à jour un bijou dans la table "bijoux"
-// en tenant compte de la nouvelle structure (langue, etat, theme, sous_theme…).
+// avec génération automatique d'un public_id unique pour chaque bijou.
 
 import { createClient } from "@supabase/supabase-js";
 
-// ⚠️ Tu peux soit mettre ces valeurs en dur comme ici,
-// soit les déplacer dans des variables d'environnement Vercel.
 const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─────────────────────────────────────────
+// Génération d'un code public court (6 caractères)
+// ─────────────────────────────────────────
+function generateRandomPublicId(length = 6) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0, 1, I, O pour éviter les confusions
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return out;
+}
+
+// Vérifie que le code généré n'existe pas déjà dans la table "bijoux"
+async function generateUniquePublicId() {
+  const maxTries = 8;
+  for (let i = 0; i < maxTries; i++) {
+    const candidate = generateRandomPublicId();
+    const { data, error } = await supabase
+      .from("bijoux")
+      .select("id")
+      .eq("public_id", candidate)
+      .maybeSingle();
+
+    // Si aucune ligne trouvée et pas d'erreur, on peut utiliser ce code
+    if (!error && !data) {
+      return candidate;
+    }
+  }
+  // Si jamais on ne trouve pas, on renvoie quand même un code,
+  // mais le risque de collision est extrêmement faible.
+  return generateRandomPublicId();
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -41,12 +72,11 @@ export default async function handler(req, res) {
     // Vérifier si le bijou existe déjà
     const { data: existing, error: checkError } = await supabase
       .from("bijoux")
-      .select("id")
+      .select("id, public_id")
       .eq("id", id)
       .maybeSingle();
 
-    if (checkError && checkError.code !== "PGRST116") {
-      // PGRST116 = aucune ligne, ce n'est pas vraiment une erreur bloquante
+    if (checkError) {
       console.error("Erreur vérification bijou:", checkError);
       return res
         .status(500)
@@ -57,8 +87,11 @@ export default async function handler(req, res) {
       // ─────────────────────────────────────────
       // INSERT : nouveau bijou
       // ─────────────────────────────────────────
+      const publicId = await generateUniquePublicId();
+
       const { error: insertError } = await supabase.from("bijoux").insert({
         id,
+        public_id: publicId,
         prenom: prenom || null,
         intention: intention || null,
         detail: detail || null,
@@ -71,8 +104,8 @@ export default async function handler(req, res) {
         messages_restants: 100,
         date_creation: now,
         date_configure: now
-        // public_id, client_email, origin, paid, locked
-        // peuvent être remplis plus tard si besoin
+        // client_email, origin, paid, locked...
+        // pourront être remplis plus tard
       });
 
       if (insertError) {
@@ -85,9 +118,18 @@ export default async function handler(req, res) {
       // ─────────────────────────────────────────
       // UPDATE : bijou existant
       // ─────────────────────────────────────────
+
+      let publicIdToUse = existing.public_id;
+
+      // Si le bijou existant n'a PAS encore de public_id, on en génère un
+      if (!publicIdToUse) {
+        publicIdToUse = await generateUniquePublicId();
+      }
+
       const { error: updateError } = await supabase
         .from("bijoux")
         .update({
+          public_id: publicIdToUse,
           prenom: prenom || null,
           intention: intention || null,
           detail: detail || null,
