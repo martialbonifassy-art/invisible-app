@@ -175,6 +175,7 @@
   </div>
 
   <script>
+  <script>
     // ─────────────────────────────────────────────────────────────
     // Récupération de l’ID dans l’URL
     // ─────────────────────────────────────────────────────────────
@@ -192,7 +193,10 @@
     idBijouEl.textContent = bijouId;
 
     let texteComplet = "";
-    let isSpeaking = false;
+    let audioObj = null;
+    let audioUrl = null;
+    let isLoadingAudio = false;
+    let isPlaying = false;
 
     // ─────────────────────────────────────────────────────────────
     // Effet machine à écrire
@@ -211,42 +215,74 @@
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Synthèse vocale (voix du navigateur)
+    // Gestion du bouton audio : appelle /api/tts + joue le MP3
     // ─────────────────────────────────────────────────────────────
-    function speak(text) {
-      if (!("speechSynthesis" in window)) {
-        console.warn("Synthèse vocale non disponible dans ce navigateur.");
+    async function handleAudioClick() {
+      if (!texteComplet) return;
+
+      // Si on est en train de charger, on ignore
+      if (isLoadingAudio) return;
+
+      // Si l'audio existe déjà, on joue / met en pause
+      if (audioObj) {
+        if (isPlaying) {
+          audioObj.pause();
+          isPlaying = false;
+          btnAudioLabel.textContent = "Écouter le murmure";
+        } else {
+          audioObj.currentTime = 0;
+          audioObj.play();
+          isPlaying = true;
+          btnAudioLabel.textContent = "Arrêter la voix";
+        }
         return;
       }
 
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "fr-FR";
+      // Première demande : on va chercher le MP3 auprès de /api/tts
+      isLoadingAudio = true;
+      btnAudio.disabled = true;
+      btnAudioLabel.textContent = "Préparation de la voix…";
 
-      utterance.onstart = () => {
-        isSpeaking = true;
+      try {
+        const r = await fetch("/api/tts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: texteComplet,
+            voice: "coral" // tu peux tester "nova", "alloy", "fable", etc.
+          }),
+        });
+
+        if (!r.ok) {
+          console.error("Erreur TTS:", await r.text());
+          btnAudioLabel.textContent = "Voix indisponible";
+          return;
+        }
+
+        const blob = await r.blob();
+        audioUrl = URL.createObjectURL(blob);
+        audioObj = new Audio(audioUrl);
+
+        audioObj.onended = () => {
+          isPlaying = false;
+          btnAudioLabel.textContent = "Écouter le murmure";
+        };
+
+        audioObj.play();
+        isPlaying = true;
         btnAudioLabel.textContent = "Arrêter la voix";
-      };
-      utterance.onend = () => {
-        isSpeaking = false;
-        btnAudioLabel.textContent = "Écouter le murmure";
-      };
-
-      window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.error(e);
+        btnAudioLabel.textContent = "Voix indisponible";
+      } finally {
+        isLoadingAudio = false;
+        btnAudio.disabled = false;
+      }
     }
 
-    btnAudio.addEventListener("click", () => {
-      if (!texteComplet) return;
-      if (!("speechSynthesis" in window)) return;
-
-      if (isSpeaking) {
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-        btnAudioLabel.textContent = "Écouter le murmure";
-      } else {
-        speak(texteComplet);
-      }
-    });
+    btnAudio.addEventListener("click", handleAudioClick);
 
     btnRelire.addEventListener("click", () => {
       if (!texteComplet) return;
@@ -300,6 +336,8 @@
     }
 
     chargerMurmure();
+  </script>
+
   </script>
 </body>
 </html>
