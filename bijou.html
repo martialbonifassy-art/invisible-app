@@ -174,170 +174,156 @@
     </div>
   </div>
 
-  <script>
-  <script>
-    // ─────────────────────────────────────────────────────────────
-    // Récupération de l’ID dans l’URL
-    // ─────────────────────────────────────────────────────────────
-    const params = new URLSearchParams(window.location.search);
-    const bijouId = params.get("id") || "ID BIJOU";
+ <script>
+  const params = new URLSearchParams(window.location.search);
+  const bijouId = params.get("id") || "ID BIJOU";
 
-    const idBijouEl = document.getElementById("idBijou");
-    const etatEl = document.getElementById("etat");
-    const murmureEl = document.getElementById("murmureTexte");
-    const compteurEl = document.getElementById("compteur");
-    const btnAudio = document.getElementById("btnAudio");
-    const btnAudioLabel = document.getElementById("btnAudioLabel");
-    const btnRelire = document.getElementById("btnRelire");
+  const idBijouEl = document.getElementById("idBijou");
+  const etatEl = document.getElementById("etat");
+  const murmureEl = document.getElementById("murmureTexte");
+  const compteurEl = document.getElementById("compteur");
+  const btnAudio = document.getElementById("btnAudio");
+  const btnAudioLabel = document.getElementById("btnAudioLabel");
+  const btnRelire = document.getElementById("btnRelire");
 
-    idBijouEl.textContent = bijouId;
+  idBijouEl.textContent = bijouId;
 
-    let texteComplet = "";
-    let audioObj = null;
-    let audioUrl = null;
-    let isLoadingAudio = false;
-    let isPlaying = false;
+  let texteComplet = "";
+  let audioObj = null;
+  let audioUrl = null;
+  let isLoadingAudio = false;
+  let isPlaying = false;
 
-    // ─────────────────────────────────────────────────────────────
-    // Effet machine à écrire
-    // ─────────────────────────────────────────────────────────────
-    function typeWriter(text, element, speed = 35) {
-      element.textContent = "";
-      let i = 0;
-      function step() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(step, speed);
-        }
+  function typeWriter(text, element, speed = 35) {
+    element.textContent = "";
+    let i = 0;
+    function step() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        i++;
+        setTimeout(step, speed);
       }
-      step();
     }
+    step();
+  }
 
-    // ─────────────────────────────────────────────────────────────
-    // Gestion du bouton audio : appelle /api/tts + joue le MP3
-    // ─────────────────────────────────────────────────────────────
-    async function handleAudioClick() {
-      if (!texteComplet) return;
+  async function handleAudioClick() {
+    if (!texteComplet) return;
+    if (isLoadingAudio) return;
 
-      // Si on est en train de charger, on ignore
-      if (isLoadingAudio) return;
-
-      // Si l'audio existe déjà, on joue / met en pause
-      if (audioObj) {
-        if (isPlaying) {
-          audioObj.pause();
-          isPlaying = false;
-          btnAudioLabel.textContent = "Écouter le murmure";
-        } else {
-          audioObj.currentTime = 0;
-          audioObj.play();
-          isPlaying = true;
-          btnAudioLabel.textContent = "Arrêter la voix";
-        }
-        return;
-      }
-
-      // Première demande : on va chercher le MP3 auprès de /api/tts
-      isLoadingAudio = true;
-      btnAudio.disabled = true;
-      btnAudioLabel.textContent = "Préparation de la voix…";
-
-      try {
-        const r = await fetch("/api/tts", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: texteComplet,
-            voice: "coral" // tu peux tester "nova", "alloy", "fable", etc.
-          }),
-        });
-
-        if (!r.ok) {
-          console.error("Erreur TTS:", await r.text());
-          btnAudioLabel.textContent = "Voix indisponible";
-          return;
-        }
-
-        const blob = await r.blob();
-        audioUrl = URL.createObjectURL(blob);
-        audioObj = new Audio(audioUrl);
-
-        audioObj.onended = () => {
-          isPlaying = false;
-          btnAudioLabel.textContent = "Écouter le murmure";
-        };
-
+    // Si l'audio existe déjà, on joue / met en pause
+    if (audioObj) {
+      if (isPlaying) {
+        audioObj.pause();
+        isPlaying = false;
+        btnAudioLabel.textContent = "Écouter le murmure";
+      } else {
+        audioObj.currentTime = 0;
         audioObj.play();
         isPlaying = true;
         btnAudioLabel.textContent = "Arrêter la voix";
-      } catch (e) {
-        console.error(e);
-        btnAudioLabel.textContent = "Voix indisponible";
-      } finally {
-        isLoadingAudio = false;
-        btnAudio.disabled = false;
       }
+      return;
     }
 
-    btnAudio.addEventListener("click", handleAudioClick);
+    // Première demande : appel à /api/tts
+    isLoadingAudio = true;
+    btnAudio.disabled = true;
+    btnAudioLabel.textContent = "Préparation de la voix…";
 
-    btnRelire.addEventListener("click", () => {
-      if (!texteComplet) return;
-      typeWriter(texteComplet, murmureEl);
-    });
+    try {
+      const r = await fetch("/api/tts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: texteComplet,
+          voice: "coral",
+        }),
+      });
 
-    // ─────────────────────────────────────────────────────────────
-    // Chargement du murmure via ton API existante /api/message
-    // ─────────────────────────────────────────────────────────────
-    async function chargerMurmure() {
-      if (!bijouId) {
-        etatEl.textContent = "Bijou inconnu.";
-        murmureEl.textContent = "";
+      if (!r.ok) {
+        console.error("Erreur TTS:", await r.text());
+        alert("Impossible de générer la voix (erreur serveur TTS).");
+        btnAudioLabel.textContent = "Voix indisponible";
         return;
       }
 
-      etatEl.textContent = "Murmure en cours de composition…";
+      const blob = await r.blob();
+      audioUrl = URL.createObjectURL(blob);
+      audioObj = new Audio(audioUrl);
 
-      try {
-        const r = await fetch(`/api/message?id=${encodeURIComponent(bijouId)}`);
-        const data = await r.json();
+      audioObj.onended = () => {
+        isPlaying = false;
+        btnAudioLabel.textContent = "Écouter le murmure";
+      };
 
-        if (data.error) {
-          etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-          murmureEl.textContent = data.text || "Bijou inconnu.";
-          texteComplet = murmureEl.textContent;
-          return;
-        }
+      audioObj.play();
+      isPlaying = true;
+      btnAudioLabel.textContent = "Arrêter la voix";
+    } catch (e) {
+      console.error(e);
+      alert("Erreur de connexion à la voix du bijou.");
+      btnAudioLabel.textContent = "Voix indisponible";
+    } finally {
+      isLoadingAudio = false;
+      btnAudio.disabled = false;
+    }
+  }
 
-        const texte = data.text || "Le bijou reste silencieux, mais présent.";
-        texteComplet = texte;
+  btnAudio.addEventListener("click", handleAudioClick);
 
-        etatEl.textContent = "Murmure reçu.";
-        typeWriter(texteComplet, murmureEl);
+  btnRelire.addEventListener("click", () => {
+    if (!texteComplet) return;
+    typeWriter(texteComplet, murmureEl);
+  });
 
-        let remaining = data.remaining ?? data.messages_left ?? data.remainingMessages;
-        let total = data.total ?? data.totalMessages ?? data.maxMessages ?? 100;
-
-        if (typeof remaining === "number") {
-          compteurEl.textContent = `Murmures restants : ${remaining} / ${total}`;
-        } else {
-          compteurEl.textContent = "Murmures restants : —";
-        }
-
-      } catch (e) {
-        console.error(e);
-        etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-        murmureEl.textContent = "Bijou inconnu.";
-        texteComplet = murmureEl.textContent;
-      }
+  async function chargerMurmure() {
+    if (!bijouId) {
+      etatEl.textContent = "Bijou inconnu.";
+      murmureEl.textContent = "";
+      return;
     }
 
-    chargerMurmure();
-  </script>
+    etatEl.textContent = "Murmure en cours de composition…";
 
-  </script>
+    try {
+      const r = await fetch(`/api/message?id=${encodeURIComponent(bijouId)}`);
+      const data = await r.json();
+
+      if (data.error) {
+        etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
+        murmureEl.textContent = data.text || "Bijou inconnu.";
+        texteComplet = murmureEl.textContent;
+        return;
+      }
+
+      const texte = data.text || "Le bijou reste silencieux, mais présent.";
+      texteComplet = texte;
+
+      etatEl.textContent = "Murmure reçu.";
+      typeWriter(texteComplet, murmureEl);
+
+      let remaining = data.remaining ?? data.messages_left ?? data.remainingMessages;
+      let total = data.total ?? data.totalMessages ?? data.maxMessages ?? 100;
+
+      if (typeof remaining === "number") {
+        compteurEl.textContent = `Murmures restants : ${remaining} / ${total}`;
+      } else {
+        compteurEl.textContent = "Murmures restants : —";
+      }
+
+    } catch (e) {
+      console.error(e);
+      etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
+      murmureEl.textContent = "Bijou inconnu.";
+      texteComplet = murmureEl.textContent;
+    }
+  }
+
+  chargerMurmure();
+</script>
+
 </body>
 </html>
