@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     // Récupérer le bijou en base
     // ─────────────────────────────────────────
     const { data: bijou, error: fetchError } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .select(
         `
         id,
@@ -141,7 +141,7 @@ export default async function handler(req, res) {
     }
 
     const { error: updateError } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .update({
         langue: langueEffective,
         messages_restants: nouveauSolde,
