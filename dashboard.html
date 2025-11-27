@@ -67,7 +67,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       gap: 10px;
     }
 
@@ -82,6 +82,7 @@
     .user-info {
       font-size: 0.82rem;
       color: var(--text-soft);
+      text-align: right;
     }
 
     .logout-btn {
@@ -93,6 +94,52 @@
       cursor: pointer;
       font-size: 0.78rem;
       margin-left: 8px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .toolbar label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      background: #fffdf8;
+      outline: none;
+    }
+
+    .toolbar button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: #d6a85a;
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+      white-space: nowrap;
     }
 
     table {
@@ -118,6 +165,7 @@
       letter-spacing: 0.12em;
       font-size: 0.76rem;
       color: var(--text-soft);
+      white-space: nowrap;
     }
 
     tr:last-child td {
@@ -137,11 +185,67 @@
     .btn-recharge { background: #82a738; }
     .btn-modif    { background: #b8833a; }
     .btn-suppr    { background: #b83a3a; }
+    .btn-voir     { background: #6b7fb8; }
 
     .zone-msg {
       margin-top: 12px;
       font-size: 0.85rem;
       color: var(--text-soft);
+    }
+
+    .col-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.82rem;
+    }
+
+    .intention-snippet {
+      font-size: 0.8rem;
+      color: #7a5a45;
+      max-width: 280px;
+    }
+
+    .small-muted {
+      font-size: 0.76rem;
+      color: #937b66;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 780px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .user-info {
+        text-align: left;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead {
+        display: none;
+      }
+      tr {
+        border-bottom: 1px solid #e4d5c3;
+        margin-bottom: 6px;
+        padding: 6px 2px;
+      }
+      td {
+        border-bottom: none;
+        padding: 4px 4px;
+      }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-soft);
+        margin-bottom: 1px;
+      }
     }
   </style>
 </head>
@@ -152,11 +256,31 @@
       <div class="user-info" id="userInfo">Connexion en cours…</div>
     </header>
 
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <label for="search">Rechercher</label>
+        <input id="search" type="text" placeholder="ID, prénom, intention…" />
+      </div>
+      <div class="toolbar-group">
+        <label for="filterVoix">Voix</label>
+        <select id="filterVoix">
+          <option value="">Toutes</option>
+          <option value="neutre">Neutre</option>
+          <option value="feminine">Féminine</option>
+          <option value="masculine">Masculine</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <button id="btnRefresh">🔄 Actualiser</button>
+      </div>
+    </div>
+
     <table id="tableBijoux">
       <thead>
         <tr>
           <th>ID</th>
           <th>Prénom</th>
+          <th>Intention</th>
           <th>Restants</th>
           <th>Max</th>
           <th>Voix</th>
@@ -177,6 +301,20 @@
 
     const msg = document.getElementById("msg");
     const userInfo = document.getElementById("userInfo");
+    const searchInput = document.getElementById("search");
+    const filterVoix = document.getElementById("filterVoix");
+    const btnRefresh = document.getElementById("btnRefresh");
+    const tbody = document.querySelector("#tableBijoux tbody");
+
+    let bijouxData = [];
+
+    function normaliserTexte(str) {
+      return (str || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
 
     async function requireAuth() {
       const { data } = await supabase.auth.getSession();
@@ -204,50 +342,170 @@
     async function chargerBijoux() {
       msg.textContent = "Chargement des données…";
 
-      const r = await fetch("/api/listBijoux");
-      const data = await r.json();
+      try {
+        const r = await fetch("/api/listBijoux");
+        const data = await r.json();
 
-      const tbody = document.querySelector("#tableBijoux tbody");
+        // on suppose que l'API renvoie directement un tableau d'objets
+        bijouxData = Array.isArray(data) ? data : (data.data || data.bijoux || []);
+
+        rendreTable();
+        msg.textContent = bijouxData.length
+          ? `Bijoux chargés : ${bijouxData.length}`
+          : "Aucun bijou enregistré pour le moment.";
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Erreur lors du chargement des bijoux.";
+      }
+    }
+
+    function rendreTable() {
+      const terme = normaliserTexte(searchInput.value);
+      const filtre = filterVoix.value;
       tbody.innerHTML = "";
 
-      data.forEach((b) => {
+      const filtered = bijouxData.filter((b) => {
+        const id = normaliserTexte(b.id);
+        const prenom = normaliserTexte(b.prenom);
+        const intention = normaliserTexte(b.intention);
+        const voix = (b.voix || "").toString();
+
+        const okRecherche =
+          !terme ||
+          id.includes(terme) ||
+          prenom.includes(terme) ||
+          intention.includes(terme);
+
+        const okVoix = !filtre || voix === filtre;
+
+        return okRecherche && okVoix;
+      });
+
+      if (!filtered.length) {
+        msg.textContent = "Aucun bijou pour ces filtres.";
+        return;
+      }
+
+      filtered.forEach((b) => {
         const tr = document.createElement("tr");
 
-        tr.innerHTML = `
-          <td>${b.id}</td>
-          <td>${b.prenom || "-"}</td>
-          <td>${b.messages_restants}</td>
-          <td>${b.messages_max}</td>
-          <td>${b.voix || "-"}</td>
-          <td>
-            <button class="btn btn-recharge" onclick="recharger('${b.id}')">Recharger</button>
-            <button class="btn btn-modif" onclick="modifier('${b.id}')">Modifier</button>
-            <button class="btn btn-suppr" onclick="supprimerBijou('${b.id}')">Supprimer</button>
-          </td>
+        const tdId = document.createElement("td");
+        tdId.className = "col-id";
+        tdId.dataset.label = "ID";
+        tdId.textContent = b.id;
+        tr.appendChild(tdId);
+
+        const tdPrenom = document.createElement("td");
+        tdPrenom.dataset.label = "Prénom";
+        tdPrenom.textContent = b.prenom || "-";
+        tr.appendChild(tdPrenom);
+
+        const tdIntention = document.createElement("td");
+        tdIntention.dataset.label = "Intention";
+        const snippet = (b.intention || "").toString();
+        const court = snippet.length > 120 ? snippet.slice(0, 120) + "…" : snippet;
+        tdIntention.innerHTML = `
+          <div class="intention-snippet">${court || "<span class='small-muted'>—</span>"}</div>
         `;
+        tr.appendChild(tdIntention);
+
+        const tdRestants = document.createElement("td");
+        tdRestants.dataset.label = "Restants";
+        tdRestants.textContent =
+          b.messages_restants != null ? b.messages_restants : "-";
+        tr.appendChild(tdRestants);
+
+        const tdMax = document.createElement("td");
+        tdMax.dataset.label = "Max";
+        tdMax.textContent = b.messages_max != null ? b.messages_max : "-";
+        tr.appendChild(tdMax);
+
+        const tdVoix = document.createElement("td");
+        tdVoix.dataset.label = "Voix";
+        tdVoix.textContent = b.voix || "-";
+        tr.appendChild(tdVoix);
+
+        const tdActions = document.createElement("td");
+        tdActions.dataset.label = "Actions";
+
+        const btnVoir = document.createElement("button");
+        btnVoir.className = "btn btn-voir";
+        btnVoir.textContent = "Voir le bijou";
+        btnVoir.addEventListener("click", () => {
+          if (!b.id) return;
+          const url = `/bijou.html?id=${encodeURIComponent(b.id)}`;
+          window.open(url, "_blank");
+        });
+
+        const btnRecharge = document.createElement("button");
+        btnRecharge.className = "btn btn-recharge";
+        btnRecharge.textContent = "Recharger";
+        btnRecharge.addEventListener("click", async () => {
+          await recharger(b.id);
+        });
+
+        const btnModif = document.createElement("button");
+        btnModif.className = "btn btn-modif";
+        btnModif.textContent = "Modifier";
+        btnModif.addEventListener("click", () => {
+          modifier(b.id);
+        });
+
+        const btnSuppr = document.createElement("button");
+        btnSuppr.className = "btn btn-suppr";
+        btnSuppr.textContent = "Supprimer";
+        btnSuppr.addEventListener("click", async () => {
+          await supprimerBijou(b.id);
+        });
+
+        tdActions.appendChild(btnVoir);
+        tdActions.appendChild(btnRecharge);
+        tdActions.appendChild(btnModif);
+        tdActions.appendChild(btnSuppr);
+
+        tr.appendChild(tdActions);
 
         tbody.appendChild(tr);
       });
-
-      msg.textContent = "Données chargées.";
     }
 
     async function recharger(id) {
-      await fetch(`/api/rechargeBijou?id=${encodeURIComponent(id)}`);
-      msg.textContent = `Bijou ${id} rechargé.`;
-      chargerBijoux();
+      if (!id) return;
+      if (!confirm(`Recharger les murmures pour le bijou ${id} ?`)) return;
+      try {
+        await fetch(`/api/rechargeBijou?id=${encodeURIComponent(id)}`);
+        msg.textContent = `Bijou ${id} rechargé.`;
+        chargerBijoux();
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Erreur lors de la recharge.";
+      }
     }
 
     async function supprimerBijou(id) {
+      if (!id) return;
       if (!confirm(`Supprimer le bijou ${id} ?`)) return;
-      await fetch(`/api/deleteBijou?id=${encodeURIComponent(id)}`);
-      msg.textContent = `Bijou ${id} supprimé.`;
-      chargerBijoux();
+      try {
+        await fetch(`/api/deleteBijou?id=${encodeURIComponent(id)}`);
+        msg.textContent = `Bijou ${id} supprimé.`;
+        chargerBijoux();
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Erreur lors de la suppression.";
+      }
     }
 
     function modifier(id) {
+      if (!id) return;
       window.location.href = `/personnalisation.html?id=${encodeURIComponent(id)}`;
     }
+
+    // Expose logout pour le bouton inline
+    window.logout = logout;
+
+    searchInput.addEventListener("input", rendreTable);
+    filterVoix.addEventListener("change", rendreTable);
+    btnRefresh.addEventListener("click", chargerBijoux);
 
     requireAuth();
   </script>
