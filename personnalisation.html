@@ -5,41 +5,59 @@
   <title>Personnaliser le murmure – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --bg-body: #f7efe2;
+      --bg-card: #fffaf3;
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #3c2f25;
+      --text-soft: #7f6248;
+      --border-soft: rgba(170, 140, 90, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Helvetica Neue", Arial, sans-serif;
-      background: #f7efe2;
-      color: #3c2f25;
+      background: var(--bg-body);
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       padding: 24px 12px 40px;
     }
+
     .page {
-      max-width: 640px;
+      max-width: 720px;
       width: 100%;
-      background: #fffaf3;
+      background: var(--bg-card);
       border-radius: 24px;
       padding: 22px 18px 26px;
       box-shadow: 0 14px 30px rgba(0,0,0,0.12);
-      border: 1px solid rgba(170, 140, 90, 0.35);
+      border: 1px solid var(--border-soft);
     }
+
     h1 {
       font-size: 1.1rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: #b8833a;
+      color: var(--accent);
       margin: 0 0 4px;
     }
+
     .slogan {
       font-size: 0.9rem;
-      color: #7f6248;
+      color: var(--text-soft);
       margin-bottom: 14px;
     }
+
     .intro {
       font-size: 0.9rem;
       margin-bottom: 16px;
+      color: #5c4634;
     }
+
     label {
       display: block;
       font-size: 0.82rem;
@@ -48,6 +66,7 @@
       color: #856549;
       margin-bottom: 4px;
     }
+
     input, textarea, select {
       width: 100%;
       box-sizing: border-box;
@@ -59,14 +78,14 @@
       background: #fffdf8;
       outline: none;
     }
+
     textarea {
-      border-radius: 16px;
-      min-height: 60px;
+      border-radius: 14px;
+      min-height: 70px;
       resize: vertical;
+      line-height: 1.4;
     }
-    select {
-      border-radius: 999px;
-    }
+
     .ligne {
       display: flex;
       gap: 10px;
@@ -74,6 +93,39 @@
     .ligne > div {
       flex: 1;
     }
+
+    .champ-groupe {
+      margin-bottom: 10px;
+    }
+
+    .hint {
+      font-size: 0.82rem;
+      color: #8a735a;
+      margin-top: -6px;
+      margin-bottom: 10px;
+      background: #f4e6d2;
+      border-radius: 12px;
+      padding: 7px 9px;
+      border: 1px solid rgba(180,150,100,0.4);
+      white-space: pre-line;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (min-width: 640px) {
+      .btn-row {
+        flex-direction: row;
+      }
+      .btn-row button {
+        flex: 1;
+      }
+    }
+
     button {
       border-radius: 999px;
       border: none;
@@ -83,13 +135,30 @@
       background: #d6a85a;
       color: #fff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.16);
-      margin-top: 6px;
       width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+    button.secondary {
+      background: #a98b66;
+    }
+    button.pay {
+      background: #3d7bb8;
+    }
+
     button:disabled {
       opacity: 0.6;
       cursor: wait;
     }
+
+    .etat {
+      font-size: 0.8rem;
+      color: #a08967;
+      margin-top: 8px;
+    }
+
     .preview {
       margin-top: 18px;
       padding: 12px 14px;
@@ -99,11 +168,7 @@
       min-height: 3em;
       white-space: pre-wrap;
     }
-    .etat {
-      font-size: 0.8rem;
-      color: #a08967;
-      margin-top: 8px;
-    }
+
     .note-tech {
       margin-top: 16px;
       font-size: 0.8rem;
@@ -118,46 +183,6 @@
       margin-top: 4px;
       word-break: break-all;
     }
-
-    /* Bloc de personnalisation par thèmes */
-    .bloc-theme {
-      margin-top: 16px;
-      padding: 12px 14px;
-      border-radius: 18px;
-      background: #f7ecdd;
-      border: 1px solid rgba(182, 147, 97, 0.35);
-    }
-    .definition {
-      font-size: 0.86rem;
-      color: #72563c;
-      margin: 2px 0 8px;
-    }
-    .field {
-      margin-bottom: 8px;
-    }
-    .field label {
-      text-transform: none;
-      letter-spacing: 0.04em;
-      font-size: 0.8rem;
-      margin-bottom: 3px;
-    }
-    .field small {
-      display: block;
-      margin-top: -6px;
-      margin-bottom: 6px;
-      font-size: 0.75rem;
-      color: #9b8269;
-    }
-
-    /* Champs techniques cachés (intention / détail) – conservés pour l’API */
-    .hidden-tech {
-      display: none;
-    }
-
-    #promptPreview {
-      font-size: 0.82rem;
-      background: #fffdf8;
-    }
   </style>
 </head>
 <body>
@@ -167,9 +192,11 @@
 
     <p class="intro">
       Ces informations permettent à l’IA de composer un murmure unique pour la personne
-      qui recevra l’objet.
+      qui recevra l’objet. Tu peux choisir un thème, un sous-thème et quelques détails
+      personnels&nbsp;: l’IA fera le tissage.
     </p>
 
+    <!-- Ligne ID + Voix -->
     <div class="ligne">
       <div>
         <label for="idBijou">ID du bijou</label>
@@ -185,44 +212,76 @@
       </div>
     </div>
 
-    <label for="prenom">Prénom de la personne</label>
-    <input id="prenom" type="text" placeholder="ex : Marie" />
-
-    <!-- Bloc de personnalisation par thèmes -->
-    <div class="bloc-theme">
-      <div class="field">
-        <label for="themeSelect">Thème principal du murmure</label>
-        <select id="themeSelect"></select>
-      </div>
-
-      <div id="definition" class="definition"></div>
-
-      <div class="field">
-        <label for="subthemeSelect">Sous-thème</label>
-        <select id="subthemeSelect"></select>
-        <small>Affinez l’angle du message (par exemple : gratitude envers un ami, courage pour un défi, etc.).</small>
-      </div>
-
-      <div id="parametersContainer"></div>
-
-      <div class="field">
-        <label for="noteLibre">Une précision libre (optionnel)</label>
-        <textarea id="noteLibre" rows="3" placeholder="Exemple : &quot;Je souhaite un ton très doux, presque chuchoté.&quot;"></textarea>
-      </div>
-
-      <div class="field">
-        <label for="promptPreview">Brief IA (rempli automatiquement)</label>
-        <textarea id="promptPreview" rows="5" readonly></textarea>
-        <small>Ce texte est envoyé en coulisses à l’IA comme description détaillée du murmure à composer.</small>
-      </div>
+    <!-- Prénom -->
+    <div class="champ-groupe">
+      <label for="prenom">Prénom de la personne</label>
+      <input id="prenom" type="text" placeholder="ex : Marie" />
     </div>
 
-    <!-- Champs techniques gardés pour compatibilité API : remplis automatiquement -->
-    <textarea id="intention" class="hidden-tech"></textarea>
-    <input id="detail" class="hidden-tech" type="text" />
+    <!-- Thème principal + sous-thème -->
+    <div class="champ-groupe">
+      <label for="theme">Thème principal du murmure</label>
+      <select id="theme">
+        <option value="amour">1. Amour</option>
+        <option value="gratitude">2. Gratitude</option>
+        <option value="guerison">3. Guérison & Apaisement</option>
+        <option value="chemin">4. Chemin de vie & Orientation</option>
+        <option value="courage">5. Courage & Dépassement</option>
+        <option value="creativite">6. Créativité & Inspiration</option>
+        <option value="reves">7. Rêves & Nuit</option>
+        <option value="presence">8. Présence & Pleine conscience</option>
+        <option value="gardien">9. Le Gardien du Bois</option>
+        <option value="cycles">10. Cycles & Renouveau</option>
+        <option value="intuition">11. Intuition & Synchronicités</option>
+        <option value="projets">12. Projets & Objectifs</option>
+        <option value="celebration">13. Célébration & Joie</option>
+        <option value="calme">14. Calme & Sérénité</option>
+        <option value="connexion">15. Connexion & Lien aux autres</option>
+        <option value="confiance">16. Confiance en soi</option>
+        <option value="difficultes">17. Traverser les difficultés</option>
+        <option value="alignement">18. Alignement & Authenticité</option>
+        <option value="racines">19. Racines & Origines</option>
+        <option value="energie">20. Énergie & Vitalité</option>
+      </select>
+    </div>
 
-    <button id="btnTester">Tester le murmure</button>
-    <button id="saveBtn">Enregistrer ce bijou</button>
+    <div class="champ-groupe">
+      <label for="sousTheme">Sous-thème</label>
+      <select id="sousTheme"></select>
+    </div>
+
+    <div id="hintTheme" class="hint"></div>
+
+    <!-- Intention libre -->
+    <div class="champ-groupe">
+      <label for="intention">Pourquoi offrez-vous cet objet ?</label>
+      <textarea
+        id="intention"
+        placeholder="ex : Pour qu’elle se sente accompagnée dans une période de changement, en lien avec notre souvenir à Toulouse…"
+      ></textarea>
+    </div>
+
+    <!-- Détail perso -->
+    <div class="champ-groupe">
+      <label for="detail">Un détail personnel (souvenir, symbole, lieu, date…)</label>
+      <input
+        id="detail"
+        type="text"
+        placeholder="ex : Toulouse, 18 avril, Le Petit Prince, banc du jardin où on s’est rencontrés"
+      />
+    </div>
+
+    <div class="btn-row">
+      <button id="btnTester">
+        🔍 Tester le murmure
+      </button>
+      <button id="saveBtn" class="secondary">
+        💾 Enregistrer ce bijou
+      </button>
+      <button id="payBtn" class="pay">
+        💳 Payer ce bijou
+      </button>
+    </div>
 
     <div class="etat" id="etat">En attente de vos informations…</div>
 
@@ -236,7 +295,598 @@
     </div>
   </div>
 
-  <!-- Script externe -->
-  <script src="personnalisation.js"></script>
+  <script>
+    // ─────────────────────────────────────────
+    // RÉFÉRENCES DOM
+    // ─────────────────────────────────────────
+    const idInput = document.getElementById("idBijou");
+    const prenomInput = document.getElementById("prenom");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
+    const voixSelect = document.getElementById("voix");
+    const themeSelect = document.getElementById("theme");
+    const sousThemeSelect = document.getElementById("sousTheme");
+    const hintTheme = document.getElementById("hintTheme");
+    const btnTester = document.getElementById("btnTester");
+    const btnSave = document.getElementById("saveBtn");
+    const payBtn = document.getElementById("payBtn");
+    const etat = document.getElementById("etat");
+    const preview = document.getElementById("preview");
+    const urlExemple = document.getElementById("urlExemple");
+
+    // ─────────────────────────────────────────
+    // THÈMES & SOUS-THÈMES
+    // (résumé exploitable par l’IA)
+    // ─────────────────────────────────────────
+    const themesConfig = {
+      amour: {
+        label: "Amour",
+        sousThemes: [
+          "Pour ma femme",
+          "Pour mon mari",
+          "Pour ma fiancée",
+          "Pour mon fiancé",
+          "Pour un amour secret",
+          "Pour un amour ancien",
+          "Pour une relation naissante",
+          "Pour un amour à distance",
+          "Pour une occasion spéciale"
+        ],
+        hint:
+`Pour l’IA, tu peux préciser :
+• Relation (femme, mari, amour secret…)
+• Un moment marquant (date / époque)
+• Un lieu important pour vous deux
+• Un souvenir clé ou une anecdote
+• Un symbole du couple (objet, geste…)
+• Type d’intention : remercier, rapprocher, déclarer, réconforter`
+      },
+      gratitude: {
+        label: "Gratitude",
+        sousThemes: [
+          "Gratitude envers un proche",
+          "Gratitude envers un parent",
+          "Gratitude envers un ami",
+          "Gratitude envers un mentor",
+          "Gratitude envers un collègue",
+          "Gratitude envers la vie"
+        ],
+        hint:
+`Tu peux donner :
+• La personne concernée
+• Le geste précis que tu remercies
+• Le moment ou la période
+• L’impact que cela a eu pour toi
+• Une qualité que tu admires chez elle
+• Intention : remercier, reconnaître, honorer`
+      },
+      guerison: {
+        label: "Guérison & Apaisement",
+        sousThemes: [
+          "Apaisement après un conflit",
+          "Guérison émotionnelle",
+          "Accompagnement d’un deuil",
+          "Soutien dans le stress ou l’angoisse",
+          "Après une séparation",
+          "Reprendre confiance"
+        ],
+        hint:
+`Tu peux préciser :
+• La situation actuelle
+• L’émotion dominante
+• La personne concernée (ou toi-même)
+• Ce qui a déclenché la difficulté
+• Le besoin principal : douceur, force, soutien, clarté
+• Un symbole de réconfort (objet, couleur, lieu calme)`
+      },
+      chemin: {
+        label: "Chemin de vie & Orientation",
+        sousThemes: [
+          "Prendre une décision",
+          "Changer de voie",
+          "Trouver sa direction",
+          "Doute existentiel",
+          "Début d’un projet",
+          "Recherche de clarté"
+        ],
+        hint:
+`Tu peux décrire :
+• La situation actuelle
+• La décision ou le choix à faire
+• Ce qui bloque ou fait peur
+• Ce qui appelle ou attire
+• Une échéance ou étape importante
+• Style de guidance : douce, directe, symbolique`
+      },
+      courage: {
+        label: "Courage & Dépassement",
+        sousThemes: [
+          "Défi personnel",
+          "Défi professionnel",
+          "Surmonter une peur",
+          "Se lancer dans l’inconnu",
+          "Reprendre confiance",
+          "Maintenir l’effort"
+        ],
+        hint:
+`Précise :
+• Le défi en question
+• Depuis quand il dure
+• L’obstacle principal
+• Une réussite passée (preuve de force)
+• Pourquoi ce défi est important
+• Style d’énergie : motivante, rassurante, puissante, calme`
+      },
+      creativite: {
+        label: "Créativité & Inspiration",
+        sousThemes: [
+          "Blocage créatif",
+          "Début d’un projet artistique",
+          "Inspiration quotidienne",
+          "Recherche d’idées nouvelles",
+          "Fatigue créative",
+          "Explorations imaginaires"
+        ],
+        hint:
+`Tu peux indiquer :
+• Type de création (art, écriture, musique…)
+• Tes obstacles ou doutes
+• Une source d’inspiration personnelle
+• Un souvenir créatif marquant
+• L’état d’esprit souhaité : libre, joueur, profond, audacieux
+• Une image clé (métaphore, symbole, couleur)`
+      },
+      reves: {
+        label: "Rêves & Nuit",
+        sousThemes: [
+          "Aide à l’endormissement",
+          "Rituels du soir",
+          "Accompagner les peurs nocturnes",
+          "Rêves lucides",
+          "Symbolique du rêve",
+          "Préparer la nuit"
+        ],
+        hint:
+`Tu peux préciser :
+• L’humeur du soir
+• Le besoin principal : calmer, inspirer, apaiser, détendre
+• Une image ou symbolique de la nuit préférée
+• Une phrase douce à inclure
+• Un lieu de sécurité imaginaire
+• Le rythme désiré : lent, enveloppant, mystique`
+      },
+      presence: {
+        label: "Présence & Pleine conscience",
+        sousThemes: [
+          "Anxiété",
+          "Accélération mentale",
+          "Ancrage corporel",
+          "Moment de pause",
+          "Retour au calme",
+          "Respiration consciente"
+        ],
+        hint:
+`Tu peux décrire :
+• Le moment de la journée concerné
+• La sensation corporelle dominante
+• Un lieu calme aimé
+• Un geste ou rituel qui apaise
+• L’intention : ralentir, clarifier, ressentir
+• Un mot-clé sensoriel : toucher, souffle, lumière…`
+      },
+      gardien: {
+        label: "Le Gardien du Bois",
+        sousThemes: [
+          "Message protecteur",
+          "Message ancestral",
+          "Message de sagesse naturelle",
+          "Message d’enracinement",
+          "Message d’un esprit du bois",
+          "Connexion à la nature"
+        ],
+        hint:
+`Tu peux préciser :
+• L’essence du bois (chêne, noyer, érable…)
+• Le sens symbolique recherché : protection, guidance, force
+• Un souvenir lié à la nature
+• Un lieu végétal important
+• Une saison associée
+• Style : ancestral, chamanique, poétique, minimaliste`
+      },
+      cycles: {
+        label: "Cycles & Renouveau",
+        sousThemes: [
+          "Nouvelle étape",
+          "Renouveau après une épreuve",
+          "Fin d’un cycle",
+          "Transition de vie",
+          "Recommencer différemment",
+          "Se libérer du passé"
+        ],
+        hint:
+`Tu peux donner :
+• Le cycle concerné (travail, relation, vie perso…)
+• Ce que tu laisses derrière toi
+• Ton nouveau désir / intention
+• Une date symbolique (solstice, anniversaire…)
+• Une métaphore de renouveau (saison, fleur, lumière…)
+• Énergie : douce, puissante, lumineuse, lente`
+      },
+      intuition: {
+        label: "Intuition & Synchronicités",
+        sousThemes: [
+          "Se reconnecter à son intuition",
+          "Comprendre un signe",
+          "S’ouvrir aux synchronicités",
+          "Décision au feeling",
+          "Moments étranges ou significatifs",
+          "Message symbolique"
+        ],
+        hint:
+`Tu peux préciser :
+• Le dernier signe perçu
+• La situation où l’intuition appelle
+• Une image intérieure récurrente
+• Un événement insolite récent
+• La sensation dominante (chaleur, tension…)
+• Style de guidance : mystérieuse, précise, poétique`
+      },
+      projets: {
+        label: "Projets & Objectifs",
+        sousThemes: [
+          "Lancer un projet",
+          "Clarifier un objectif",
+          "Fixer une intention",
+          "Tenir le rythme",
+          "Dépasser un blocage",
+          "Devenir régulier"
+        ],
+        hint:
+`Tu peux décrire :
+• Le projet
+• Où tu en es
+• Les obstacles du moment
+• L’objectif final
+• Une deadline ou jalon important
+• Style : stratégique, motivant, structurant`
+      },
+      celebration: {
+        label: "Célébration & Joie",
+        sousThemes: [
+          "Anniversaire",
+          "Réussite personnelle",
+          "Réussite professionnelle",
+          "Bonne nouvelle",
+          "Victoire d’équipe",
+          "Gratitude joyeuse"
+        ],
+        hint:
+`Tu peux indiquer :
+• L’événement à célébrer
+• La personne concernée
+• La date ou le moment clé
+• Le sentiment dominant (fierté, joie, soulagement…)
+• Un souvenir positif lié
+• Intention : amplifier, partager, honorer`
+      },
+      calme: {
+        label: "Calme & Sérénité",
+        sousThemes: [
+          "Stress du quotidien",
+          "Surcharge mentale",
+          "Besoin de pause",
+          "Moment pour respirer",
+          "Retrouver le calme",
+          "Après une longue journée"
+        ],
+        hint:
+`Tu peux préciser :
+• La source de tension
+• Le moment de la journée
+• La sensation corporelle dominante
+• Un lieu associé au calme
+• Le besoin principal : relâcher, ralentir, reposer
+• Une image sensorielle : eau, vent, lumière douce…`
+      },
+      connexion: {
+        label: "Connexion & Lien aux autres",
+        sousThemes: [
+          "Mieux communiquer",
+          "Retrouver un lien",
+          "Entretenir une relation",
+          "Améliorer une complicité",
+          "Lien familial",
+          "Lien amical"
+        ],
+        hint:
+`Tu peux décrire :
+• La relation concernée
+• Le dernier moment partagé
+• Une qualité que tu apprécies chez l’autre
+• Une histoire commune
+• L’intention : rapprochement, compréhension, soutien
+• Un symbole ou un lieu partagé`
+      },
+      confiance: {
+        label: "Confiance en soi",
+        sousThemes: [
+          "Manque de confiance",
+          "Comparaison aux autres",
+          "Sentiment d’illégitimité",
+          "Avant un événement important",
+          "Reconstruire l’estime",
+          "Prendre sa place"
+        ],
+        hint:
+`Tu peux préciser :
+• Dans quelle situation la confiance manque
+• Un succès passé qu’on oublie
+• Une qualité personnelle
+• Le type d’encouragement souhaité
+• Une personne qui croit en toi
+• Style : encourageant, ferme, lumineux`
+      },
+      difficultes: {
+        label: "Traverser les difficultés",
+        sousThemes: [
+          "Soucis financiers",
+          "Conflits relationnels",
+          "Fatigue générale",
+          "Baisse d’énergie",
+          "Étape instable",
+          "Sensation de perte de contrôle"
+        ],
+        hint:
+`Tu peux indiquer :
+• La nature de la difficulté
+• Depuis quand elle dure
+• Les personnes de soutien autour
+• Le besoin principal : force, douceur, stabilité
+• Une preuve de résilience passée
+• Un symbole de résistance (montagne, feu, ancre…)`
+      },
+      alignement: {
+        label: "Alignement & Authenticité",
+        sousThemes: [
+          "Se réaligner",
+          "Vivre selon ses valeurs",
+          "Quitter une situation fausse",
+          "Retrouver sa vérité",
+          "Dire non",
+          "Se révéler"
+        ],
+        hint:
+`Tu peux décrire :
+• Les valeurs importantes
+• La situation qui n’est plus alignée
+• Le désir profond
+• Une personne inspirante
+• Intention : vérité, courage, clarté
+• Une image ou symbole d’authenticité`
+      },
+      racines: {
+        label: "Racines & Origines",
+        sousThemes: [
+          "Famille",
+          "Héritage",
+          "Histoire personnelle",
+          "Souvenir d’enfance",
+          "Lien au pays ou à la terre",
+          "Transmission"
+        ],
+        hint:
+`Tu peux préciser :
+• Tes origines ou une région importante
+• Une personne clé de ton enfance
+• Un souvenir fondateur
+• Un objet ou une tradition familiale
+• L’émotion associée
+• Style : nostalgique, doux, lumineux`
+      },
+      energie: {
+        label: "Énergie & Vitalité",
+        sousThemes: [
+          "Fatigue physique",
+          "Baisse d’énergie",
+          "Manque d’enthousiasme",
+          "Relancer la motivation",
+          "Retrouver du tonus",
+          "Besoin d’élan"
+        ],
+        hint:
+`Tu peux indiquer :
+• La source de fatigue
+• Le moment critique (matin, soirée…)
+• Un souvenir très énergisant
+• Une activité qui te revitalise
+• Style : dynamisant, solaire, stimulant
+• Un symbole d’énergie : soleil, feu, cascade…`
+      }
+    };
+
+    // ─────────────────────────────────────────
+    // FONCTION : mettre à jour les sous-thèmes
+    // ─────────────────────────────────────────
+    function majSousThemesEtHint() {
+      const key = themeSelect.value;
+      const cfg = themesConfig[key];
+      sousThemeSelect.innerHTML = "";
+
+      if (cfg && cfg.sousThemes) {
+        cfg.sousThemes.forEach((st) => {
+          const opt = document.createElement("option");
+          opt.value = st;
+          opt.textContent = st;
+          sousThemeSelect.appendChild(opt);
+        });
+      }
+
+      hintTheme.textContent = cfg && cfg.hint ? cfg.hint : "";
+    }
+
+    themeSelect.addEventListener("change", majSousThemesEtHint);
+    majSousThemesEtHint();
+
+    // ─────────────────────────────────────────
+    // URL d’exemple
+    // ─────────────────────────────────────────
+    function majUrlExemple() {
+      const id = idInput.value.trim() || "BIJOU001";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
+
+    idInput.addEventListener("input", majUrlExemple);
+    majUrlExemple();
+
+    // Remplir l’ID depuis l’URL si présent (personnalisation.html?id=XXX)
+    const urlParams = new URLSearchParams(window.location.search);
+    const idFromUrl = urlParams.get("id");
+    if (idFromUrl && !idInput.value) {
+      idInput.value = idFromUrl;
+      majUrlExemple();
+    }
+
+    // ─────────────────────────────────────────
+    // Construire un "brief" complet pour l’IA
+    // ─────────────────────────────────────────
+    function construireIntentionComplete() {
+      const themeKey = themeSelect.value;
+      const cfg = themesConfig[themeKey];
+      const themeLabel = cfg ? cfg.label : "";
+      const sousTheme = sousThemeSelect.value || "";
+      const texteLibre = intentionInput.value.trim();
+      const detail = detailInput.value.trim();
+      const prenom = prenomInput.value.trim();
+
+      let parts = [];
+
+      if (themeLabel) parts.push(`Thème principal : ${themeLabel}`);
+      if (sousTheme) parts.push(`Sous-thème : ${sousTheme}`);
+      if (prenom) parts.push(`Personne concernée : ${prenom}`);
+      if (detail) parts.push(`Détail personnel / symbole : ${detail}`);
+      if (texteLibre) {
+        parts.push(`Texte libre fourni :\n${texteLibre}`);
+      }
+
+      return parts.join("\n");
+    }
+
+    // ─────────────────────────────────────────
+    // Test du murmure (appel /api/message)
+    // ─────────────────────────────────────────
+    btnTester.addEventListener("click", async () => {
+      const id = idInput.value.trim() || "BIJOU001";
+      const prenom = prenomInput.value.trim();
+      const voix = voixSelect.value;
+      const intentionComplete = construireIntentionComplete();
+      const detail = detailInput.value.trim();
+
+      etat.textContent = "L’IA compose le murmure…";
+      btnTester.disabled = true;
+      preview.textContent = "";
+
+      const params = new URLSearchParams({
+        id,
+        prenom,
+        intention: intentionComplete,
+        detail,
+        voix
+      });
+
+      try {
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        etat.textContent = "Murmure généré (prévisualisation).";
+      } catch (e) {
+        console.error(e);
+        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        etat.textContent = "Erreur de connexion à l’IA.";
+      } finally {
+        btnTester.disabled = false;
+      }
+    });
+
+    // ─────────────────────────────────────────
+    // Enregistrement dans Supabase (/api/saveBijou)
+    // ─────────────────────────────────────────
+    btnSave.addEventListener("click", async () => {
+      const body = {
+        id: idInput.value.trim(),
+        prenom: prenomInput.value.trim(),
+        intention: construireIntentionComplete(),
+        detail: detailInput.value.trim(),
+        voix: voixSelect.value.trim()
+      };
+
+      if (!body.id) {
+        alert("Veuillez entrer un ID de bijou.");
+        return;
+      }
+
+      const r = await fetch("/api/saveBijou", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      const result = await r.json();
+
+      if (result.ok) {
+        alert("Bijou enregistré avec succès !");
+      } else {
+        alert("Erreur : " + (result.error || "enregistrement impossible"));
+      }
+    });
+
+    // ─────────────────────────────────────────
+    // Paiement Stripe (/api/createCheckoutSession)
+    // ─────────────────────────────────────────
+    payBtn.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      const prenom = prenomInput.value.trim();
+
+      if (!id) {
+        alert("Veuillez entrer un ID de bijou avant de lancer le paiement.");
+        return;
+      }
+
+      payBtn.disabled = true;
+      const labelOriginal = payBtn.textContent;
+      payBtn.textContent = "Redirection vers le paiement…";
+
+      try {
+        const r = await fetch("/api/createCheckoutSession", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            idBijou: id,
+            prenom
+          })
+        });
+
+        const data = await r.json();
+        if (!r.ok || !data.url) {
+          console.error("Erreur création session:", data);
+          alert("Impossible de créer la session de paiement.");
+          payBtn.disabled = false;
+          payBtn.textContent = labelOriginal;
+          return;
+        }
+
+        window.location.href = data.url;
+      } catch (e) {
+        console.error(e);
+        alert("Erreur de connexion au service de paiement.");
+        payBtn.disabled = false;
+        payBtn.textContent = labelOriginal;
+      }
+    });
+  </script>
 </body>
 </html>
