@@ -71,7 +71,7 @@
       margin-bottom: 10px;
     }
 
-    /* STYLE MACHINE À ÉCRIRE */
+    /* STYLE MACHINE À ÉCRIRE + HALO + PARTICULES */
     .murmure {
       position: relative;
       font-family: "Special Elite", "Courier New", Courier, ui-monospace, monospace;
@@ -89,6 +89,29 @@
       text-shadow: 0px 1px rgba(0,0,0,0.08);
       margin: 16px 0 18px;
       min-height: 4em;
+      overflow: hidden; /* pour contenir les particules */
+    }
+
+    /* Halo lumineux (esprit du bois) */
+    .murmure::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 236, 200, 0.14), transparent 55%),
+        radial-gradient(circle at 90% 90%, rgba(230, 190, 140, 0.2), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0;
+      pointer-events: none;
+      animation: auraPulse 7s ease-in-out infinite;
+    }
+
+    @keyframes auraPulse {
+      0%   { opacity: 0; transform: scale(1); }
+      25%  { opacity: 0.35; transform: scale(1.03); }
+      50%  { opacity: 0.18; transform: scale(1.08); }
+      75%  { opacity: 0.32; transform: scale(1.02); }
+      100% { opacity: 0; transform: scale(1); }
     }
 
     /* Curseur qui clignote façon machine à écrire */
@@ -97,12 +120,42 @@
       margin-left: 4px;
       animation: blink 0.7s infinite;
       opacity: 1;
+      position: relative;
     }
 
     @keyframes blink {
       0% { opacity: 1; }
       50% { opacity: 0; }
       100% { opacity: 1; }
+    }
+
+    /* Petites particules de lumière */
+    .murmure-particle {
+      position: absolute;
+      bottom: -8px;
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 218, 160, 0.9);
+      box-shadow:
+        0 0 6px rgba(255, 210, 140, 0.8),
+        0 0 12px rgba(255, 240, 210, 0.6);
+      opacity: 0;
+      animation: particleFloat 4s linear forwards;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translate3d(0, 0, 0) scale(0.6);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--driftX, 0px), -120px, 0) scale(0.9);
+        opacity: 0;
+      }
     }
 
     .compteur {
@@ -174,156 +227,200 @@
     </div>
   </div>
 
- <script>
-  const params = new URLSearchParams(window.location.search);
-  const bijouId = params.get("id") || "ID BIJOU";
+  <script>
+    // ─────────────────────────────────────────────────────────────
+    // Récupération de l’ID dans l’URL
+    // ─────────────────────────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const bijouId = params.get("id") || "ID BIJOU";
 
-  const idBijouEl = document.getElementById("idBijou");
-  const etatEl = document.getElementById("etat");
-  const murmureEl = document.getElementById("murmureTexte");
-  const compteurEl = document.getElementById("compteur");
-  const btnAudio = document.getElementById("btnAudio");
-  const btnAudioLabel = document.getElementById("btnAudioLabel");
-  const btnRelire = document.getElementById("btnRelire");
+    const idBijouEl = document.getElementById("idBijou");
+    const etatEl = document.getElementById("etat");
+    const murmureEl = document.getElementById("murmureTexte");
+    const compteurEl = document.getElementById("compteur");
+    const btnAudio = document.getElementById("btnAudio");
+    const btnAudioLabel = document.getElementById("btnAudioLabel");
+    const btnRelire = document.getElementById("btnRelire");
 
-  idBijouEl.textContent = bijouId;
+    idBijouEl.textContent = bijouId;
 
-  let texteComplet = "";
-  let audioObj = null;
-  let audioUrl = null;
-  let isLoadingAudio = false;
-  let isPlaying = false;
+    let texteComplet = "";
+    let audioObj = null;
+    let audioUrl = null;
+    let isLoadingAudio = false;
+    let isPlaying = false;
+    let particlesInterval = null;
 
-  function typeWriter(text, element, speed = 35) {
-    element.textContent = "";
-    let i = 0;
-    function step() {
-      if (i < text.length) {
-        element.textContent += text.charAt(i);
-        i++;
-        setTimeout(step, speed);
+    // ─────────────────────────────────────────────────────────────
+    // Effet machine à écrire
+    // ─────────────────────────────────────────────────────────────
+    function typeWriter(text, element, speed = 35) {
+      element.textContent = "";
+      let i = 0;
+      function step() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(step, speed);
+        }
       }
+      step();
     }
-    step();
-  }
 
-  async function handleAudioClick() {
-    if (!texteComplet) return;
-    if (isLoadingAudio) return;
+    // ─────────────────────────────────────────────────────────────
+    // Particules lumineuses (halo vivant)
+    // ─────────────────────────────────────────────────────────────
+    function spawnParticle() {
+      if (!murmureEl) return;
+      const rect = murmureEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
 
-    // Si l'audio existe déjà, on joue / met en pause
-    if (audioObj) {
-      if (isPlaying) {
-        audioObj.pause();
-        isPlaying = false;
-        btnAudioLabel.textContent = "Écouter le murmure";
-      } else {
-        audioObj.currentTime = 0;
+      const p = document.createElement("span");
+      p.className = "murmure-particle";
+
+      const leftPercent = Math.random() * 100;
+      p.style.left = leftPercent + "%";
+
+      const drift = (Math.random() * 40 - 20).toFixed(1) + "px";
+      p.style.setProperty("--driftX", drift);
+
+      murmureEl.appendChild(p);
+
+      p.addEventListener("animationend", () => {
+        p.remove();
+      });
+    }
+
+    function startParticles() {
+      if (particlesInterval) return;
+      particlesInterval = setInterval(spawnParticle, 900);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Gestion du bouton audio : appelle /api/tts + joue le MP3
+    // ─────────────────────────────────────────────────────────────
+    async function handleAudioClick() {
+      if (!texteComplet) return;
+      if (isLoadingAudio) return;
+
+      // Si l'audio existe déjà, on joue / met en pause
+      if (audioObj) {
+        if (isPlaying) {
+          audioObj.pause();
+          isPlaying = false;
+          btnAudioLabel.textContent = "Écouter le murmure";
+        } else {
+          audioObj.currentTime = 0;
+          audioObj.play();
+          isPlaying = true;
+          btnAudioLabel.textContent = "Arrêter la voix";
+        }
+        return;
+      }
+
+      // Première demande : appel à /api/tts
+      isLoadingAudio = true;
+      btnAudio.disabled = true;
+      btnAudioLabel.textContent = "Préparation de la voix…";
+
+      try {
+        const r = await fetch("/api/tts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: texteComplet,
+            voice: "coral", // tu peux tester "nova", "alloy", etc.
+          }),
+        });
+
+        if (!r.ok) {
+          console.error("Erreur TTS:", await r.text());
+          alert("Impossible de générer la voix (erreur serveur TTS).");
+          btnAudioLabel.textContent = "Voix indisponible";
+          return;
+        }
+
+        const blob = await r.blob();
+        audioUrl = URL.createObjectURL(blob);
+        audioObj = new Audio(audioUrl);
+
+        audioObj.onended = () => {
+          isPlaying = false;
+          btnAudioLabel.textContent = "Écouter le murmure";
+        };
+
         audioObj.play();
         isPlaying = true;
         btnAudioLabel.textContent = "Arrêter la voix";
-      }
-      return;
-    }
-
-    // Première demande : appel à /api/tts
-    isLoadingAudio = true;
-    btnAudio.disabled = true;
-    btnAudioLabel.textContent = "Préparation de la voix…";
-
-    try {
-      const r = await fetch("/api/tts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: texteComplet,
-          voice: "coral",
-        }),
-      });
-
-      if (!r.ok) {
-        console.error("Erreur TTS:", await r.text());
-        alert("Impossible de générer la voix (erreur serveur TTS).");
+      } catch (e) {
+        console.error(e);
+        alert("Erreur de connexion à la voix du bijou.");
         btnAudioLabel.textContent = "Voix indisponible";
-        return;
+      } finally {
+        isLoadingAudio = false;
+        btnAudio.disabled = false;
       }
-
-      const blob = await r.blob();
-      audioUrl = URL.createObjectURL(blob);
-      audioObj = new Audio(audioUrl);
-
-      audioObj.onended = () => {
-        isPlaying = false;
-        btnAudioLabel.textContent = "Écouter le murmure";
-      };
-
-      audioObj.play();
-      isPlaying = true;
-      btnAudioLabel.textContent = "Arrêter la voix";
-    } catch (e) {
-      console.error(e);
-      alert("Erreur de connexion à la voix du bijou.");
-      btnAudioLabel.textContent = "Voix indisponible";
-    } finally {
-      isLoadingAudio = false;
-      btnAudio.disabled = false;
-    }
-  }
-
-  btnAudio.addEventListener("click", handleAudioClick);
-
-  btnRelire.addEventListener("click", () => {
-    if (!texteComplet) return;
-    typeWriter(texteComplet, murmureEl);
-  });
-
-  async function chargerMurmure() {
-    if (!bijouId) {
-      etatEl.textContent = "Bijou inconnu.";
-      murmureEl.textContent = "";
-      return;
     }
 
-    etatEl.textContent = "Murmure en cours de composition…";
+    btnAudio.addEventListener("click", handleAudioClick);
 
-    try {
-      const r = await fetch(`/api/message?id=${encodeURIComponent(bijouId)}`);
-      const data = await r.json();
-
-      if (data.error) {
-        etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-        murmureEl.textContent = data.text || "Bijou inconnu.";
-        texteComplet = murmureEl.textContent;
-        return;
-      }
-
-      const texte = data.text || "Le bijou reste silencieux, mais présent.";
-      texteComplet = texte;
-
-      etatEl.textContent = "Murmure reçu.";
+    btnRelire.addEventListener("click", () => {
+      if (!texteComplet) return;
       typeWriter(texteComplet, murmureEl);
+    });
 
-      let remaining = data.remaining ?? data.messages_left ?? data.remainingMessages;
-      let total = data.total ?? data.totalMessages ?? data.maxMessages ?? 100;
-
-      if (typeof remaining === "number") {
-        compteurEl.textContent = `Murmures restants : ${remaining} / ${total}`;
-      } else {
-        compteurEl.textContent = "Murmures restants : —";
+    // ─────────────────────────────────────────────────────────────
+    // Chargement du murmure via ton API existante /api/message
+    // ─────────────────────────────────────────────────────────────
+    async function chargerMurmure() {
+      if (!bijouId) {
+        etatEl.textContent = "Bijou inconnu.";
+        murmureEl.textContent = "";
+        return;
       }
 
-    } catch (e) {
-      console.error(e);
-      etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-      murmureEl.textContent = "Bijou inconnu.";
-      texteComplet = murmureEl.textContent;
+      etatEl.textContent = "Murmure en cours de composition…";
+
+      try {
+        const r = await fetch(`/api/message?id=${encodeURIComponent(bijouId)}`);
+        const data = await r.json();
+
+        if (data.error) {
+          etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
+          murmureEl.textContent = data.text || "Bijou inconnu.";
+          texteComplet = murmureEl.textContent;
+          return;
+        }
+
+        const texte = data.text || "Le bijou reste silencieux, mais présent.";
+        texteComplet = texte;
+
+        etatEl.textContent = "Murmure reçu.";
+        typeWriter(texteComplet, murmureEl);
+
+        // On lance les particules au moment où le murmure est vraiment là
+        startParticles();
+
+        let remaining = data.remaining ?? data.messages_left ?? data.remainingMessages;
+        let total = data.total ?? data.totalMessages ?? data.maxMessages ?? 100;
+
+        if (typeof remaining === "number") {
+          compteurEl.textContent = `Murmures restants : ${remaining} / ${total}`;
+        } else {
+          compteurEl.textContent = "Murmures restants : —";
+        }
+
+      } catch (e) {
+        console.error(e);
+        etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
+        murmureEl.textContent = "Bijou inconnu.";
+        texteComplet = murmureEl.textContent;
+      }
     }
-  }
 
-  chargerMurmure();
-</script>
-
+    chargerMurmure();
+  </script>
 </body>
 </html>
