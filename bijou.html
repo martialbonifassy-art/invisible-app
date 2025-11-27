@@ -289,10 +289,9 @@
         p.remove();
       });
     }
-
     function startParticles() {
-      if (particlesInterval) return;
-      particlesInterval = setInterval(spawnParticle, 900);
+  if (particlesInterval) return;
+  particlesInterval = setInterval(spawnParticle, 450); // 2x plus souvent
     }
 
     // ─────────────────────────────────────────────────────────────
