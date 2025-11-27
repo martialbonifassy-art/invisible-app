@@ -1,11 +1,8 @@
 // api/message.js
 //
-// Génère un murmure pour un bijou + met à jour la base :
-// - vérifie messages_restants / locked
-// - décrémente messages_restants
-// - met à jour date_dernier_murmure
-// - gère la langue (fr / en)
-// Ici, le texte est généré avec un template simple (pas encore d'appel IA).
+// Génère un murmure pour un bijou de la table "bijous"
+// et met à jour : messages_restants, date_dernier_murmure.
+// Gère la langue (fr/en), l'état (non configuré), et locked/messages épuisés.
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -35,9 +32,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "ID du bijou manquant." });
     }
 
-    // ─────────────────────────────────────────
-    // Récupérer le bijou en base
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 1) Récupération du bijou
+    // ─────────────────────────────────────
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select(
@@ -52,7 +49,8 @@ export default async function handler(req, res) {
         langue,
         messages_restants,
         messages_max,
-        locked
+        locked,
+        etat
       `
       )
       .eq("id", id)
@@ -60,30 +58,43 @@ export default async function handler(req, res) {
 
     if (fetchError) {
       console.error("Erreur récupération bijou:", fetchError);
-      // On ne bloque pas forcément l'affichage : on renvoie un murmure générique
       return res.status(200).json({
-        text:
-          "Je suis là, silencieux, mais présent pour toi. (Erreur de connexion à la base.)"
+        text: "Je suis là, silencieux, mais présent pour toi. (Erreur de connexion à la base.)"
       });
     }
 
-    // Si le bijou n'existe pas encore en base :
     if (!bijou) {
-      // On ne casse pas la démo pour TEST001 / TEST002 : murmure générique
-      const texte = `« Je suis un murmure de démo, encore non relié à la base. »`;
-      return res.status(200).json({ text: texte });
+      // Bijou inconnu → on garde un message doux
+      return res.status(200).json({
+        text: "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal."
+      });
     }
 
-    // ─────────────────────────────────────────
-    // Gestion de la langue
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 2) Langue effective
+    // ─────────────────────────────────────
     const langueFromDb = (bijou.langue || "").toLowerCase();
     const langFromReq = (langParam || "").toLowerCase();
-    const langueEffective = langFromReq || langueFromDb || "fr";
+    const langue = langFromReq || langueFromDb || "fr";
+    const isEn = langue === "en";
 
-    // ─────────────────────────────────────────
-    // Contrôles : locked / messages_restants
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 3) Cas : bijou non configuré
+    // ─────────────────────────────────────
+    const etat = (bijou.etat || "").toLowerCase(); // ex : "non configuré", "configuré"
+    const estNonConfigure =
+      etat.includes("non") && etat.includes("configur"); // tolérant à l'accent & casse
+
+    if (estNonConfigure) {
+      const text = isEn
+        ? "This jewel has been created, but its whisper has not yet been written. Ask the artisan to personalize it, or use the dedicated page to configure it."
+        : "Ce bijou a bien été créé, mais son murmure n’a pas encore été écrit. Demandez à l’atelier de le personnaliser, ou utilisez la page de personnalisation dédiée.";
+      return res.status(200).json({ text });
+    }
+
+    // ─────────────────────────────────────
+    // 4) Cas : locked ou plus de murmures
+    // ─────────────────────────────────────
     const locked = bijou.locked === true;
     const messagesRestants =
       typeof bijou.messages_restants === "number"
@@ -91,25 +102,23 @@ export default async function handler(req, res) {
         : null;
 
     if (locked) {
-      const text =
-        langueEffective === "en"
-          ? "This jewel has completed its cycle of murmurs. It now keeps silent, but stays close."
-          : "Ce bijou a terminé son cycle de murmures. Il reste silencieux, mais tout près.";
+      const text = isEn
+        ? "This jewel has completed its cycle of whispers. It now keeps silent, but remains close."
+        : "Ce bijou a terminé son cycle de murmures. Il reste silencieux désormais, mais tout près de vous.";
       return res.status(200).json({ text });
     }
 
     if (messagesRestants !== null && messagesRestants <= 0) {
-      const text =
-        langueEffective === "en"
-          ? "All murmurs for this jewel have been used. Contact the artisan to recharge it."
-          : "Tous les murmures de ce bijou ont été utilisés. Contactez l’atelier pour le recharger.";
+      const text = isEn
+        ? "All whispers for this jewel have been used. Contact the Atelier des Liens Invisibles to recharge it."
+        : "Tous les murmures de ce bijou ont été utilisés. Contactez l’Atelier des Liens Invisibles pour le recharger.";
       return res.status(200).json({ text });
     }
 
-    // ─────────────────────────────────────────
-    // Construire les données "logiques" du message
-    // (on combine ce qui vient du client et ce qui est déjà en base)
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 5) Construire le contexte du message
+    // (on fusionne ce qui vient de l’URL et ce qui est stocké)
+    // ─────────────────────────────────────
     const prenom = prenomParam || bijou.prenom || "";
     const intention = intentionParam || bijou.intention || "";
     const detail = detailParam || bijou.detail || "";
@@ -117,11 +126,11 @@ export default async function handler(req, res) {
     const sousTheme = bijou.sous_theme || "";
     const voix = (voixParam || bijou.voix || "neutre").toLowerCase();
 
-    // ─────────────────────────────────────────
-    // Génération d’un texte de murmure SIMPLE (sans IA pour l'instant)
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 6) Générer un murmure "simple" (placeholder IA)
+    // ─────────────────────────────────────
     const texte = genererMurmureSimple({
-      langue: langueEffective,
+      langue,
       prenom,
       intention,
       detail,
@@ -130,12 +139,12 @@ export default async function handler(req, res) {
       voix
     });
 
-    // ─────────────────────────────────────────
-    // Mise à jour de la base : messages_restants & date_dernier_murmure
-    // ─────────────────────────────────────────
+    // ─────────────────────────────────────
+    // 7) Mettre à jour la base : messages_restants & date_dernier_murmure
+    // ─────────────────────────────────────
     const now = new Date().toISOString();
-
     let nouveauSolde = messagesRestants;
+
     if (messagesRestants !== null) {
       nouveauSolde = Math.max(messagesRestants - 1, 0);
     }
@@ -143,7 +152,7 @@ export default async function handler(req, res) {
     const { error: updateError } = await supabase
       .from("bijous")
       .update({
-        langue: langueEffective,
+        langue,
         messages_restants: nouveauSolde,
         date_dernier_murmure: now
       })
@@ -151,10 +160,13 @@ export default async function handler(req, res) {
 
     if (updateError) {
       console.error("Erreur update messages_restants:", updateError);
-      // On ne bloque pas le retour du texte pour l'utilisateur :
+      // On renvoie quand même le texte au client
       return res.status(200).json({ text: texte });
     }
 
+    // ─────────────────────────────────────
+    // 8) Réponse finale
+    // ─────────────────────────────────────
     return res.status(200).json({ text: texte });
   } catch (e) {
     console.error("Erreur interne /api/message:", e);
@@ -165,8 +177,8 @@ export default async function handler(req, res) {
 }
 
 // ─────────────────────────────────────────
-// Fonction de génération d’un murmure simple
-// (placeholder avant branchement OpenAI)
+// Générateur de murmure "simple"
+// (on pourra plus tard brancher OpenAI ici)
 // ─────────────────────────────────────────
 function genererMurmureSimple({
   langue,
@@ -180,7 +192,7 @@ function genererMurmureSimple({
   const nom = prenom || (langue === "en" ? "you" : "toi");
 
   if (langue === "en") {
-    let base = `“${capitalizeFirst(nom)}, this whisper comes from the heart of the wood.`;
+    let base = `“${capitalizeFirst(nom)}, this whisper rises from the heart of the wood.`;
 
     if (theme) {
       base += ` It carries a note of ${theme.toLowerCase()}.`;
@@ -192,16 +204,17 @@ function genererMurmureSimple({
       base += `\n\nWhat wants to be said today is: ${intention}`;
     }
     if (detail) {
-      base += `\n\nA quiet thread links back to: ${detail}.`;
+      base += `\n\nIn the background, there is: ${detail}.`;
     }
 
     base += `\n\nEach time you call this jewel, it remembers you and answers in its own way.”`;
-
     return base;
   }
 
   // FR
-  let base = `« ${capitalizeFirst(nom)}, ce murmure vient du cœur du bois.`;
+  let base = `« ${capitalizeFirst(
+    nom
+  )}, ce murmure s’élève du cœur du bois.`;
 
   if (theme) {
     base += ` Il porte une nuance de ${theme.toLowerCase()}.`;
@@ -213,11 +226,10 @@ function genererMurmureSimple({
     base += `\n\nCe qui cherche à se dire aujourd’hui : ${intention}`;
   }
   if (detail) {
-    base += `\n\nUn fil discret te relie à : ${detail}.`;
+    base += `\n\nEn filigrane, il y a : ${detail}.`;
   }
 
   base += `\n\nÀ chaque fois que tu appelles ce bijou, il se souvient de toi et répond à sa manière. »`;
-
   return base;
 }
 
