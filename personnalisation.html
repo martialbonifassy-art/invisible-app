@@ -99,15 +99,37 @@
     }
 
     .hint {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: #8a735a;
-      margin-top: -6px;
-      margin-bottom: 10px;
-      background: #f4e6d2;
-      border-radius: 12px;
-      padding: 7px 9px;
-      border: 1px solid rgba(180,150,100,0.4);
-      white-space: pre-line;
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+
+    .field-with-action {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: #e2cfb2;
+      color: #5a4335;
+      white-space: nowrap;
+    }
+    .mini-btn:hover {
+      background: #d4be9d;
     }
 
     .btn-row {
@@ -192,8 +214,7 @@
 
     <p class="intro">
       Ces informations permettent à l’IA de composer un murmure unique pour la personne
-      qui recevra l’objet. Tu peux choisir un thème, un sous-thème et quelques détails
-      personnels&nbsp;: l’IA fera le tissage.
+      qui recevra l’objet. Choisis un thème, un sous-thème et laisse-toi guider par les exemples.
     </p>
 
     <!-- Ligne ID + Voix -->
@@ -252,22 +273,28 @@
 
     <div id="hintTheme" class="hint"></div>
 
-    <!-- Intention libre -->
-    <div class="champ-groupe">
-      <label for="intention">Pourquoi offrez-vous cet objet ?</label>
+    <!-- Intention libre + Inspiration -->
+    <div class="champ-groupe field-with-action">
+      <div class="field-label-row">
+        <label for="intention">Pourquoi offrez-vous cet objet ?</label>
+        <button type="button" class="mini-btn" id="intentionInspireBtn">🪶 Inspiration</button>
+      </div>
       <textarea
         id="intention"
-        placeholder="ex : Pour qu’elle se sente accompagnée dans une période de changement, en lien avec notre souvenir à Toulouse…"
+        placeholder=""
       ></textarea>
     </div>
 
-    <!-- Détail perso -->
-    <div class="champ-groupe">
-      <label for="detail">Un détail personnel (souvenir, symbole, lieu, date…)</label>
+    <!-- Détail perso + Inspiration -->
+    <div class="champ-groupe field-with-action">
+      <div class="field-label-row">
+        <label for="detail">Un détail personnel (souvenir, symbole, lieu, date…)</label>
+        <button type="button" class="mini-btn" id="detailInspireBtn">🪶 Inspiration</button>
+      </div>
       <input
         id="detail"
         type="text"
-        placeholder="ex : Toulouse, 18 avril, Le Petit Prince, banc du jardin où on s’est rencontrés"
+        placeholder=""
       />
     </div>
 
@@ -313,14 +340,16 @@
     const etat = document.getElementById("etat");
     const preview = document.getElementById("preview");
     const urlExemple = document.getElementById("urlExemple");
+    const intentionInspireBtn = document.getElementById("intentionInspireBtn");
+    const detailInspireBtn = document.getElementById("detailInspireBtn");
 
     // ─────────────────────────────────────────
-    // THÈMES & SOUS-THÈMES
-    // (résumé exploitable par l’IA)
+    // THÈMES & EXEMPLES
     // ─────────────────────────────────────────
     const themesConfig = {
       amour: {
         label: "Amour",
+        description: "Pour tisser un message tendre et profond.",
         sousThemes: [
           "Pour ma femme",
           "Pour mon mari",
@@ -332,17 +361,20 @@
           "Pour un amour à distance",
           "Pour une occasion spéciale"
         ],
-        hint:
-`Pour l’IA, tu peux préciser :
-• Relation (femme, mari, amour secret…)
-• Un moment marquant (date / époque)
-• Un lieu important pour vous deux
-• Un souvenir clé ou une anecdote
-• Un symbole du couple (objet, geste…)
-• Type d’intention : remercier, rapprocher, déclarer, réconforter`
+        examplesIntention: [
+          "Pour lui rappeler notre lumière malgré la distance.",
+          "Pour célébrer un moment qui nous a changés.",
+          "Pour lui redire ce que je n’arrive pas toujours à dire."
+        ],
+        examplesDetail: [
+          "Le banc où on s’est rencontrés.",
+          "Notre chanson dans la voiture.",
+          "Le 18 avril à Toulouse."
+        ]
       },
       gratitude: {
         label: "Gratitude",
+        description: "Pour honorer un geste ou une présence précieuse.",
         sousThemes: [
           "Gratitude envers un proche",
           "Gratitude envers un parent",
@@ -351,17 +383,20 @@
           "Gratitude envers un collègue",
           "Gratitude envers la vie"
         ],
-        hint:
-`Tu peux donner :
-• La personne concernée
-• Le geste précis que tu remercies
-• Le moment ou la période
-• L’impact que cela a eu pour toi
-• Une qualité que tu admires chez elle
-• Intention : remercier, reconnaître, honorer`
+        examplesIntention: [
+          "Pour remercier ton soutien discret mais essentiel.",
+          "Pour honorer un geste que je n’oublierai jamais.",
+          "Pour reconnaître la douceur que tu m’apportes."
+        ],
+        examplesDetail: [
+          "La lettre que tu m’as écrite l’hiver dernier.",
+          "Le café partagé avant ton départ.",
+          "Une phrase que tu m’as dite et qui m’a marqué."
+        ]
       },
       guerison: {
         label: "Guérison & Apaisement",
+        description: "Pour offrir douceur dans un moment fragile.",
         sousThemes: [
           "Apaisement après un conflit",
           "Guérison émotionnelle",
@@ -370,17 +405,20 @@
           "Après une séparation",
           "Reprendre confiance"
         ],
-        hint:
-`Tu peux préciser :
-• La situation actuelle
-• L’émotion dominante
-• La personne concernée (ou toi-même)
-• Ce qui a déclenché la difficulté
-• Le besoin principal : douceur, force, soutien, clarté
-• Un symbole de réconfort (objet, couleur, lieu calme)`
+        examplesIntention: [
+          "Pour t’accompagner dans cette période où tout est plus lourd.",
+          "Pour déposer un peu de douceur sur tes épaules.",
+          "Pour apaiser ce qui pèse depuis longtemps."
+        ],
+        examplesDetail: [
+          "Le lieu où tu te sens en sécurité.",
+          "Une couleur qui te réconforte.",
+          "Un souvenir où tu respirais librement."
+        ]
       },
       chemin: {
         label: "Chemin de vie & Orientation",
+        description: "Pour éclairer un choix ou un tournant de vie.",
         sousThemes: [
           "Prendre une décision",
           "Changer de voie",
@@ -389,17 +427,20 @@
           "Début d’un projet",
           "Recherche de clarté"
         ],
-        hint:
-`Tu peux décrire :
-• La situation actuelle
-• La décision ou le choix à faire
-• Ce qui bloque ou fait peur
-• Ce qui appelle ou attire
-• Une échéance ou étape importante
-• Style de guidance : douce, directe, symbolique`
+        examplesIntention: [
+          "Pour t’aider à choisir avec clarté.",
+          "Pour éclairer un chemin encore brumeux.",
+          "Pour t’accompagner dans une transition importante."
+        ],
+        examplesDetail: [
+          "La décision que tu hésites à prendre.",
+          "Une date limite importante.",
+          "Une image qui te parle : carrefour, rivière, sentier…"
+        ]
       },
       courage: {
         label: "Courage & Dépassement",
+        description: "Pour ranimer la force intérieure.",
         sousThemes: [
           "Défi personnel",
           "Défi professionnel",
@@ -408,17 +449,20 @@
           "Reprendre confiance",
           "Maintenir l’effort"
         ],
-        hint:
-`Précise :
-• Le défi en question
-• Depuis quand il dure
-• L’obstacle principal
-• Une réussite passée (preuve de force)
-• Pourquoi ce défi est important
-• Style d’énergie : motivante, rassurante, puissante, calme`
+        examplesIntention: [
+          "Pour t’aider à franchir ce cap qui te fait peur.",
+          "Pour raviver une force que tu oublies.",
+          "Pour te soutenir dans ce moment de défi."
+        ],
+        examplesDetail: [
+          "Une victoire passée qui te définit.",
+          "L’obstacle qui te bloque le plus.",
+          "Un symbole : feu, montagne, étoile."
+        ]
       },
       creativite: {
         label: "Créativité & Inspiration",
+        description: "Pour débloquer l’élan créatif.",
         sousThemes: [
           "Blocage créatif",
           "Début d’un projet artistique",
@@ -427,17 +471,20 @@
           "Fatigue créative",
           "Explorations imaginaires"
         ],
-        hint:
-`Tu peux indiquer :
-• Type de création (art, écriture, musique…)
-• Tes obstacles ou doutes
-• Une source d’inspiration personnelle
-• Un souvenir créatif marquant
-• L’état d’esprit souhaité : libre, joueur, profond, audacieux
-• Une image clé (métaphore, symbole, couleur)`
+        examplesIntention: [
+          "Pour relancer ton élan créatif.",
+          "Pour débloquer une idée en sommeil.",
+          "Pour nourrir ton imagination."
+        ],
+        examplesDetail: [
+          "Une couleur qui t’obsède en ce moment.",
+          "Le premier projet qui t’a inspiré.",
+          "Une image : plume, vague, lune."
+        ]
       },
       reves: {
         label: "Rêves & Nuit",
+        description: "Pour adoucir la nuit ou nourrir l’imaginaire.",
         sousThemes: [
           "Aide à l’endormissement",
           "Rituels du soir",
@@ -446,17 +493,20 @@
           "Symbolique du rêve",
           "Préparer la nuit"
         ],
-        hint:
-`Tu peux préciser :
-• L’humeur du soir
-• Le besoin principal : calmer, inspirer, apaiser, détendre
-• Une image ou symbolique de la nuit préférée
-• Une phrase douce à inclure
-• Un lieu de sécurité imaginaire
-• Le rythme désiré : lent, enveloppant, mystique`
+        examplesIntention: [
+          "Pour apaiser les soirs où la pensée tourne.",
+          "Pour t’accompagner vers un sommeil plus doux.",
+          "Pour nourrir ton monde intérieur avant la nuit."
+        ],
+        examplesDetail: [
+          "Ton rituel du soir.",
+          "Une image de la nuit : lune, brume, étoile.",
+          "Une phrase douce que tu aimes entendre."
+        ]
       },
       presence: {
         label: "Présence & Pleine conscience",
+        description: "Pour revenir au souffle et au présent.",
         sousThemes: [
           "Anxiété",
           "Accélération mentale",
@@ -465,17 +515,20 @@
           "Retour au calme",
           "Respiration consciente"
         ],
-        hint:
-`Tu peux décrire :
-• Le moment de la journée concerné
-• La sensation corporelle dominante
-• Un lieu calme aimé
-• Un geste ou rituel qui apaise
-• L’intention : ralentir, clarifier, ressentir
-• Un mot-clé sensoriel : toucher, souffle, lumière…`
+        examplesIntention: [
+          "Pour t’offrir une vraie pause dans le tumulte.",
+          "Pour revenir à ton souffle quand tout va trop vite.",
+          "Pour ramener ton attention au présent."
+        ],
+        examplesDetail: [
+          "Une sensation corporelle dominante.",
+          "Un lieu calme que tu aimes.",
+          "Un petit rituel qui t’apaise."
+        ]
       },
       gardien: {
         label: "Le Gardien du Bois",
+        description: "Pour recevoir un message ancien et protecteur.",
         sousThemes: [
           "Message protecteur",
           "Message ancestral",
@@ -484,17 +537,20 @@
           "Message d’un esprit du bois",
           "Connexion à la nature"
         ],
-        hint:
-`Tu peux préciser :
-• L’essence du bois (chêne, noyer, érable…)
-• Le sens symbolique recherché : protection, guidance, force
-• Un souvenir lié à la nature
-• Un lieu végétal important
-• Une saison associée
-• Style : ancestral, chamanique, poétique, minimaliste`
+        examplesIntention: [
+          "Pour recevoir la parole d’un esprit du bois.",
+          "Pour être guidé par une sagesse naturelle.",
+          "Pour ancrer une protection discrète."
+        ],
+        examplesDetail: [
+          "L’essence du bois qui te parle (chêne, noyer…).",
+          "Un souvenir lié à la forêt ou à un arbre.",
+          "Une saison qui te ressemble."
+        ]
       },
       cycles: {
         label: "Cycles & Renouveau",
+        description: "Pour accompagner une transition ou un nouveau départ.",
         sousThemes: [
           "Nouvelle étape",
           "Renouveau après une épreuve",
@@ -503,17 +559,20 @@
           "Recommencer différemment",
           "Se libérer du passé"
         ],
-        hint:
-`Tu peux donner :
-• Le cycle concerné (travail, relation, vie perso…)
-• Ce que tu laisses derrière toi
-• Ton nouveau désir / intention
-• Une date symbolique (solstice, anniversaire…)
-• Une métaphore de renouveau (saison, fleur, lumière…)
-• Énergie : douce, puissante, lumineuse, lente`
+        examplesIntention: [
+          "Pour accompagner un nouveau départ.",
+          "Pour marquer une transition importante.",
+          "Pour tourner une page en douceur."
+        ],
+        examplesDetail: [
+          "Le cycle en cours (travail, cœur…).",
+          "Un ancien fardeau à laisser derrière.",
+          "Un symbole de renouveau : fleur, pluie, lumière."
+        ]
       },
       intuition: {
         label: "Intuition & Synchronicités",
+        description: "Pour écouter la petite voix intérieure.",
         sousThemes: [
           "Se reconnecter à son intuition",
           "Comprendre un signe",
@@ -522,17 +581,20 @@
           "Moments étranges ou significatifs",
           "Message symbolique"
         ],
-        hint:
-`Tu peux préciser :
-• Le dernier signe perçu
-• La situation où l’intuition appelle
-• Une image intérieure récurrente
-• Un événement insolite récent
-• La sensation dominante (chaleur, tension…)
-• Style de guidance : mystérieuse, précise, poétique`
+        examplesIntention: [
+          "Pour éclairer un signe mystérieux.",
+          "Pour encourager l’écoute intérieure.",
+          "Pour guider une décision au feeling."
+        ],
+        examplesDetail: [
+          "Le dernier signe que tu as remarqué.",
+          "Une image intérieure qui revient souvent.",
+          "Une sensation : vibration, chaleur, tension."
+        ]
       },
       projets: {
         label: "Projets & Objectifs",
+        description: "Pour clarifier ou soutenir un projet important.",
         sousThemes: [
           "Lancer un projet",
           "Clarifier un objectif",
@@ -541,17 +603,20 @@
           "Dépasser un blocage",
           "Devenir régulier"
         ],
-        hint:
-`Tu peux décrire :
-• Le projet
-• Où tu en es
-• Les obstacles du moment
-• L’objectif final
-• Une deadline ou jalon important
-• Style : stratégique, motivant, structurant`
+        examplesIntention: [
+          "Pour clarifier le prochain pas de ton projet.",
+          "Pour soutenir un projet en gestation.",
+          "Pour débloquer ce qui te freine."
+        ],
+        examplesDetail: [
+          "L’objectif final que tu vises.",
+          "L’obstacle du moment.",
+          "Une échéance importante."
+        ]
       },
       celebration: {
         label: "Célébration & Joie",
+        description: "Pour amplifier une bonne nouvelle ou une réussite.",
         sousThemes: [
           "Anniversaire",
           "Réussite personnelle",
@@ -560,17 +625,20 @@
           "Victoire d’équipe",
           "Gratitude joyeuse"
         ],
-        hint:
-`Tu peux indiquer :
-• L’événement à célébrer
-• La personne concernée
-• La date ou le moment clé
-• Le sentiment dominant (fierté, joie, soulagement…)
-• Un souvenir positif lié
-• Intention : amplifier, partager, honorer`
+        examplesIntention: [
+          "Pour amplifier cette bonne nouvelle.",
+          "Pour célébrer une réussite importante.",
+          "Pour partager une joie simple."
+        ],
+        examplesDetail: [
+          "L’événement précis que tu célèbres.",
+          "L’émotion dominante (fierté, soulagement…).",
+          "Un souvenir lumineux lié à ce moment."
+        ]
       },
       calme: {
         label: "Calme & Sérénité",
+        description: "Pour apaiser l’esprit et ralentir.",
         sousThemes: [
           "Stress du quotidien",
           "Surcharge mentale",
@@ -579,17 +647,20 @@
           "Retrouver le calme",
           "Après une longue journée"
         ],
-        hint:
-`Tu peux préciser :
-• La source de tension
-• Le moment de la journée
-• La sensation corporelle dominante
-• Un lieu associé au calme
-• Le besoin principal : relâcher, ralentir, reposer
-• Une image sensorielle : eau, vent, lumière douce…`
+        examplesIntention: [
+          "Pour apaiser une journée lourde.",
+          "Pour offrir un espace de repos.",
+          "Pour t’aider à ralentir le rythme."
+        ],
+        examplesDetail: [
+          "La source de tension principale.",
+          "Un lieu calme que tu aimes.",
+          "Une image douce : eau, vent, lumière chaude."
+        ]
       },
       connexion: {
         label: "Connexion & Lien aux autres",
+        description: "Pour renforcer ou réparer un lien.",
         sousThemes: [
           "Mieux communiquer",
           "Retrouver un lien",
@@ -598,17 +669,20 @@
           "Lien familial",
           "Lien amical"
         ],
-        hint:
-`Tu peux décrire :
-• La relation concernée
-• Le dernier moment partagé
-• Une qualité que tu apprécies chez l’autre
-• Une histoire commune
-• L’intention : rapprochement, compréhension, soutien
-• Un symbole ou un lieu partagé`
+        examplesIntention: [
+          "Pour renforcer un lien important.",
+          "Pour renouer après une distance.",
+          "Pour amplifier une complicité."
+        ],
+        examplesDetail: [
+          "Le dernier moment partagé.",
+          "Une qualité que tu admires chez l’autre.",
+          "Un symbole ou un lieu commun."
+        ]
       },
       confiance: {
         label: "Confiance en soi",
+        description: "Pour révéler la valeur intérieure.",
         sousThemes: [
           "Manque de confiance",
           "Comparaison aux autres",
@@ -617,17 +691,20 @@
           "Reconstruire l’estime",
           "Prendre sa place"
         ],
-        hint:
-`Tu peux préciser :
-• Dans quelle situation la confiance manque
-• Un succès passé qu’on oublie
-• Une qualité personnelle
-• Le type d’encouragement souhaité
-• Une personne qui croit en toi
-• Style : encourageant, ferme, lumineux`
+        examplesIntention: [
+          "Pour rappeler une force oubliée.",
+          "Pour soutenir avant un événement important.",
+          "Pour t’aider à prendre ta place."
+        ],
+        examplesDetail: [
+          "Une réussite passée.",
+          "Une qualité personnelle forte.",
+          "Une personne qui croit vraiment en toi."
+        ]
       },
       difficultes: {
         label: "Traverser les difficultés",
+        description: "Pour soutenir dans une épreuve.",
         sousThemes: [
           "Soucis financiers",
           "Conflits relationnels",
@@ -636,17 +713,20 @@
           "Étape instable",
           "Sensation de perte de contrôle"
         ],
-        hint:
-`Tu peux indiquer :
-• La nature de la difficulté
-• Depuis quand elle dure
-• Les personnes de soutien autour
-• Le besoin principal : force, douceur, stabilité
-• Une preuve de résilience passée
-• Un symbole de résistance (montagne, feu, ancre…)`
+        examplesIntention: [
+          "Pour ne pas traverser cette épreuve seul.",
+          "Pour déposer un soutien discret dans ton quotidien.",
+          "Pour redonner courage quand tout tangue."
+        ],
+        examplesDetail: [
+          "La difficulté principale du moment.",
+          "Une preuve de résilience passée.",
+          "Un symbole : ancre, montagne, feu."
+        ]
       },
       alignement: {
         label: "Alignement & Authenticité",
+        description: "Pour revenir à ce qui sonne juste.",
         sousThemes: [
           "Se réaligner",
           "Vivre selon ses valeurs",
@@ -655,17 +735,20 @@
           "Dire non",
           "Se révéler"
         ],
-        hint:
-`Tu peux décrire :
-• Les valeurs importantes
-• La situation qui n’est plus alignée
-• Le désir profond
-• Une personne inspirante
-• Intention : vérité, courage, clarté
-• Une image ou symbole d’authenticité`
+        examplesIntention: [
+          "Pour revenir à ce qui est vraiment vrai pour toi.",
+          "Pour quitter ce qui n’est plus aligné.",
+          "Pour retrouver ta voix propre."
+        ],
+        examplesDetail: [
+          "Tes valeurs principales.",
+          "La situation qui dévie.",
+          "Un symbole d’authenticité : pierre, arbre, lumière."
+        ]
       },
       racines: {
         label: "Racines & Origines",
+        description: "Pour honorer l’histoire personnelle.",
         sousThemes: [
           "Famille",
           "Héritage",
@@ -674,17 +757,20 @@
           "Lien au pays ou à la terre",
           "Transmission"
         ],
-        hint:
-`Tu peux préciser :
-• Tes origines ou une région importante
-• Une personne clé de ton enfance
-• Un souvenir fondateur
-• Un objet ou une tradition familiale
-• L’émotion associée
-• Style : nostalgique, doux, lumineux`
+        examplesIntention: [
+          "Pour honorer l’histoire familiale.",
+          "Pour renouer avec ce qui t’a construit.",
+          "Pour garder un lien vivant avec tes origines."
+        ],
+        examplesDetail: [
+          "Un souvenir d’enfance.",
+          "Une personne clé de ton histoire.",
+          "Un objet ou une tradition familiale."
+        ]
       },
       energie: {
         label: "Énergie & Vitalité",
+        description: "Pour raviver l’élan vital.",
         sousThemes: [
           "Fatigue physique",
           "Baisse d’énergie",
@@ -693,21 +779,29 @@
           "Retrouver du tonus",
           "Besoin d’élan"
         ],
-        hint:
-`Tu peux indiquer :
-• La source de fatigue
-• Le moment critique (matin, soirée…)
-• Un souvenir très énergisant
-• Une activité qui te revitalise
-• Style : dynamisant, solaire, stimulant
-• Un symbole d’énergie : soleil, feu, cascade…`
+        examplesIntention: [
+          "Pour raviver un élan intérieur.",
+          "Pour éclairer une fatigue profonde.",
+          "Pour redonner du soleil dans le quotidien."
+        ],
+        examplesDetail: [
+          "La source de fatigue.",
+          "Un souvenir très énergisant.",
+          "Un symbole : soleil, cascade, feu."
+        ]
       }
     };
 
+    function randomFromArray(arr) {
+      if (!arr || !arr.length) return "";
+      const i = Math.floor(Math.random() * arr.length);
+      return arr[i];
+    }
+
     // ─────────────────────────────────────────
-    // FONCTION : mettre à jour les sous-thèmes
+    // MISE À JOUR SOUS-THÈMES + EXEMPLES
     // ─────────────────────────────────────────
-    function majSousThemesEtHint() {
+    function majSousThemesEtExemples() {
       const key = themeSelect.value;
       const cfg = themesConfig[key];
       sousThemeSelect.innerHTML = "";
@@ -721,11 +815,40 @@
         });
       }
 
-      hintTheme.textContent = cfg && cfg.hint ? cfg.hint : "";
+      hintTheme.textContent = cfg && cfg.description ? cfg.description : "";
+
+      // Placeholders d’exemples
+      if (cfg && cfg.examplesIntention) {
+        intentionInput.placeholder = randomFromArray(cfg.examplesIntention);
+      } else {
+        intentionInput.placeholder = "Écris en quelques lignes pourquoi tu offres cet objet.";
+      }
+      if (cfg && cfg.examplesDetail) {
+        detailInput.placeholder = randomFromArray(cfg.examplesDetail);
+      } else {
+        detailInput.placeholder = "Ajoute un souvenir, un symbole, un lieu, une date…";
+      }
     }
 
-    themeSelect.addEventListener("change", majSousThemesEtHint);
-    majSousThemesEtHint();
+    themeSelect.addEventListener("change", majSousThemesEtExemples);
+    majSousThemesEtExemples();
+
+    // Boutons Inspiration
+    intentionInspireBtn.addEventListener("click", () => {
+      const key = themeSelect.value;
+      const cfg = themesConfig[key];
+      if (cfg && cfg.examplesIntention) {
+        intentionInput.value = randomFromArray(cfg.examplesIntention);
+      }
+    });
+
+    detailInspireBtn.addEventListener("click", () => {
+      const key = themeSelect.value;
+      const cfg = themesConfig[key];
+      if (cfg && cfg.examplesDetail) {
+        detailInput.value = randomFromArray(cfg.examplesDetail);
+      }
+    });
 
     // ─────────────────────────────────────────
     // URL d’exemple
@@ -739,7 +862,7 @@
     idInput.addEventListener("input", majUrlExemple);
     majUrlExemple();
 
-    // Remplir l’ID depuis l’URL si présent (personnalisation.html?id=XXX)
+    // Récupération éventuelle de l'ID dans l'URL (ex: personnalisation.html?id=BIJOU001)
     const urlParams = new URLSearchParams(window.location.search);
     const idFromUrl = urlParams.get("id");
     if (idFromUrl && !idInput.value) {
@@ -809,7 +932,7 @@
     });
 
     // ─────────────────────────────────────────
-    // Enregistrement dans Supabase (/api/saveBijou)
+    // Enregistrement du bijou (/api/saveBijou)
     // ─────────────────────────────────────────
     btnSave.addEventListener("click", async () => {
       const body = {
