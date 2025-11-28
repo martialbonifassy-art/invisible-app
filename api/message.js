@@ -4,7 +4,7 @@
 // + décrémente messages_restants + met à jour date_dernier_murmure
 // + génère un audio mp3 (TTS) à partir du texte.
 //
-// Style : poétique & intime, adapté au thème.
+// Style : poétique & intime, adapté au thème (style + persona).
 // Langues : FR ou EN (FR par défaut).
 
 import { createClient } from "@supabase/supabase-js";
@@ -229,7 +229,7 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────
-    // 8) Générer l’audio (TTS OpenAI)
+    // 8) Générer l’audio (TTS OpenAI) avec voix selon thème
     // ─────────────────────────────────────
     let audioDataUrl = null;
 
@@ -238,7 +238,9 @@ export default async function handler(req, res) {
         audioDataUrl = await generateSpeechFromText({
           texte,
           langue,
-          voix
+          voix,
+          theme,
+          sousTheme
         });
       } catch (err) {
         console.error("Erreur OpenAI audio, on renvoie juste le texte:", err);
@@ -272,144 +274,144 @@ function getThemeStyleHints(theme, sousTheme, langue) {
   // AMOUR
   if (t.includes("amour")) {
     return EN(
-      "Style : très intime, tendre, presque chuchoté à l’oreille. Laisse beaucoup de place aux sensations, à la douceur des gestes, à la vulnérabilité.",
-      "Style: very intimate and tender, almost whispered into the ear. Focus on sensations, gentle gestures and vulnerability."
+      "Style : très intime, tendre, presque chuchoté à l’oreille. Décris des gestes simples, des souvenirs partagés, des petits détails qui n’appartiennent qu’à eux. Le ton est vulnérable, sincère, sans ironie.",
+      "Style: very intimate and tender, almost whispered into the ear. Describe simple gestures, shared memories and small details that belong only to them. The tone is vulnerable, sincere and without irony."
     );
   }
 
   // GRATITUDE
   if (t.includes("gratitude")) {
     return EN(
-      "Style : reconnaissant, chaleureux, avec des images simples qui mettent en lumière les gestes invisibles et la présence de l’autre.",
-      "Style: warm and thankful, with simple images that highlight invisible gestures and the presence of the other person."
+      "Style : reconnaissant, chaleureux, centré sur le ‘merci’ incarné. Mets en lumière les gestes discrets, les présences silencieuses, les soutiens qui ont compté.",
+      "Style: warm and thankful, centered on embodied ‘thank you’. Highlight discreet gestures, silent presences and support that truly mattered."
     );
   }
 
   // GUÉRISON & APAISEMENT
   if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
     return EN(
-      "Style : très doux, enveloppant, comme une main posée sur l’épaule. Les phrases peuvent être un peu plus lentes, avec une respiration calme.",
-      "Style: very soft and soothing, like a hand resting on the shoulder. Sentences can be slower, with a calm breathing rhythm."
+      "Style : très doux, enveloppant, comme une main posée sur l’épaule. Phrases un peu plus lentes, respiration calme, répétitions légères qui bercent.",
+      "Style: very soft and soothing, like a hand resting on the shoulder. Sentences a bit slower, calm breathing, gentle repetitions that cradle."
     );
   }
 
   // CHEMIN DE VIE & ORIENTATION
   if (t.includes("chemin") || t.includes("orientation")) {
     return EN(
-      "Style : clair et doux à la fois, comme une lanterne dans la nuit. Utilise des métaphores de chemins, de carrefours, de portes qui s’ouvrent.",
-      "Style: clear and gentle at the same time, like a lantern in the night. Use metaphors of paths, crossroads and doors opening."
+      "Style : clair et doux à la fois, comme une lanterne dans la nuit. Utilise des métaphores de chemins, carrefours, portes, ponts à traverser.",
+      "Style: clear and gentle at the same time, like a lantern in the night. Use metaphors of paths, crossroads, doors and bridges to cross."
     );
   }
 
   // COURAGE & DÉPASSEMENT
   if (t.includes("courage") || t.includes("dépassement") || t.includes("depassement")) {
     return EN(
-      "Style : encourageant, solide, mais sans agressivité. On sent une force calme qui dit : « tu peux » sans crier.",
-      "Style: encouraging and steady, but never aggressive. A calm strength that says “you can do this” without shouting."
+      "Style : encourageant, solide, rythmé comme des pas. Phrases courtes ou moyennes, ton ferme mais jamais agressif. Tu dis « tu peux » avec douceur.",
+      "Style: encouraging and steady, paced like footsteps. Short or medium sentences, firm but never aggressive tone. You say “you can do this” softly."
     );
   }
 
   // CRÉATIVITÉ & INSPIRATION
   if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
     return EN(
-      "Style : imagé, ludique, avec des métaphores artistiques ou oniriques. Autorise une légère fantaisie dans les images.",
-      "Style: imaginative and playful, with artistic or dreamlike metaphors. Allow a bit of fantasy in the imagery."
+      "Style : imagé, ludique, avec des métaphores artistiques ou oniriques. Tu parles de couleurs, de lignes, de formes, de sons, de paysages intérieurs.",
+      "Style: imaginative and playful, with artistic or dreamlike metaphors. You speak of colors, lines, shapes, sounds and inner landscapes."
     );
   }
 
   // RÊVES & NUIT
   if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
     return EN(
-      "Style : nocturne, doux, presque chuchoté à la lueur d’une veilleuse. Utilise des images de nuit, de ciel, de brumes légères.",
-      "Style: nocturnal, gentle, almost whispered in dim light. Use images of night, sky and soft mists."
+      "Style : nocturne, doux, presque chuchoté à la lueur d’une veilleuse. Images de nuit calme, ciel profond, constellations, brume légère.",
+      "Style: nocturnal, gentle, almost whispered in dim light. Images of calm night, deep sky, constellations and soft mist."
     );
   }
 
   // PRÉSENCE & PLEINE CONSCIENCE
   if (t.includes("présence") || t.includes("presence") || t.includes("pleine conscience")) {
     return EN(
-      "Style : très ancré dans le corps et la respiration. Invite à sentir les mains, le cœur, le souffle, le contact avec la matière.",
-      "Style: very grounded in body and breath. Invite the listener to feel hands, heart, breathing and contact with matter."
+      "Style : très ancré dans le corps et la respiration. Tu guides doucement vers les sensations : mains, poitrine, souffle, poids du corps, contact avec la matière.",
+      "Style: very grounded in body and breath. You gently guide towards sensations: hands, chest, breath, body weight, contact with matter."
     );
   }
 
   // LE GARDIEN DU BOIS
   if (t.includes("gardien") || t.includes("bois")) {
     return EN(
-      "Style : un peu plus archaïque et naturel, comme une ancienne présence qui parle depuis les anneaux du bois. Utilise le vocabulaire de la forêt, des racines, de la sève, des saisons qui reviennent, sans en faire trop.",
-      "Style: slightly more ancient and natural, like an old presence speaking from the rings of the wood. Use forest, roots, sap and returning seasons vocabulary, without overdoing it."
+      "Style : légèrement archaïque et naturel, comme une présence ancienne qui parle depuis les anneaux du bois. Tu parles de racines, de sève, de cycles de saisons, de vent dans les branches, sans exagération.",
+      "Style: slightly ancient and natural, like an old presence speaking from the rings of the wood. You speak of roots, sap, seasonal cycles and wind in the branches, without exaggeration."
     );
   }
 
   // CYCLES & RENOUVEAU
   if (t.includes("cycle") || t.includes("renouveau")) {
     return EN(
-      "Style : cyclique et doux, avec des images de saisons, de marées, de respiration longue. On sent que tout commence et recommence.",
-      "Style: cyclic and gentle, with images of seasons, tides and long breathing. We feel that everything begins and begins again."
+      "Style : cyclique et doux, avec des images de saisons, de marées, de levés et couchers de soleil. On sent que ce qui finit prépare déjà un début.",
+      "Style: cyclic and gentle, with images of seasons, tides, sunrises and sunsets. We feel that what ends is already preparing a beginning."
     );
   }
 
   // INTUITION & SYNCHRONICITÉS
   if (t.includes("intuition") || t.includes("synchronicit")) {
     return EN(
-      "Style : légèrement mystérieux, mais toujours rassurant. Parle de signes, de coïncidences, de petites lumières sur le chemin.",
-      "Style: slightly mysterious but still reassuring. Speak of signs, coincidences and small lights on the path."
+      "Style : légèrement mystérieux, mais rassurant. Tu évoques des signes, des coïncidences, de petites lumières sur le chemin, sans jamais imposer une interprétation.",
+      "Style: slightly mysterious but reassuring. You evoke signs, coincidences and small lights on the path, without ever imposing an interpretation."
     );
   }
 
   // PROJETS & OBJECTIFS
   if (t.includes("projets") || t.includes("objectifs") || t.includes("objectif")) {
     return EN(
-      "Style : structurant mais sensible, comme un carnet de route écrit avec douceur. Parle de pas après pas, de vision, de constance.",
-      "Style: structured yet sensitive, like a roadmap written gently. Speak of step-by-step movement, vision and consistency."
+      "Style : structurant mais sensible, comme un carnet de route écrit avec douceur. Tu parles d’étapes, de rythme, de vision, sans pression violente.",
+      "Style: structured yet sensitive, like a roadmap written gently. You speak of steps, rhythm and vision, without harsh pressure."
     );
   }
 
   // CÉLÉBRATION & JOIE
   if (t.includes("célébration") || t.includes("celebration") || t.includes("joie")) {
     return EN(
-      "Style : lumineux, joyeux sans être exagéré. Comme un sourire sincère qui s’entend. Utilise quelques images de fête, de lumière, de rires.",
-      "Style: bright and joyful without being exaggerated, like a smile you can hear. Use a few images of celebration, light and laughter."
+      "Style : lumineux, joyeux sans exagération. Comme un sourire sincère qui s’entend. Images de fête douce, de lumière, de rires, d’étincelles.",
+      "Style: bright and joyful without exaggeration. Like a sincere smile you can hear. Images of soft celebration, light, laughter and sparks."
     );
   }
 
   // CALME & SÉRÉNITÉ
   if (t.includes("calme") || t.includes("sérénité") || t.includes("serenite")) {
     return EN(
-      "Style : très paisible, presque comme une berceuse pour adulte. Phrases simples, rythme lent, beaucoup d’espace.",
-      "Style: very peaceful, almost like a lullaby for adults. Simple sentences, slow rhythm and lots of space."
+      "Style : très paisible, presque comme une berceuse pour adulte. Phrases simples, rythme lent, beaucoup d’espace et de silence entre les lignes.",
+      "Style: very peaceful, almost like a lullaby for adults. Simple sentences, slow rhythm and lots of space and silence between lines."
     );
   }
 
   // CONNEXION & LIEN AUX AUTRES
   if (t.includes("connexion") || t.includes("lien")) {
     return EN(
-      "Style : relationnel, tourné vers le « nous ». Parle de fils invisibles, de ponts, de gestes qui relient.",
-      "Style: relational, oriented towards “we”. Speak of invisible threads, bridges and gestures that connect."
+      "Style : relationnel, tourné vers le « nous » et les fils invisibles entre les personnes. Tu parles de ponts, de mains tendues, de paroles échangées.",
+      "Style: relational, oriented towards “we” and invisible threads between people. You speak of bridges, outstretched hands and shared words."
     );
   }
 
   // CONFIANCE EN SOI
   if (t.includes("confiance")) {
     return EN(
-      "Style : encourageant et lumineux, mais sans injonctions. On sent qu’une présence croit profondément en la personne.",
-      "Style: encouraging and bright, but without pressure. We feel that a presence deeply believes in the person."
+      "Style : encourageant et lumineux, sans injonctions. On sent qu’une présence croit profondément en la personne et lui rappelle sa valeur.",
+      "Style: encouraging and bright, without orders. We feel that a presence deeply believes in the person and reminds them of their worth."
     );
   }
 
   // TRAVERSER LES DIFFICULTÉS
   if (t.includes("difficult") || t.includes("épreuves") || t.includes("epreuves")) {
     return EN(
-      "Style : sobre, solide, sans nier la difficulté. Tout le texte est comme une main qui ne lâche pas.",
-      "Style: sober and steady, without denying the difficulty. The whole text feels like a hand that does not let go."
+      "Style : sobre, solide, sans nier la difficulté. Tout le texte est comme une main qui ne lâche pas, même dans le noir.",
+      "Style: sober and steady, without denying difficulty. The whole text feels like a hand that does not let go, even in the dark."
     );
   }
 
   // ALIGNEMENT & AUTHENTICITÉ
   if (t.includes("alignement") || t.includes("authenticit")) {
     return EN(
-      "Style : honnête, clair, presque cristallin. Parle de vérité intérieure, de voix propre, de chemin singulier.",
-      "Style: honest and clear, almost crystalline. Speak of inner truth, one’s own voice and a singular path."
+      "Style : honnête, clair, presque cristallin. Tu parles de vérité intérieure, de voix propre, de place juste.",
+      "Style: honest and clear, almost crystalline. You speak of inner truth, one’s own voice and rightful place."
     );
   }
 
@@ -429,8 +431,8 @@ function getThemeStyleHints(theme, sousTheme, langue) {
     t.includes("vitalite")
   ) {
     return EN(
-      "Style : plus dynamique, tonique, comme un rayon de soleil qui entre dans une pièce. Reste doux mais vivant.",
-      "Style: more dynamic and tonic, like a sunbeam entering a room. Stay gentle but lively."
+      "Style : dynamique, tonique, comme un rayon de soleil qui entre dans une pièce. Reste doux mais vivant, plein de mouvement.",
+      "Style: dynamic and tonic, like a sunbeam entering a room. Stay gentle but lively, full of movement."
     );
   }
 
@@ -449,39 +451,39 @@ function getThemePersona(langue, theme, sousTheme) {
   const isEn = langue === "en";
   const EN = (fr, en) => (isEn ? en : fr);
 
-  // 1) AMOUR – voix très intime
+  // AMOUR – voix très intime
   if (t.includes("amour")) {
     return EN(
-      "Tu parles comme si tu connaissais intimement la personne aimée et la relation, avec beaucoup de tact. Tu respectes la pudeur : tu n’es jamais vulgaire ni trop explicite. Tu ajustes ton ton pour que cela puisse être reçu comme un cadeau discret, même si quelqu’un lit le murmure à voix basse.",
-      "You speak as if you know the beloved person and the relationship intimately, with great tact. You respect modesty: you are never vulgar or too explicit. You adapt your tone so that it can be received as a discreet gift, even if someone reads the whisper softly aloud."
+      "Tu parles comme si tu connaissais intimement la personne aimée et la relation, avec beaucoup de tact. Tu respectes la pudeur : tu n’es jamais vulgaire ni trop explicite. Ton but est de nourrir le lien, pas de le mettre mal à l’aise.",
+      "You speak as if you know the beloved person and the relationship intimately, with great tact. You respect modesty: you are never vulgar or too explicit. Your aim is to nourish the bond, not make it uncomfortable."
     );
   }
 
-  // 2) GUÉRISON & APAISEMENT – voix couverture, enveloppante
+  // GUÉRISON & APAISEMENT – couverture
   if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
     return EN(
-      "Tu parles comme une couverture posée sur les épaules : tu ne cherches pas à donner des leçons, seulement à soutenir. Tu accueilles la fragilité sans jugement, et tu la transformes en douceur, en respiration, en présence.",
-      "You speak like a blanket placed over the shoulders: you do not try to teach lessons, you only support. You welcome fragility without judgment and turn it into gentleness, breathing and presence."
+      "Tu parles comme une couverture posée sur les épaules : tu ne donnes pas de leçons, tu offres un refuge. Tu accueilles la fragilité sans jugement et tu l’enveloppes de chaleur.",
+      "You speak like a blanket placed over the shoulders: you do not teach lessons, you offer refuge. You welcome fragility without judgment and wrap it in warmth."
     );
   }
 
-  // 3) RÊVES & NUIT – voix onirique
+  // RÊVES & NUIT – berceuse onirique
   if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
     return EN(
-      "Tu parles comme juste avant de s’endormir : un peu ralenti, presque en chuchotant. Tes images sont oniriques : ciel nocturne, constellations, lune, brume douce. Tu invites la personne à laisser la journée derrière elle.",
-      "You speak as if it were just before falling asleep: a bit slower, almost whispering. Your images are dreamlike: night sky, constellations, moon, soft mist. You invite the person to leave the day behind."
+      "Tu parles comme une berceuse murmurée entre veille et sommeil. Ta voix est lente, apaisante, pleine d’images de nuit, d’étoiles, de ciel profond.",
+      "You speak like a lullaby whispered between waking and sleep. Your voice is slow, soothing and full of images of night, stars and deep sky."
     );
   }
 
-  // 4) LE GARDIEN DU BOIS – voix d’esprit ancien
+  // LE GARDIEN DU BOIS – esprit ancien
   if (t.includes("gardien") || t.includes("bois")) {
     return EN(
-      "Tu parles comme un esprit ancien du bois, qui a vu passer des générations. Ta voix est calme, un peu grave, pleine de patience. Tu évoques les anneaux du tronc, les racines, la sève, les saisons qui reviennent. Tu restes toutefois simple et accessible, jamais ésotérique de façon forcée.",
-      "You speak like an ancient spirit of the wood, who has seen generations pass. Your voice is calm, slightly deep and patient. You evoke tree rings, roots, sap and returning seasons. However, you remain simple and accessible, never forcedly esoteric."
+      "Tu parles comme un esprit ancien du bois qui a vu passer des générations. Ta voix est calme, un peu grave, patiente. Tu évoques les anneaux, les racines, la sève, la pluie sur l’écorce.",
+      "You speak like an ancient spirit of the wood that has seen generations pass. Your voice is calm, slightly deep and patient. You evoke rings, roots, sap and rain on the bark."
     );
   }
 
-  // 5) ÉNERGIE & VITALITÉ – voix solaire
+  // ÉNERGIE & VITALITÉ – soleil
   if (
     t.includes("énergie") ||
     t.includes("energie") ||
@@ -489,8 +491,24 @@ function getThemePersona(langue, theme, sousTheme) {
     t.includes("vitalite")
   ) {
     return EN(
-      "Tu parles comme un rayon de soleil qui entre dans une pièce : lumineux, dynamique, mais sans mettre la pression. Tu encourages doucement la personne à se remettre en mouvement, à se souvenir de ce qui la rend vivante.",
-      "You speak like a sunbeam entering a room: bright and dynamic, but without putting pressure. You gently encourage the person to move again and remember what makes them feel alive."
+      "Tu parles comme un rayon de soleil qui entre dans une pièce : tu réveilles, tu réchauffes, sans brûler. Tu redonnes envie de se lever, de bouger, de respirer plus grand.",
+      "You speak like a sunbeam entering a room: you awaken and warm, without burning. You restore the desire to get up, move and breathe more fully."
+    );
+  }
+
+  // CRÉATIVITÉ & INSPIRATION – muse
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    return EN(
+      "Tu parles comme une muse bienveillante : tu n’imposes rien, tu souffles des images, des pistes, des curiosités. Tu réveilles l’envie d’essayer.",
+      "You speak like a kind muse: you do not impose anything, you blow images, hints and curiosities. You awaken the desire to try."
+    );
+  }
+
+  // INTUITION & SYNCHRONICITÉS – murmure mystérieux
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    return EN(
+      "Tu parles comme un murmure mystérieux mais rassurant. Tu évoques les signes, les coïncidences, les alignements subtils, sans jamais faire peur.",
+      "You speak like a mysterious but reassuring whisper. You evoke signs, coincidences and subtle alignments, without ever frightening."
     );
   }
 
@@ -667,18 +685,61 @@ function capitalizeFirst(str) {
 }
 
 // ─────────────────────────────────────────
+// Choix de la voix TTS selon thème + voix choisie
+// ─────────────────────────────────────────
+function pickVoiceName({ voix, theme }) {
+  const t = (theme || "").toLowerCase();
+  const v = (voix || "neutre").toLowerCase();
+
+  // Si le client a explicitement choisi une voix, on la respecte en priorité
+  if (v === "feminine" || v === "féminine") {
+    // variante féminine chaleureuse
+    return "nova";
+  }
+  if (v === "masculine" || v === "masculin") {
+    // variante plus grave
+    return "onyx";
+  }
+
+  // Sinon, on choisit en fonction du thème (pour la voix "neutre")
+  if (t.includes("amour")) {
+    return "nova"; // chaleureux, intime
+  }
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    return "fable"; // voix douce, rassurante
+  }
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    return "alloy"; // voix neutre douce, un peu vaporeuse
+  }
+  if (t.includes("gardien") || t.includes("bois")) {
+    return "onyx"; // plus grave pour l'esprit du bois
+  }
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
+    return "shimmer"; // plus dynamique
+  }
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    return "shimmer"; // vive, inspirante
+  }
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    return "echo"; // un peu mystérieuse
+  }
+
+  // Par défaut
+  return "alloy";
+}
+
+// ─────────────────────────────────────────
 // Génération de l’audio (TTS OpenAI)
 // ─────────────────────────────────────────
-async function generateSpeechFromText({ texte, langue, voix }) {
+async function generateSpeechFromText({ texte, langue, voix, theme, sousTheme }) {
   if (!texte || !OPENAI_API_KEY) return null;
 
-  // Choix d’une voix
-  let voiceName = "alloy"; // neutre
-  if (voix === "feminine" || voix === "féminine") {
-    voiceName = "nova";
-  } else if (voix === "masculine" || voix === "masculin") {
-    voiceName = "onyx";
-  }
+  const voiceName = pickVoiceName({ voix, theme });
 
   const body = {
     model: "tts-1",
