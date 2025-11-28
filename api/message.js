@@ -267,6 +267,182 @@ export default async function handler(req, res) {
 // ─────────────────────────────────────────
 // IA poétique (OpenAI / chat completions)
 // ─────────────────────────────────────────
+function getThemeStyleHints(theme, sousTheme, langue) {
+  const t = (theme || "").toLowerCase();
+  const st = (sousTheme || "").toLowerCase();
+
+  const isEn = langue === "en";
+
+  // Petite aide utilitaire pour retourner plus vite une phrase
+  const FR = (s) => s;
+  const EN = (s, sEn) => (isEn ? sEn : s);
+
+  // AMOUR
+  if (t.includes("amour")) {
+    return EN(
+      "Style : très intime, tendre, presque chuchoté à l’oreille. Laisse beaucoup de place aux sensations, à la douceur des gestes, à la vulnérabilité.",
+      "Style: very intimate and tender, almost whispered into the ear. Focus on sensations, gentle gestures and vulnerability."
+    );
+  }
+
+  // GRATITUDE
+  if (t.includes("gratitude")) {
+    return EN(
+      "Style : reconnaissant, chaleureux, avec des images simples qui mettent en lumière les gestes invisibles et la présence de l’autre.",
+      "Style: warm and thankful, with simple images that highlight invisible gestures and the presence of the other person."
+    );
+  }
+
+  // GUÉRISON & APAISEMENT
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    return EN(
+      "Style : très doux, enveloppant, comme une main posée sur l’épaule. Les phrases peuvent être un peu plus lentes, avec une respiration calme.",
+      "Style: very soft and soothing, like a hand resting on the shoulder. Sentences can be slower, with a calm breathing rhythm."
+    );
+  }
+
+  // CHEMIN DE VIE
+  if (t.includes("chemin") || t.includes("orientation")) {
+    return EN(
+      "Style : clair et doux à la fois, comme une lanterne dans la nuit. Utilise des métaphores de chemins, de carrefours, de portes qui s’ouvrent.",
+      "Style: clear and gentle at the same time, like a lantern in the night. Use metaphors of paths, crossroads and doors opening."
+    );
+  }
+
+  // COURAGE & DÉPASSEMENT
+  if (t.includes("courage") || t.includes("dépassement") || t.includes("depassement")) {
+    return EN(
+      "Style : encourageant, solide, mais sans agressivité. On sent une force calme qui dit : ‘tu peux’ sans crier.",
+      "Style: encouraging and steady, but never aggressive. A calm strength that says “you can do this” without shouting."
+    );
+  }
+
+  // CRÉATIVITÉ
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    return EN(
+      "Style : imagé, ludique, avec des métaphores artistiques ou oniriques. Autorise une légère fantaisie dans les images.",
+      "Style: imaginative and playful, with artistic or dreamlike metaphors. Allow a bit of fantasy in the imagery."
+    );
+  }
+
+  // RÊVES & NUIT
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    return EN(
+      "Style : nocturne, doux, presque chuchoté à la lueur d’une veilleuse. Utilise des images de nuit, de ciel, de brumes légères.",
+      "Style: nocturnal, gentle, almost whispered in the dim light. Use images of night, sky and soft mists."
+    );
+  }
+
+  // PRÉSENCE & PLEINE CONSCIENCE
+  if (t.includes("présence") || t.includes("presence") || t.includes("pleine conscience")) {
+    return EN(
+      "Style : très ancré dans le corps et la respiration. Invite à sentir les mains, le cœur, le souffle, le contact avec la matière.",
+      "Style: very grounded in body and breath. Invite the listener to feel hands, heart, breathing and contact with matter."
+    );
+  }
+
+  // GARDIEN DU BOIS
+  if (t.includes("gardien") || t.includes("bois")) {
+    return EN(
+      "Style : un peu plus archaïque et naturel, comme une ancienne présence qui parle depuis les anneaux du bois. Utilise le vocabulaire de la forêt, des racines, de la sève, sans en faire trop.",
+      "Style: slightly more ancient and natural, like an old presence speaking from the rings of the wood. Use vocabulary of forest, roots, sap, without overdoing it."
+    );
+  }
+
+  // CYCLES & RENOUVEAU
+  if (t.includes("cycle") || t.includes("renouveau")) {
+    return EN(
+      "Style : cyclique et doux, avec des images de saisons, de marées, de respiration longue. On sent que tout commence et recommence.",
+      "Style: cyclic and gentle, with images of seasons, tides and long breathing. We feel that everything begins and begins again."
+    );
+  }
+
+  // INTUITION & SYNCHRONICITÉS
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    return EN(
+      "Style : légèrement mystérieux, mais toujours rassurant. Parle de signes, de coïncidences, de petites lumières sur le chemin.",
+      "Style: slightly mysterious but still reassuring. Speak of signs, coincidences and small lights on the path."
+    );
+  }
+
+  // PROJETS & OBJECTIFS
+  if (t.includes("projets") || t.includes("objectifs") || t.includes("objectif")) {
+    return EN(
+      "Style : structurant mais sensible, comme un carnet de route écrit avec douceur. Parle de pas après pas, de vision, de constance.",
+      "Style: structured yet sensitive, like a roadmap written gently. Speak of step-by-step movement, vision and consistency."
+    );
+  }
+
+  // CÉLÉBRATION & JOIE
+  if (t.includes("célébration") || t.includes("celebration") || t.includes("joie")) {
+    return EN(
+      "Style : lumineux, joyeux sans être exagéré. Comme un sourire sincère qui s’entend. Utilise quelques images de fête, de lumière, de rires.",
+      "Style: bright and joyful without being exaggerated, like a smile you can hear. Use a few images of celebration, light and laughter."
+    );
+  }
+
+  // CALME & SÉRÉNITÉ
+  if (t.includes("calme") || t.includes("sérénité") || t.includes("serenite")) {
+    return EN(
+      "Style : très paisible, presque comme une berceuse pour adulte. Phrases simples, rythme lent, beaucoup d’espace.",
+      "Style: very peaceful, almost like a lullaby for adults. Simple sentences, slow rhythm and lots of space."
+    );
+  }
+
+  // CONNEXION & LIEN
+  if (t.includes("connexion") || t.includes("lien")) {
+    return EN(
+      "Style : relationnel, tourné vers le ‘nous’. Parle de fils invisibles, de ponts, de gestes qui relient.",
+      "Style: relational, oriented towards “we”. Speak of invisible threads, bridges and gestures that connect."
+    );
+  }
+
+  // CONFIANCE EN SOI
+  if (t.includes("confiance")) {
+    return EN(
+      "Style : encourageant et lumineux, mais sans injonctions. On sent qu’une présence croit profondément en la personne.",
+      "Style: encouraging and bright, but without pressure. We feel that a presence deeply believes in the person."
+    );
+  }
+
+  // DIFFICULTÉS
+  if (t.includes("difficult") || t.includes("épreuves") || t.includes("epreuves")) {
+    return EN(
+      "Style : sobre, solide, sans nier la difficulté. Tout le texte est comme une main qui ne lâche pas.",
+      "Style: sober and steady, without denying the difficulty. The whole text feels like a hand that does not let go."
+    );
+  }
+
+  // ALIGNEMENT & AUTHENTICITÉ
+  if (t.includes("alignement") || t.includes("authenticit")) {
+    return EN(
+      "Style : honnête, clair, presque cristallin. Parle de vérité intérieure, de voix propre, de chemin singulier.",
+      "Style: honest and clear, almost crystalline. Speak of inner truth, one’s own voice and a singular path."
+    );
+  }
+
+  // RACINES & ORIGINES
+  if (t.includes("racines") || t.includes("origines")) {
+    return EN(
+      "Style : légèrement nostalgique, doux, tourné vers le passé et ce qui a construit la personne. Images d’enfance, de terre, de maison.",
+      "Style: slightly nostalgic and gentle, turned towards the past and what has shaped the person. Images of childhood, earth and home."
+    );
+  }
+
+  // ÉNERGIE & VITALITÉ
+  if (t.includes("énergie") || t.includes("energie") || t.includes("vitalité") || t.includes("vitalite")) {
+    return EN(
+      "Style : plus dynamique, tonique, comme un rayon de soleil qui entre dans une pièce. Reste doux mais vivant.",
+      "Style: more dynamic and tonic, like a sunbeam entering a room. Stay gentle but lively."
+    );
+  }
+
+  // Par défaut :
+  return EN(
+    "Style : intime, doux, poétique, avec quelques images liées au bois, au souffle et à la lumière.",
+    "Style: intimate, soft and poetic, with a few images related to wood, breath and light."
+  );
+}
 
 async function generatePoeticWhisperWithOpenAI({
   langue,
