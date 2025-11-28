@@ -455,6 +455,86 @@ async function generatePoeticWhisperWithOpenAI({
   const isEn = langue === "en";
   const name = prenom || (isEn ? "you" : "toi");
 
+  const styleHints = getThemeStyleHints(theme, sousTheme, langue);
+
+  const system = isEn
+    ? "You are a gentle, poetic voice living inside a wooden jewel. You write short, intimate whispers (5 to 9 short lines), in a soft, emotional and delicate style. You never mention that you are an AI, nor that this is a message or a text. You speak as if the jewel itself were addressing the person. The presence of wood is subtle: sometimes you evoke grain, warmth, breath, rings of time, but never in a heavy or repetitive way."
+    : "Tu es une voix douce et poétique qui habite dans un bijou en bois. Tu écris de courts murmures intimes (entre 5 et 9 lignes courtes), dans un style délicat, sensible et chaleureux. Tu ne mentionnes jamais que tu es une IA, ni que ceci est un message ou un texte. Tu parles comme si le bijou lui-même s’adressait à la personne. La présence du bois est subtile : parfois tu évoques le grain, la chaleur, le souffle, les anneaux du temps, mais jamais de façon lourde ou répétitive.";
+
+  const userPrompt = isEn
+    ? `Write a poetic whisper for ${name}.
+
+Context:
+- Main theme: ${theme || "not specified"}
+- Sub-theme: ${sousTheme || "not specified"}
+- Intention or situation: ${intention || "not specified"}
+- Detail or memory to weave in: ${detail || "none"}
+
+Style guidance:
+${styleHints}
+
+Constraints:
+- Tone: intimate, gentle, soft, with emotional depth.
+- 5 to 9 short lines (line breaks are allowed and welcome).
+- The jewel speaks in the first person or as a very close presence (for example: "I", "I am here", "I remember…").
+- Do not repeat the bullet list above, transform everything into an organic, flowing text.
+- Avoid explaining, prefer evoking with concrete and sensory images.`
+    : `Écris un murmure poétique pour ${name}.
+
+Contexte :
+- Thème principal : ${theme || "non précisé"}
+- Sous-thème : ${sousTheme || "non précisé"}
+- Intention ou situation : ${intention || "non précisé"}
+- Détail ou souvenir à tisser : ${detail || "aucun"}
+
+Style :
+${styleHints}
+
+Contraintes :
+- Ton : intime, doux, avec de la profondeur émotionnelle.
+- Entre 5 et 9 lignes courtes (les retours à la ligne sont bienvenus).
+- Le bijou parle à la première personne ou comme une présence très proche (par exemple : « je », « je suis là », « je me souviens… »).
+- Ne répète pas la liste ci-dessus, transforme tout en un texte organique, fluide.
+- Évite d’expliquer ; privilégie les images concrètes, sensorielles et les sensations.`;
+
+  const body = {
+    model: "gpt-4.1-mini",
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: userPrompt }
+    ],
+    temperature: 0.95,
+    max_tokens: 400
+  };
+
+  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => "");
+    throw new Error(
+      `Erreur OpenAI chat (${resp.status}): ${errText.slice(0, 200)}`
+    );
+  }
+
+  const data = await resp.json();
+  const content =
+    data.choices?.[0]?.message?.content?.trim() ||
+    (isEn
+      ? "I am here, silently, but present for you."
+      : "Je suis là, silencieux, mais présent pour toi.");
+  return content;
+}
+}) {
+  const isEn = langue === "en";
+  const name = prenom || (isEn ? "you" : "toi");
+
   const system = isEn
     ? "You are a gentle, poetic voice living in a wooden jewel. You write short, intimate whispers (5 to 9 lines max), in a soft, emotional and delicate style. You never mention that you are an AI. You never talk about 'this message' or 'this text'. You speak as if the jewel itself were addressing the person."
     : "Tu es une voix douce et poétique qui habite dans un bijou en bois. Tu écris de courts murmures intimes (entre 5 et 9 lignes), dans un style délicat, sensible et chaleureux. Tu ne mentionnes jamais que tu es une IA. Tu ne parles pas de 'ce message' ou 'ce texte'. Tu parles comme si le bijou lui-même s’adressait à la personne.";
