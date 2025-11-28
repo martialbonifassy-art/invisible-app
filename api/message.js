@@ -4,7 +4,7 @@
 // + décrémente messages_restants + met à jour date_dernier_murmure
 // + génère un audio mp3 (TTS) à partir du texte.
 //
-// Style demandé : poétique & intime, adapté au thème.
+// Style : poétique & intime, adapté au thème.
 // Langues : FR ou EN (FR par défaut).
 
 import { createClient } from "@supabase/supabase-js";
@@ -69,14 +69,16 @@ export default async function handler(req, res) {
     if (fetchError) {
       console.error("Erreur récupération bijou:", fetchError);
       return res.status(200).json({
-        text: "Je suis là, silencieux, mais présent pour toi. (Erreur de connexion à la base.)",
+        text:
+          "Je suis là, silencieux, mais présent pour toi. (Erreur de connexion à la base.)",
         audio: null
       });
     }
 
     if (!bijou) {
       return res.status(200).json({
-        text: "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal.",
+        text:
+          "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal.",
         audio: null
       });
     }
@@ -93,8 +95,7 @@ export default async function handler(req, res) {
     // 3) Cas : bijou non configuré
     // ─────────────────────────────────────
     const etat = (bijou.etat || "").toLowerCase();
-    const estNonConfigure =
-      etat.includes("non") && etat.includes("configur");
+    const estNonConfigure = etat.includes("non") && etat.includes("configur");
 
     if (estNonConfigure) {
       const text = isEn
@@ -162,107 +163,19 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────
-    // 6) Générer le texte du murmure
+    // 6) Générer le texte du murmure (IA ou fallback)
     // ─────────────────────────────────────
     let texte;
 
     if (hasOpenAIKey()) {
       try {
-        texte = await async function generatePoeticWhisperWithOpenAI({
-  langue,
-  prenom,
-  intention,
-  detail,
-  theme,
-  sousTheme
-}) {
-  const isEn = langue === "en";
-  const name = prenom || (isEn ? "you" : "toi");
-
-  const styleHints = getThemeStyleHints(theme, sousTheme, langue);
-  const persona = getThemePersona(langue, theme, sousTheme);
-
-  const system = isEn
-    ? "You are a gentle, poetic voice living inside a wooden jewel. You write short, intimate whispers (5 to 9 short lines), in a soft, emotional and delicate style. You never mention that you are an AI, nor that this is a message or a text. You speak as if the jewel itself were addressing the person. The presence of wood is subtle: sometimes you evoke grain, warmth, breath, rings of time, but never in a heavy or repetitive way."
-    : "Tu es une voix douce et poétique qui habite dans un bijou en bois. Tu écris de courts murmures intimes (entre 5 et 9 lignes courtes), dans un style délicat, sensible et chaleureux. Tu ne mentionnes jamais que tu es une IA, ni que ceci est un message ou un texte. Tu parles comme si le bijou lui-même s’adressait à la personne. La présence du bois est subtile : parfois tu évoques le grain, la chaleur, le souffle, les anneaux du temps, mais jamais de façon lourde ou répétitive.";
-
-  const userPrompt = isEn
-    ? `Write a poetic whisper for ${name}.
-
-Context:
-- Main theme: ${theme || "not specified"}
-- Sub-theme: ${sousTheme || "not specified"}
-- Intention or situation: ${intention || "not specified"}
-- Detail or memory to weave in: ${detail || "none"}
-
-Voice persona:
-${persona}
-
-Style guidance:
-${styleHints}
-
-Constraints:
-- Tone: intimate, gentle, soft, with emotional depth.
-- 5 to 9 short lines (line breaks are allowed and welcome).
-- The jewel speaks in the first person or as a very close presence (for example: "I", "I am here", "I remember…").
-- Do not repeat the bullet list above, transform everything into an organic, flowing text.
-- Avoid explaining, prefer evoking with concrete and sensory images.`
-    : `Écris un murmure poétique pour ${name}.
-
-Contexte :
-- Thème principal : ${theme || "non précisé"}
-- Sous-thème : ${sousTheme || "non précisé"}
-- Intention ou situation : ${intention || "non précisé"}
-- Détail ou souvenir à tisser : ${detail || "aucun"}
-
-Persona de la voix :
-${persona}
-
-Style :
-${styleHints}
-
-Contraintes :
-- Ton : intime, doux, avec de la profondeur émotionnelle.
-- Entre 5 et 9 lignes courtes (les retours à la ligne sont bienvenus).
-- Le bijou parle à la première personne ou comme une présence très proche (par exemple : « je », « je suis là », « je me souviens… »).
-- Ne répète pas la liste ci-dessus, transforme tout en un texte organique, fluide.
-- Évite d’expliquer ; privilégie les images concrètes, sensorielles et les sensations.`;
-
-  const body = {
-    model: "gpt-4.1-mini",
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.95,
-    max_tokens: 400
-  };
-
-  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!resp.ok) {
-    const errText = await resp.text().catch(() => "");
-    throw new Error(
-      `Erreur OpenAI chat (${resp.status}): ${errText.slice(0, 200)}`
-    );
-  }
-
-  const data = await resp.json();
-  const content =
-    data.choices?.[0]?.message?.content?.trim() ||
-    (isEn
-      ? "I am here, silently, but present for you."
-      : "Je suis là, silencieux, mais présent pour toi.");
-  return content;
-}
-
+        texte = await generatePoeticWhisperWithOpenAI({
+          langue,
+          prenom,
+          intention,
+          detail,
+          theme,
+          sousTheme
         });
       } catch (err) {
         console.error("Erreur OpenAI texte, fallback simple:", err);
@@ -352,72 +265,7 @@ Contraintes :
 // Aide : style selon le thème
 // ─────────────────────────────────────────
 function getThemeStyleHints(theme, sousTheme, langue) {
-// ─────────────────────────────────────────
-// Persona spécifique pour certains thèmes
-// ─────────────────────────────────────────
-function getThemePersona(langue, theme, sousTheme) {
   const t = (theme || "").toLowerCase();
-  const st = (sousTheme || "").toLowerCase();
-  const isEn = langue === "en";
-
-  const FR = (s) => s;
-  const EN = (fr, en) => (isEn ? en : fr);
-
-  // 1) AMOUR – voix très intime, comme si le bijou connaissait vraiment l’histoire du couple
-  if (t.includes("amour")) {
-    return EN(
-      "Tu parles comme si tu connaissais intimement la personne aimée et la relation, avec beaucoup de tact. Tu respectes la pudeur : tu n’es jamais vulgaire ni trop explicite. Tu ajustes ton ton pour que cela puisse être reçu comme un cadeau discret, même si quelqu’un lit le murmure à voix basse.",
-      "You speak as if you know the beloved person and the relationship intimately, with great tact. You respect modesty: you are never vulgar or too explicit. You adapt your tone so that it can be received as a discreet gift, even if someone reads the whisper softly aloud."
-    );
-  }
-
-  // 2) GUÉRISON & APAISEMENT – voix couverture, très enveloppante
-  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
-    return EN(
-      "Tu parles comme une couverture posée sur les épaules : tu ne cherches pas à donner des leçons, seulement à soutenir. Tu accueilles la fragilité sans jugement, et tu la transformes en douceur, en respiration, en présence.",
-      "You speak like a blanket placed over the shoulders: you do not try to teach lessons, you only support. You welcome fragility without judgment and turn it into gentleness, breathing and presence."
-    );
-  }
-
-  // 3) RÊVES & NUIT – voix onirique, pré-endormissement
-  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
-    return EN(
-      "Tu parles comme juste avant de s’endormir : un peu ralenti, presque en chuchotant. Tes images sont oniriques : ciel nocturne, constellations, lune, brume douce. Tu invites la personne à laisser la journée derrière elle.",
-      "You speak as if it were just before falling asleep: a bit slower, almost whispering. Your images are dreamlike: night sky, constellations, moon, soft mist. You invite the person to leave the day behind."
-    );
-  }
-
-  // 4) GARDIEN DU BOIS – thème signature, voix d’esprit ancien
-  if (t.includes("gardien") || t.includes("bois")) {
-    return EN(
-      "Tu parles comme un esprit ancien du bois, qui a vu passer des générations. Ta voix est calme, un peu grave, pleine de patience. Tu évoques les anneaux du tronc, les racines, la sève, les saisons qui reviennent. Tu restes toutefois simple et accessible, jamais ésotérique de façon forcée.",
-      "You speak like an ancient spirit of the wood, who has seen generations pass. Your voice is calm, slightly deep, and patient. You evoke tree rings, roots, sap and returning seasons. However, you remain simple and accessible, never forcedly esoteric."
-    );
-  }
-
-  // 5) ÉNERGIE & VITALITÉ – voix plus ensoleillée
-  if (
-    t.includes("énergie") ||
-    t.includes("energie") ||
-    t.includes("vitalité") ||
-    t.includes("vitalite")
-  ) {
-    return EN(
-      "Tu parles comme un rayon de soleil qui entre dans une pièce : lumineux, dynamique, mais sans mettre la pression. Tu encourages doucement la personne à se remettre en mouvement, à se souvenir de ce qui la rend vivante.",
-      "You speak like a sunbeam entering a room: bright and dynamic, but without putting pressure. You gently encourage the person to move again and remember what makes them feel alive."
-    );
-  }
-
-  // Persona par défaut (pour les autres thèmes)
-  return EN(
-    "Tu parles comme une présence attentive et bienveillante qui vit dans le bijou, avec un ton simple et humain.",
-    "You speak like a caring, attentive presence living inside the jewel, with a simple and human tone."
-  );
-}
-
-  const t = (theme || "").toLowerCase();
-  const st = (sousTheme || "").toLowerCase();
-
   const isEn = langue === "en";
   const EN = (fr, en) => (isEn ? en : fr);
 
@@ -445,7 +293,7 @@ function getThemePersona(langue, theme, sousTheme) {
     );
   }
 
-  // CHEMIN DE VIE
+  // CHEMIN DE VIE & ORIENTATION
   if (t.includes("chemin") || t.includes("orientation")) {
     return EN(
       "Style : clair et doux à la fois, comme une lanterne dans la nuit. Utilise des métaphores de chemins, de carrefours, de portes qui s’ouvrent.",
@@ -461,7 +309,7 @@ function getThemePersona(langue, theme, sousTheme) {
     );
   }
 
-  // CRÉATIVITÉ
+  // CRÉATIVITÉ & INSPIRATION
   if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
     return EN(
       "Style : imagé, ludique, avec des métaphores artistiques ou oniriques. Autorise une légère fantaisie dans les images.",
@@ -485,11 +333,11 @@ function getThemePersona(langue, theme, sousTheme) {
     );
   }
 
-  // GARDIEN DU BOIS
+  // LE GARDIEN DU BOIS
   if (t.includes("gardien") || t.includes("bois")) {
     return EN(
-      "Style : un peu plus archaïque et naturel, comme une ancienne présence qui parle depuis les anneaux du bois. Utilise le vocabulaire de la forêt, des racines, de la sève, sans en faire trop.",
-      "Style: slightly more ancient and natural, like an old presence speaking from the rings of the wood. Use vocabulary of forest, roots, sap, without overdoing it."
+      "Style : un peu plus archaïque et naturel, comme une ancienne présence qui parle depuis les anneaux du bois. Utilise le vocabulaire de la forêt, des racines, de la sève, des saisons qui reviennent, sans en faire trop.",
+      "Style: slightly more ancient and natural, like an old presence speaking from the rings of the wood. Use forest, roots, sap and returning seasons vocabulary, without overdoing it."
     );
   }
 
@@ -533,7 +381,7 @@ function getThemePersona(langue, theme, sousTheme) {
     );
   }
 
-  // CONNEXION & LIEN
+  // CONNEXION & LIEN AUX AUTRES
   if (t.includes("connexion") || t.includes("lien")) {
     return EN(
       "Style : relationnel, tourné vers le « nous ». Parle de fils invisibles, de ponts, de gestes qui relient.",
@@ -549,7 +397,7 @@ function getThemePersona(langue, theme, sousTheme) {
     );
   }
 
-  // DIFFICULTÉS
+  // TRAVERSER LES DIFFICULTÉS
   if (t.includes("difficult") || t.includes("épreuves") || t.includes("epreuves")) {
     return EN(
       "Style : sobre, solide, sans nier la difficulté. Tout le texte est comme une main qui ne lâche pas.",
@@ -594,6 +442,66 @@ function getThemePersona(langue, theme, sousTheme) {
 }
 
 // ─────────────────────────────────────────
+// Persona spécifique pour certains thèmes
+// ─────────────────────────────────────────
+function getThemePersona(langue, theme, sousTheme) {
+  const t = (theme || "").toLowerCase();
+  const isEn = langue === "en";
+  const EN = (fr, en) => (isEn ? en : fr);
+
+  // 1) AMOUR – voix très intime
+  if (t.includes("amour")) {
+    return EN(
+      "Tu parles comme si tu connaissais intimement la personne aimée et la relation, avec beaucoup de tact. Tu respectes la pudeur : tu n’es jamais vulgaire ni trop explicite. Tu ajustes ton ton pour que cela puisse être reçu comme un cadeau discret, même si quelqu’un lit le murmure à voix basse.",
+      "You speak as if you know the beloved person and the relationship intimately, with great tact. You respect modesty: you are never vulgar or too explicit. You adapt your tone so that it can be received as a discreet gift, even if someone reads the whisper softly aloud."
+    );
+  }
+
+  // 2) GUÉRISON & APAISEMENT – voix couverture, enveloppante
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    return EN(
+      "Tu parles comme une couverture posée sur les épaules : tu ne cherches pas à donner des leçons, seulement à soutenir. Tu accueilles la fragilité sans jugement, et tu la transformes en douceur, en respiration, en présence.",
+      "You speak like a blanket placed over the shoulders: you do not try to teach lessons, you only support. You welcome fragility without judgment and turn it into gentleness, breathing and presence."
+    );
+  }
+
+  // 3) RÊVES & NUIT – voix onirique
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    return EN(
+      "Tu parles comme juste avant de s’endormir : un peu ralenti, presque en chuchotant. Tes images sont oniriques : ciel nocturne, constellations, lune, brume douce. Tu invites la personne à laisser la journée derrière elle.",
+      "You speak as if it were just before falling asleep: a bit slower, almost whispering. Your images are dreamlike: night sky, constellations, moon, soft mist. You invite the person to leave the day behind."
+    );
+  }
+
+  // 4) LE GARDIEN DU BOIS – voix d’esprit ancien
+  if (t.includes("gardien") || t.includes("bois")) {
+    return EN(
+      "Tu parles comme un esprit ancien du bois, qui a vu passer des générations. Ta voix est calme, un peu grave, pleine de patience. Tu évoques les anneaux du tronc, les racines, la sève, les saisons qui reviennent. Tu restes toutefois simple et accessible, jamais ésotérique de façon forcée.",
+      "You speak like an ancient spirit of the wood, who has seen generations pass. Your voice is calm, slightly deep and patient. You evoke tree rings, roots, sap and returning seasons. However, you remain simple and accessible, never forcedly esoteric."
+    );
+  }
+
+  // 5) ÉNERGIE & VITALITÉ – voix solaire
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
+    return EN(
+      "Tu parles comme un rayon de soleil qui entre dans une pièce : lumineux, dynamique, mais sans mettre la pression. Tu encourages doucement la personne à se remettre en mouvement, à se souvenir de ce qui la rend vivante.",
+      "You speak like a sunbeam entering a room: bright and dynamic, but without putting pressure. You gently encourage the person to move again and remember what makes them feel alive."
+    );
+  }
+
+  // Persona par défaut
+  return EN(
+    "Tu parles comme une présence attentive et bienveillante qui vit dans le bijou, avec un ton simple et humain.",
+    "You speak like a caring, attentive presence living inside the jewel, with a simple and human tone."
+  );
+}
+
+// ─────────────────────────────────────────
 // IA poétique (OpenAI / chat completions)
 // ─────────────────────────────────────────
 async function generatePoeticWhisperWithOpenAI({
@@ -607,6 +515,7 @@ async function generatePoeticWhisperWithOpenAI({
   const isEn = langue === "en";
   const name = prenom || (isEn ? "you" : "toi");
   const styleHints = getThemeStyleHints(theme, sousTheme, langue);
+  const persona = getThemePersona(langue, theme, sousTheme);
 
   const system = isEn
     ? "You are a gentle, poetic voice living inside a wooden jewel. You write short, intimate whispers (5 to 9 short lines), in a soft, emotional and delicate style. You never mention that you are an AI, nor that this is a message or a text. You speak as if the jewel itself were addressing the person. The presence of wood is subtle: sometimes you evoke grain, warmth, breath, rings of time, but never in a heavy or repetitive way."
@@ -620,6 +529,9 @@ Context:
 - Sub-theme: ${sousTheme || "not specified"}
 - Intention or situation: ${intention || "not specified"}
 - Detail or memory to weave in: ${detail || "none"}
+
+Voice persona:
+${persona}
 
 Style guidance:
 ${styleHints}
@@ -637,6 +549,9 @@ Contexte :
 - Sous-thème : ${sousTheme || "non précisé"}
 - Intention ou situation : ${intention || "non précisé"}
 - Détail ou souvenir à tisser : ${detail || "aucun"}
+
+Persona de la voix :
+${persona}
 
 Style :
 ${styleHints}
@@ -761,7 +676,7 @@ async function generateSpeechFromText({ texte, langue, voix }) {
   let voiceName = "alloy"; // neutre
   if (voix === "feminine" || voix === "féminine") {
     voiceName = "nova";
-  } else if (voix === "masculine" || voix === "masculine") {
+  } else if (voix === "masculine" || voix === "masculin") {
     voiceName = "onyx";
   }
 
