@@ -181,7 +181,6 @@ export default async function handler(req, res) {
     });
   }
 }
-
 // ─────────────────────────────────────────
 // Générateur de murmure "simple"
 // ─────────────────────────────────────────
@@ -200,16 +199,16 @@ function genererMurmureSimple({
     let base = `“${capitalizeFirst(nom)}, this whisper rises from the heart of the wood.`;
 
     if (theme) {
-      base += ` It carries a note of ${theme.toLowerCase()}.`;
+      base += ` It carries a shade of ${theme}.`;
     }
     if (sousTheme) {
-      base += ` More precisely: ${sousTheme.toLowerCase()}.`;
+      base += ` More precisely: ${sousTheme}.`;
     }
     if (intention) {
-      base += `\n\nWhat wants to be said today is: ${intention}`;
+      base += `\n\nWhat wants to be said today is: ${intention}.`;
     }
     if (detail) {
-      base += `\n\nIn the background, there is: ${detail}.`;
+      base += `\n\nIn the background, there is this memory: ${detail}.`;
     }
 
     base += `\n\nEach time you call this jewel, it remembers you and answers in its own way.”`;
@@ -222,16 +221,23 @@ function genererMurmureSimple({
   )}, ce murmure s’élève du cœur du bois.`;
 
   if (theme) {
-    base += ` Il porte une nuance de ${theme.toLowerCase()}.`;
+    const t = theme.trim();
+    const lower = t.toLowerCase();
+    const startsWithVowel = /^[aeiouyhàâäáãéèêëîïíìôöóòúùûü]/i.test(lower);
+    const prep = startsWithVowel ? "d’" : "de ";
+    base += ` Il porte une nuance ${prep}${t}.`;
   }
+
   if (sousTheme) {
-    base += ` Plus précisément : ${sousTheme.toLowerCase()}.`;
+    base += ` Plus précisément : ${sousTheme}.`;
   }
+
   if (intention) {
-    base += `\n\nCe qui cherche à se dire aujourd’hui : ${intention}`;
+    base += `\n\nCe qui cherche à se dire aujourd’hui, c’est ${intention}.`;
   }
+
   if (detail) {
-    base += `\n\nEn filigrane, il y a : ${detail}.`;
+    base += `\n\nEn filigrane, il y a ce souvenir : ${detail}.`;
   }
 
   base += `\n\nÀ chaque fois que tu appelles ce bijou, il se souvient de toi et répond à sa manière. »`;
