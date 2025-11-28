@@ -1,11 +1,11 @@
 // api/message.js
 //
-// Génère un murmure poétique pour un bijou ("bijous" dans Supabase)
+// Génère un murmure poétique pour un bijou de la table "bijous"
 // + décrémente messages_restants + met à jour date_dernier_murmure
 // + génère un audio mp3 (TTS) à partir du texte.
 //
-// Style demandé : poétique & intime.
-// Langue : FR ou EN selon bijou.langue (FR par défaut).
+// Style demandé : poétique & intime, adapté au thème.
+// Langues : FR ou EN (FR par défaut).
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -15,10 +15,9 @@ const SUPABASE_ANON_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// On lit la clé OpenAI depuis les variables d'environnement Vercel
+// Clé OpenAI dans les variables d'env Vercel (OPENAI_API_KEY)
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// Petit helper pour s'assurer qu'on a bien une clé
 function hasOpenAIKey() {
   return typeof OPENAI_API_KEY === "string" && OPENAI_API_KEY.trim().length > 0;
 }
@@ -44,7 +43,7 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────
-    // 1) Récupération du bijou dans Supabase
+    // 1) Récupération du bijou
     // ─────────────────────────────────────
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
@@ -77,8 +76,7 @@ export default async function handler(req, res) {
 
     if (!bijou) {
       return res.status(200).json({
-        text:
-          "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal.",
+        text: "Ce bijou n’est pas encore relié à sa voix. Contactez l’atelier si cela vous semble anormal.",
         audio: null
       });
     }
@@ -138,9 +136,9 @@ export default async function handler(req, res) {
     let sousTheme = bijou.sous_theme || "";
     const voix = (voixParam || bijou.voix || "neutre").toLowerCase();
 
-    // 5bis) Nettoyage de l'ancien format "Thème principal / Sous-thème / Texte libre fourni"
     let intention = rawIntention;
 
+    // Nettoyage ancien format "Thème principal / Sous-thème / Texte libre fourni"
     if (!theme && rawIntention && rawIntention.startsWith("Thème principal")) {
       const themeMatch = rawIntention.match(
         /Thème principal\s*:\s*(.+?)\s*Sous-thème/i
@@ -165,8 +163,6 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────
     // 6) Générer le texte du murmure
-    //    - si OPENAI_API_KEY définie → IA poétique
-    //    - sinon → générateur simple de secours
     // ─────────────────────────────────────
     let texte;
 
@@ -193,7 +189,7 @@ export default async function handler(req, res) {
         });
       }
     } else {
-      // Pas de clé, on garde le générateur simple
+      // Pas de clé OpenAI → générateur simple
       texte = genererMurmureSimple({
         langue,
         prenom,
@@ -206,11 +202,10 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────
-    // 7) Mettre à jour la base
+    // 7) Mise à jour Supabase
     // ─────────────────────────────────────
     const now = new Date().toISOString();
     let nouveauSolde = messagesRestants;
-
     if (messagesRestants !== null) {
       nouveauSolde = Math.max(messagesRestants - 1, 0);
     }
@@ -229,10 +224,11 @@ export default async function handler(req, res) {
 
     if (updateError) {
       console.error("Erreur update messages_restants:", updateError);
+      // on continue malgré tout
     }
 
     // ─────────────────────────────────────
-    // 8) Générer l’audio TTS (mp3) à partir du texte
+    // 8) Générer l’audio (TTS OpenAI)
     // ─────────────────────────────────────
     let audioDataUrl = null;
 
@@ -253,7 +249,7 @@ export default async function handler(req, res) {
     // ─────────────────────────────────────
     return res.status(200).json({
       text: texte,
-      audio: audioDataUrl // data:audio/mp3;base64,....
+      audio: audioDataUrl
     });
   } catch (e) {
     console.error("Erreur interne /api/message:", e);
@@ -265,17 +261,14 @@ export default async function handler(req, res) {
 }
 
 // ─────────────────────────────────────────
-// IA poétique (OpenAI / chat completions)
+// Aide : style selon le thème
 // ─────────────────────────────────────────
 function getThemeStyleHints(theme, sousTheme, langue) {
   const t = (theme || "").toLowerCase();
   const st = (sousTheme || "").toLowerCase();
 
   const isEn = langue === "en";
-
-  // Petite aide utilitaire pour retourner plus vite une phrase
-  const FR = (s) => s;
-  const EN = (s, sEn) => (isEn ? sEn : s);
+  const EN = (fr, en) => (isEn ? en : fr);
 
   // AMOUR
   if (t.includes("amour")) {
@@ -312,7 +305,7 @@ function getThemeStyleHints(theme, sousTheme, langue) {
   // COURAGE & DÉPASSEMENT
   if (t.includes("courage") || t.includes("dépassement") || t.includes("depassement")) {
     return EN(
-      "Style : encourageant, solide, mais sans agressivité. On sent une force calme qui dit : ‘tu peux’ sans crier.",
+      "Style : encourageant, solide, mais sans agressivité. On sent une force calme qui dit : « tu peux » sans crier.",
       "Style: encouraging and steady, but never aggressive. A calm strength that says “you can do this” without shouting."
     );
   }
@@ -329,7 +322,7 @@ function getThemeStyleHints(theme, sousTheme, langue) {
   if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
     return EN(
       "Style : nocturne, doux, presque chuchoté à la lueur d’une veilleuse. Utilise des images de nuit, de ciel, de brumes légères.",
-      "Style: nocturnal, gentle, almost whispered in the dim light. Use images of night, sky and soft mists."
+      "Style: nocturnal, gentle, almost whispered in dim light. Use images of night, sky and soft mists."
     );
   }
 
@@ -392,7 +385,7 @@ function getThemeStyleHints(theme, sousTheme, langue) {
   // CONNEXION & LIEN
   if (t.includes("connexion") || t.includes("lien")) {
     return EN(
-      "Style : relationnel, tourné vers le ‘nous’. Parle de fils invisibles, de ponts, de gestes qui relient.",
+      "Style : relationnel, tourné vers le « nous ». Parle de fils invisibles, de ponts, de gestes qui relient.",
       "Style: relational, oriented towards “we”. Speak of invisible threads, bridges and gestures that connect."
     );
   }
@@ -430,20 +423,28 @@ function getThemeStyleHints(theme, sousTheme, langue) {
   }
 
   // ÉNERGIE & VITALITÉ
-  if (t.includes("énergie") || t.includes("energie") || t.includes("vitalité") || t.includes("vitalite")) {
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
     return EN(
       "Style : plus dynamique, tonique, comme un rayon de soleil qui entre dans une pièce. Reste doux mais vivant.",
       "Style: more dynamic and tonic, like a sunbeam entering a room. Stay gentle but lively."
     );
   }
 
-  // Par défaut :
+  // Par défaut
   return EN(
     "Style : intime, doux, poétique, avec quelques images liées au bois, au souffle et à la lumière.",
     "Style: intimate, soft and poetic, with a few images related to wood, breath and light."
   );
 }
 
+// ─────────────────────────────────────────
+// IA poétique (OpenAI / chat completions)
+// ─────────────────────────────────────────
 async function generatePoeticWhisperWithOpenAI({
   langue,
   prenom,
@@ -454,7 +455,6 @@ async function generatePoeticWhisperWithOpenAI({
 }) {
   const isEn = langue === "en";
   const name = prenom || (isEn ? "you" : "toi");
-
   const styleHints = getThemeStyleHints(theme, sousTheme, langue);
 
   const system = isEn
@@ -531,81 +531,10 @@ Contraintes :
       : "Je suis là, silencieux, mais présent pour toi.");
   return content;
 }
-}) {
-  const isEn = langue === "en";
-  const name = prenom || (isEn ? "you" : "toi");
-
-  const system = isEn
-    ? "You are a gentle, poetic voice living in a wooden jewel. You write short, intimate whispers (5 to 9 lines max), in a soft, emotional and delicate style. You never mention that you are an AI. You never talk about 'this message' or 'this text'. You speak as if the jewel itself were addressing the person."
-    : "Tu es une voix douce et poétique qui habite dans un bijou en bois. Tu écris de courts murmures intimes (entre 5 et 9 lignes), dans un style délicat, sensible et chaleureux. Tu ne mentionnes jamais que tu es une IA. Tu ne parles pas de 'ce message' ou 'ce texte'. Tu parles comme si le bijou lui-même s’adressait à la personne.";
-
-  const userPrompt = isEn
-    ? `Write a poetic whisper for ${name}.
-
-Context:
-- Main theme: ${theme || "not specified"}
-- Sub-theme: ${sousTheme || "not specified"}
-- Intention or situation: ${intention || "not specified"}
-- Detail or memory to weave in: ${detail || "none"}
-
-Constraints:
-- Tone: intimate, gentle, soft.
-- 5 to 9 short lines.
-- The jewel speaks in the first person or as a very close presence.
-- Do not repeat the bullet list, transform it into an organic, flowing text.`
-    : `Écris un murmure poétique pour ${name}.
-
-Contexte :
-- Thème principal : ${theme || "non précisé"}
-- Sous-thème : ${sousTheme || "non précisé"}
-- Intention ou situation : ${intention || "non précisé"}
-- Détail ou souvenir à tisser : ${detail || "aucun"}
-
-Contraintes :
-- Ton : intime, doux, réconfortant.
-- Entre 5 et 9 lignes courtes.
-- Le bijou parle à la première personne ou comme une présence très proche.
-- Ne répète pas la liste ci-dessus, transforme-la en un texte organique, fluide.`;
-
-  const body = {
-    model: "gpt-4.1-mini", // modèle léger mais déjà très bon pour le style
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.9,
-    max_tokens: 350
-  };
-
-  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!resp.ok) {
-    const errText = await resp.text().catch(() => "");
-    throw new Error(
-      `Erreur OpenAI chat (${resp.status}): ${errText.slice(0, 200)}`
-    );
-  }
-
-  const data = await resp.json();
-  const content =
-    data.choices?.[0]?.message?.content?.trim() ||
-    (isEn
-      ? "I am here, silently, but present for you."
-      : "Je suis là, silencieux, mais présent pour toi.");
-  return content;
-}
 
 // ─────────────────────────────────────────
-// Générateur simple de secours (sans IA)
+// Générateur simple (fallback sans IA)
 // ─────────────────────────────────────────
-
 function genererMurmureSimple({
   langue,
   prenom,
@@ -672,25 +601,17 @@ function capitalizeFirst(str) {
 }
 
 // ─────────────────────────────────────────
-// Génération de l’audio (TTS) via OpenAI
+// Génération de l’audio (TTS OpenAI)
 // ─────────────────────────────────────────
-//
-// On utilise l’endpoint /v1/audio/speech
-// voir la doc : modèle tts-1 + voix alloy/nova/onyx/etc.
-
 async function generateSpeechFromText({ texte, langue, voix }) {
   if (!texte || !OPENAI_API_KEY) return null;
 
-  // Choix d’une voix selon la préférence
-  // (tu pourras ajuster plus tard si tu veux d’autres combinaisons)
-  let voiceName = "alloy"; // neutre par défaut
-
+  // Choix d’une voix
+  let voiceName = "alloy"; // neutre
   if (voix === "feminine" || voix === "féminine") {
     voiceName = "nova";
   } else if (voix === "masculine" || voix === "masculine") {
     voiceName = "onyx";
-  } else {
-    voiceName = "alloy";
   }
 
   const body = {
