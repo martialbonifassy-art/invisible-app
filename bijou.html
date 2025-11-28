@@ -9,6 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2b241c;
+      --text-soft: #7f6248;
+      --card-bg: rgba(255, 250, 243, 0.96);
+      --border-soft: rgba(170, 140, 90, 0.45);
+      --shadow-soft: 0 18px 40px rgba(0,0,0,0.20);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -19,31 +31,49 @@
       justify-content: center;
       align-items: center;
       padding: 20px 10px;
-      color: #3c2f25;
+      color: var(--text-main);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* voile léger sur la forêt pour la lisibilité */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), transparent 55%),
+                  radial-gradient(circle at 10% 80%, rgba(255,230,200,0.25), transparent 50%),
+                  radial-gradient(circle at 90% 70%, rgba(210,190,160,0.25), transparent 50%),
+                  rgba(0,0,0,0.30);
+      pointer-events: none;
+      z-index: -1;
     }
 
     .carte {
       max-width: 720px;
       width: 100%;
-      background: rgba(255, 250, 243, 0.96);
+      background: var(--card-bg);
       border-radius: 28px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.20);
-      border: 1px solid rgba(170, 140, 90, 0.45);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
       padding: 22px 22px 26px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
     }
 
     h1 {
       font-size: 0.95rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #b8833a;
+      color: var(--accent);
       margin: 0 0 6px;
     }
 
     .sous-titre {
       font-size: 0.9rem;
-      color: #7f6248;
+      color: var(--text-soft);
       margin-bottom: 12px;
     }
 
@@ -54,15 +84,16 @@
       border-radius: 999px;
       padding: 6px 14px;
       background: #f5ebdd;
-      border: 1px solid rgba(170, 140, 90, 0.45);
+      border: 1px solid var(--border-soft);
       font-size: 0.82rem;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .pastille {
       width: 8px;
       height: 8px;
       border-radius: 999px;
       background: #4caf50;
+      box-shadow: 0 0 8px rgba(76,175,80,0.8);
     }
 
     .etat {
@@ -71,58 +102,50 @@
       margin-bottom: 10px;
     }
 
-    /* BLOC MURMURE : machine à écrire + halo + particules */
+    /* Zone du murmure – machine à écrire + lueur */
+    .murmure-wrapper {
+      position: relative;
+      margin: 16px 0 14px;
+    }
+
     .murmure {
       position: relative;
       font-family: "Special Elite", "Courier New", Courier, ui-monospace, monospace;
-      font-size: 1.15rem;
-      line-height: 1.55;
+      font-size: 1.08rem;
+      line-height: 1.6;
       letter-spacing: 0.02em;
-      color: #2b241c;
-      background: rgba(255,250,243,0.95);
+      color: var(--text-main);
+      background: rgba(255,250,243,0.9);
       border-radius: 10px;
-      padding: 16px 18px;
-      border: 1px solid rgba(140, 95, 40, 0.6);
+      padding: 14px 16px;
+      border: 1px solid rgba(0,0,0,0.12);
       box-shadow:
-        0 0 25px rgba(255, 215, 140, 0.9),
-        0 0 55px rgba(255, 200, 120, 0.8),
-        inset 0 0 6px rgba(0,0,0,0.08);
-      text-shadow: 0px 1px rgba(0,0,0,0.12);
-      margin: 16px 0 18px;
+        inset 0 0 6px rgba(0,0,0,0.06),
+        0 2px 6px rgba(0,0,0,0.12);
+      text-align: left;
       min-height: 4em;
-      overflow: hidden;
+      white-space: pre-wrap;
     }
 
-    /* Halo doré */
+    /* lueur dorée douce */
     .murmure::before {
       content: "";
       position: absolute;
-      inset: -18px;
-      border-radius: inherit;
-      background:
-        radial-gradient(circle at 20% 0%, rgba(255, 245, 200, 0.9) 0, transparent 55%),
-        radial-gradient(circle at 80% 100%, rgba(255, 210, 140, 0.9) 0, transparent 60%);
-      opacity: 0.9;
+      inset: 0;
+      border-radius: 10px;
+      background: radial-gradient(circle at 20% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
+      mix-blend-mode: soft-light;
+      opacity: 0.85;
       pointer-events: none;
       z-index: -1;
-      animation: auraPulse 4s ease-in-out infinite;
     }
 
-    @keyframes auraPulse {
-      0%   { opacity: 0.5; transform: scale(0.98); }
-      25%  { opacity: 1;   transform: scale(1.03); }
-      50%  { opacity: 0.7; transform: scale(1.07); }
-      75%  { opacity: 1;   transform: scale(1.02); }
-      100% { opacity: 0.5; transform: scale(0.98); }
-    }
-
-    /* Curseur qui clignote */
+    /* Curseur qui clignote façon machine à écrire */
     .murmure::after {
       content: "▌";
       margin-left: 4px;
       animation: blink 0.7s infinite;
       opacity: 1;
-      position: relative;
     }
 
     @keyframes blink {
@@ -131,34 +154,29 @@
       100% { opacity: 1; }
     }
 
-    /* Particules lumineuses */
-    .murmure-particle {
+    /* Petits points lumineux flottants */
+    .spark {
       position: absolute;
-      bottom: -16px;
-      width: 10px;
-      height: 10px;
+      width: 6px;
+      height: 6px;
       border-radius: 999px;
-      background: rgba(255, 255, 230, 0.98);
-      box-shadow:
-        0 0 10px rgba(255, 245, 200, 1),
-        0 0 25px rgba(255, 220, 150, 1),
-        0 0 40px rgba(255, 255, 240, 1);
-      opacity: 0;
-      animation: particleFloat 5s linear forwards;
+      background: rgba(255, 223, 150, 0.9);
+      box-shadow: 0 0 10px rgba(255, 223, 150, 0.95);
+      opacity: 0.0;
+      animation: floatSpark 6s linear infinite;
+      pointer-events: none;
     }
 
-    @keyframes particleFloat {
-      0% {
-        transform: translate3d(0, 0, 0) scale(0.7);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate3d(var(--driftX, 0px), -180px, 0) scale(1.1);
-        opacity: 0;
-      }
+    .spark:nth-child(1) { top: 12%; left: 16%; animation-delay: 0s; }
+    .spark:nth-child(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
+    .spark:nth-child(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
+    .spark:nth-child(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
+
+    @keyframes floatSpark {
+      0%   { transform: translateY(6px); opacity: 0; }
+      10%  { opacity: 0.9; }
+      60%  { opacity: 0.7; }
+      100% { transform: translateY(-10px); opacity: 0; }
     }
 
     .compteur {
@@ -168,265 +186,140 @@
     }
 
     .note {
-      margin-top: 16px;
       font-size: 0.78rem;
-      color: #98816a;
+      color: #a1896a;
+      margin-top: 10px;
     }
 
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 9px 18px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: #d6a85a;
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
-      margin: 4px 4px 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .note a {
+      color: #8b6425;
+      text-decoration: none;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
+    .note a:hover {
+      text-decoration: underline;
     }
 
-    .icone {
-      font-size: 1.1rem;
+    audio {
+      margin-top: 10px;
     }
   </style>
 </head>
-
 <body>
   <div class="carte">
     <h1>L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="sous-titre">Murmure associé à cet objet en bois.</div>
+    <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
 
     <div class="badge-id">
       <span class="pastille"></span>
-      <span>Bijou — ID <span id="idBijou">…</span></span>
+      <span id="badgeId">Bijou inconnu</span>
     </div>
 
-    <div class="etat" id="etat">Connexion au bijou…</div>
+    <div class="etat" id="etat">Le bijou se réveille…</div>
 
-    <div class="murmure" id="murmureTexte"><em>Le murmure va apparaître ici…</em></div>
+    <div class="murmure-wrapper">
+      <!-- petits points lumineux -->
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
 
-    <div>
-      <button id="btnAudio">
-        <span class="icone">🔊</span>
-        <span id="btnAudioLabel">Écouter le murmure</span>
-      </button>
-      <button id="btnRelire">
-        <span class="icone">✏️</span>Relire le texte
-      </button>
+      <div class="murmure" id="murmure">
+        Le murmure va apparaître ici…
+      </div>
     </div>
 
-    <div class="compteur" id="compteur">Murmures restants : —</div>
+    <!-- Audio du murmure (caché tant qu’il n’y a pas de son) -->
+    <audio id="murmureAudio" controls style="margin-top:12px; width:100%; display:none;">
+      Votre navigateur ne supporte pas la lecture audio.
+    </audio>
+
+    <div class="compteur" id="compteur"></div>
 
     <div class="note">
-      Chaque ouverture consomme un murmure parmi ceux offerts à ce bijou.
+      Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
+      <br />
+      Si quelque chose vous semble anormal, contactez l’atelier.
     </div>
   </div>
 
   <script>
-    // ─────────────────────────────────────────────────────────────
-    // Récupération de l’ID dans l’URL
-    // ─────────────────────────────────────────────────────────────
-    const params = new URLSearchParams(window.location.search);
-    const bijouId = params.get("id") || "ID BIJOU";
-
-    const idBijouEl = document.getElementById("idBijou");
+    const murEl = document.getElementById("murmure");
     const etatEl = document.getElementById("etat");
-    const murmureEl = document.getElementById("murmureTexte");
+    const badgeIdEl = document.getElementById("badgeId");
     const compteurEl = document.getElementById("compteur");
-    const btnAudio = document.getElementById("btnAudio");
-    const btnAudioLabel = document.getElementById("btnAudioLabel");
-    const btnRelire = document.getElementById("btnRelire");
+    const audioEl = document.getElementById("murmureAudio");
 
-    idBijouEl.textContent = bijouId;
-
-    let texteComplet = "";
-    let audioObj = null;
-    let audioUrl = null;
-    let isLoadingAudio = false;
-    let isPlaying = false;
-    let particlesInterval = null;
-
-    // ─────────────────────────────────────────────────────────────
     // Effet machine à écrire
-    // ─────────────────────────────────────────────────────────────
-    function typeWriter(text, element, speed = 35) {
-      element.textContent = "";
+    function typeWriterEffect(text, speed = 28) {
+      murEl.innerHTML = "";
       let i = 0;
+
       function step() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
+        if (i <= text.length) {
+          const partial = text.slice(0, i);
+          // Remplacer les sauts de ligne par des <br> pour l’affichage
+          murEl.innerHTML = partial
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\n/g, "<br>");
           i++;
           setTimeout(step, speed);
         }
       }
+
       step();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Particules lumineuses
-    // ─────────────────────────────────────────────────────────────
-    function spawnParticle() {
-      if (!murmureEl) return;
-      const rect = murmureEl.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-
-      // On crée plusieurs particules d’un coup
-      for (let i = 0; i < 3; i++) {
-        const p = document.createElement("span");
-        p.className = "murmure-particle";
-
-        const leftPercent = Math.random() * 100;
-        p.style.left = leftPercent + "%";
-
-        const drift = (Math.random() * 80 - 40).toFixed(1) + "px";
-        p.style.setProperty("--driftX", drift);
-
-        murmureEl.appendChild(p);
-
-        p.addEventListener("animationend", () => {
-          p.remove();
-        });
-      }
+    function getBijouIdFromUrl() {
+      const url = new URL(window.location.href);
+      return url.searchParams.get("id") || "BIJOU001";
     }
 
-    function startParticles() {
-      if (particlesInterval) return;
-      particlesInterval = setInterval(spawnParticle, 700);
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // Gestion du bouton audio : /api/tts + MP3
-    // ─────────────────────────────────────────────────────────────
-    async function handleAudioClick() {
-      if (!texteComplet) return;
-      if (isLoadingAudio) return;
-
-      // Si l'audio existe déjà, on joue / met en pause
-      if (audioObj) {
-        if (isPlaying) {
-          audioObj.pause();
-          isPlaying = false;
-          btnAudioLabel.textContent = "Écouter le murmure";
-        } else {
-          audioObj.currentTime = 0;
-          audioObj.play();
-          isPlaying = true;
-          btnAudioLabel.textContent = "Arrêter la voix";
-        }
-        return;
-      }
-
-      // Première demande : appel à /api/tts
-      isLoadingAudio = true;
-      btnAudio.disabled = true;
-      btnAudioLabel.textContent = "Préparation de la voix…";
-
-      try {
-        const r = await fetch("/api/tts", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: texteComplet,
-            voice: "coral", // tu peux tester d'autres voix si tu veux
-          }),
-        });
-
-        if (!r.ok) {
-          console.error("Erreur TTS:", await r.text());
-          alert("Impossible de générer la voix (erreur serveur TTS).");
-          btnAudioLabel.textContent = "Voix indisponible";
-          return;
-        }
-
-        const blob = await r.blob();
-        audioUrl = URL.createObjectURL(blob);
-        audioObj = new Audio(audioUrl);
-
-        audioObj.onended = () => {
-          isPlaying = false;
-          btnAudioLabel.textContent = "Écouter le murmure";
-        };
-
-        audioObj.play();
-        isPlaying = true;
-        btnAudioLabel.textContent = "Arrêter la voix";
-      } catch (e) {
-        console.error(e);
-        alert("Erreur de connexion à la voix du bijou.");
-        btnAudioLabel.textContent = "Voix indisponible";
-      } finally {
-        isLoadingAudio = false;
-        btnAudio.disabled = false;
-      }
-    }
-
-    btnAudio.addEventListener("click", handleAudioClick);
-
-    btnRelire.addEventListener("click", () => {
-      if (!texteComplet) return;
-      typeWriter(texteComplet, murmureEl);
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // Chargement du murmure via /api/message
-    // ─────────────────────────────────────────────────────────────
     async function chargerMurmure() {
-      if (!bijouId) {
-        etatEl.textContent = "Bijou inconnu.";
-        murmureEl.textContent = "";
-        return;
-      }
-
-      etatEl.textContent = "Murmure en cours de composition…";
+      const id = getBijouIdFromUrl();
+      badgeIdEl.textContent = `ID : ${id}`;
+      etatEl.textContent = "Le bijou écoute votre présence…";
 
       try {
-        const r = await fetch(`/api/message?id=${encodeURIComponent(bijouId)}`);
+        const params = new URLSearchParams({
+          id,
+          lang: "fr"
+        });
+
+        const r = await fetch(`/api/message?${params.toString()}`);
         const data = await r.json();
 
-        if (data.error) {
-          etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-          murmureEl.textContent = data.text || "Bijou inconnu.";
-          texteComplet = murmureEl.textContent;
-          return;
-        }
+        const texte = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        typeWriterEffect(texte);
 
-        const texte = data.text || "Le bijou reste silencieux, mais présent.";
-        texteComplet = texte;
+        etatEl.textContent = "Murmure du jour généré.";
 
-        etatEl.textContent = "Murmure reçu.";
-        typeWriter(texteComplet, murmureEl);
-
-        // Lancement des particules quand le murmure est là
-        startParticles();
-
-        let remaining = data.remaining ?? data.messages_left ?? data.remainingMessages;
-        let total = data.total ?? data.totalMessages ?? data.maxMessages ?? 100;
-
-        if (typeof remaining === "number") {
-          compteurEl.textContent = `Murmures restants : ${remaining} / ${total}`;
+        // Gestion de l'audio (si présent)
+        if (data.audio) {
+          audioEl.style.display = "block";
+          audioEl.src = data.audio;
+          // Si tu veux essayer la lecture automatique, décommente :
+          // audioEl.play().catch(() => {});
         } else {
-          compteurEl.textContent = "Murmures restants : —";
+          audioEl.style.display = "none";
+          audioEl.src = "";
         }
 
+        // Si tu veux afficher un compteur plus tard (messages restants),
+        // on pourra étendre l'API pour renvoyer cette info.
+        compteurEl.textContent = "";
       } catch (e) {
         console.error(e);
-        etatEl.textContent = "Impossible de joindre la voix de ce bijou.";
-        murmureEl.textContent = "Bijou inconnu.";
-        texteComplet = murmureEl.textContent;
+        etatEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
+        audioEl.style.display = "none";
+        audioEl.src = "";
       }
     }
 
-    chargerMurmure();
+    window.addEventListener("load", chargerMurmure);
   </script>
 </body>
 </html>
