@@ -71,20 +71,57 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+
     .logo {
       font-size: 0.85rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      text-align: center;
+      text-align: left;
       margin-bottom: 4px;
+      white-space: nowrap;
     }
 
     .subtitle {
       font-size: 0.83rem;
       color: var(--text-soft);
-      text-align: center;
-      margin-bottom: 18px;
+      text-align: left;
+      margin-bottom: 0;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .lang-switch button {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid var(--accent-soft);
+      background: #fff;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
 
     .id-badge {
@@ -97,7 +134,7 @@
       background: rgba(250, 240, 225, 0.95);
       font-size: 0.8rem;
       color: var(--text-soft);
-      margin: 0 auto 18px;
+      margin: 12px auto 18px;
       display: block;
       width: fit-content;
     }
@@ -132,7 +169,7 @@
       box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
 
-    button {
+    button#saveBtn {
       width: 100%;
       margin-top: 20px;
       padding: 12px 18px;
@@ -147,7 +184,7 @@
       transition: 0.2s;
     }
 
-    button:hover {
+    button#saveBtn:hover {
       background: var(--accent-dark);
       transform: translateY(-2px);
     }
@@ -159,74 +196,53 @@
       color: var(--text-soft);
     }
   </style>
+
+  <script>
+    function switchLanguage(lang) {
+      const file = window.location.pathname.split("/").pop() || "client.html";
+
+      const mapping = {
+        "client.html": { fr: "client.html", en: "client-en.html" },
+        "client-en.html": { fr: "client.html", en: "client-en.html" },
+
+        "index.html": { fr: "index.html", en: "index-en.html" },
+        "index-en.html": { fr: "index.html", en: "index-en.html" },
+        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
+        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
+      };
+
+      localStorage.setItem("preferred_lang", lang);
+
+      const target =
+        (mapping[file] && mapping[file][lang]) ||
+        (lang === "fr" ? "client.html" : "client-en.html");
+
+      window.location.href = "/" + target + window.location.search;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const file = window.location.pathname.split("/").pop() || "client.html";
+      const currentLang = file.includes("-en") ? "en" : "fr";
+      const btn = document.querySelector(".lang-" + currentLang);
+      if (btn) btn.classList.add("active");
+    });
+  </script>
 </head>
 
 <body>
   <div class="card">
 
-    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
-    <div class="subtitle">Personnalisez la voix associée à votre bijou.</div>
-
-    <div class="id-badge" id="idBadge">ID : inconnu</div>
-
-    <label for="prenom">Prénom :</label>
-    <input type="text" id="prenom" placeholder="Ex : Marie">
-
-    <label for="souvenir">Souvenir / lieu / détail personnel :</label>
-    <textarea id="souvenir" placeholder="Ex : Le printemps à Toulouse…"></textarea>
-
-    <label for="voix">Choix de la voix :</label>
-    <select id="voix">
-      <option value="femme">Voix féminine</option>
-      <option value="homme">Voix masculine</option>
-    </select>
-
-    <button id="saveBtn">Enregistrer les paramètres</button>
-
-    <div id="result"></div>
-
-  </div>
-
-  <script>
-    // Récupérer l'ID du bijou depuis l'URL
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id") || "INCONNU";
-    document.getElementById("idBadge").textContent = "ID : " + id;
-
-    // Enregistrement vers Supabase via API
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      const result = document.getElementById("result");
-
-      const data = {
-        id: id,
-        prenom: document.getElementById("prenom").value.trim(),
-        souvenir: document.getElementById("souvenir").value.trim(),
-        voix: document.getElementById("voix").value
-      };
-
-      result.textContent = "Enregistrement…";
-
-      try {
-        const r = await fetch("/api/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        const res = await r.json();
-
-        if (!r.ok || res.error) {
-          result.textContent = "❌ Erreur : " + (res.error || "Impossible d'enregistrer");
-          return;
-        }
-
-        result.textContent = "✔️ Paramètres enregistrés avec succès !";
-
-      } catch (e) {
-        console.error(e);
-        result.textContent = "❌ Erreur de connexion au serveur.";
-      }
-    });
-  </script>
-</body>
-</html>
+    <div class="card-header-row">
+      <div class="card-header-text">
+        <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="subtitle">Personnalisez la voix associée à votre bijou.</div>
+      </div>
+      <div class="lang-switch">
+        <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
+        <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
+      </div>
+    </div>
