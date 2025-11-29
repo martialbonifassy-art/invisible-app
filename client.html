@@ -4,47 +4,50 @@
   <meta charset="UTF-8" />
   <title>J’ai déjà un bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
-    /* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
+    /* Switch FR / EN global (sans JS) */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      margin-left: 8px;
+    }
 
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335; /* tu peux ajuster */
-}
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+      display: inline-block;
+    }
 
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+      cursor: default;
+    }
 
     :root {
       --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
-      --accent-dark: #8a5f25;
       --accent-soft: #eadcc8;
       --text-main: #2e241b;
       --text-soft: #5a4335;
       --border-soft: rgba(170, 140, 90, 0.55);
-      --shadow-soft: 0 14px 34px rgba(0,0,0,0.26);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
       --radius-xl: 22px;
     }
 
+    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
@@ -54,14 +57,12 @@
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 18px 12px;
+      flex-direction: column;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    /* 🌲 Fond forêt identique aux autres pages */
+    /* Fond forêt comme index */
     body::before {
       content: "";
       position: fixed;
@@ -71,7 +72,6 @@
       transform: scale(1.03);
       z-index: -2;
     }
-
     body::after {
       content: "";
       position: fixed;
@@ -80,7 +80,72 @@
       z-index: -1;
     }
 
+    /* HEADER (plus simple que l’index) */
+    header {
+      max-width: 980px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 248, 236, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(200, 176, 130, 0.7);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
+
+    .logo-zone { display: flex; flex-direction: column; }
+    .logo-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .logo-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      font-size: 0.82rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--accent-soft);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    nav a:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 760px) {
+      header { flex-direction: column; align-items: flex-start; }
+    }
+
     /* Carte centrale */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px 32px;
+    }
+
     .card {
       max-width: 520px;
       width: 100%;
@@ -90,13 +155,6 @@
       border: 1px solid var(--border-soft);
       padding: 22px 20px 26px;
       backdrop-filter: blur(10px);
-      position: relative;
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .logo {
@@ -109,56 +167,50 @@
     }
 
     .subtitle {
-      font-size: 0.83rem;
+      font-size: 0.85rem;
       color: var(--text-soft);
       text-align: center;
       margin-bottom: 16px;
     }
 
-    /* Switch langue */
-    .lang-switch {
-      position: absolute;
-      top: 12px;
-      right: 14px;
+    .id-badge {
       display: inline-flex;
-      background: #f7ecdd;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
       border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-    }
-
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
+      border: 1px solid var(--accent-soft);
+      background: rgba(250, 240, 225, 0.95);
+      font-size: 0.8rem;
       color: var(--text-soft);
+      margin: 0 auto 18px;
+      display: none; /* On l’affichera si besoin */
+      width: fit-content;
     }
 
-    .lang-btn.active {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #82a738;
+      box-shadow: 0 0 8px rgba(130,167,56,0.9);
     }
 
     label {
       display: block;
-      margin-top: 14px;
-      font-size: 0.87rem;
+      margin-top: 10px;
+      font-size: 0.82rem;
       color: var(--text-soft);
       font-weight: 600;
     }
 
     input {
       width: 100%;
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-radius: 14px;
       border: 1px solid var(--accent-soft);
       background: rgba(255,255,255,0.9);
-      margin-top: 6px;
+      margin-top: 5px;
       font-size: 0.9rem;
       color: var(--text-main);
       outline: none;
@@ -171,13 +223,13 @@
 
     button {
       width: 100%;
-      margin-top: 20px;
-      padding: 12px 18px;
+      margin-top: 16px;
+      padding: 11px 18px;
       border-radius: 18px;
-      border: 1px solid var(--accent-dark);
+      border: 1px solid #8a5f25;
       background: var(--accent);
       color: white;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       font-weight: 600;
       box-shadow: 0 10px 22px rgba(0,0,0,0.25);
@@ -185,151 +237,115 @@
     }
 
     button:hover {
-      background: var(--accent-dark);
-      transform: translateY(-2px);
+      background: #8a5f25;
+      transform: translateY(-1px);
     }
 
-    .hint {
-      margin-top: 10px;
-      font-size: 0.83rem;
+    .info {
+      margin-top: 12px;
+      font-size: 0.8rem;
       color: var(--text-soft);
+      text-align: center;
     }
 
     .small {
-      margin-top: 8px;
       font-size: 0.78rem;
-      color: var(--text-soft);
-      opacity: 0.9;
-    }
-
-    .error {
+      color: #8a735a;
       margin-top: 10px;
-      font-size: 0.85rem;
-      color: #b03a3a;
+      text-align: center;
     }
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <div class="lang-switch">
-      <button type="button" class="lang-btn" id="langFr">FR</button>
-      <button type="button" class="lang-btn" id="langEn">EN</button>
+  <header>
+    <div class="logo-zone">
+      <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
     </div>
+    <nav>
+      <a href="/index.html">Accueil</a>
+      <a href="/login.html">Espace artisan</a>
+      <div class="lang-switch">
+        <span class="lang-btn active">FR</span>
+        <a class="lang-btn" href="/client-en.html">EN</a>
+      </div>
+    </nav>
+  </header>
 
-    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
-    <div class="subtitle" id="subtitle">
-      Indiquez le code de votre bijou pour le retrouver.
+  <main>
+    <div class="card">
+      <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="subtitle">Accédez au murmure associé à votre bijou.</div>
+
+      <div class="id-badge" id="idBadge">
+        <div class="badge-dot"></div>
+        <span id="badgeText"></span>
+      </div>
+
+      <label for="code">Code du bijou</label>
+      <input
+        type="text"
+        id="code"
+        placeholder="Ex : 95QN27 (inscrit sur la carte ou le bijou)"
+      />
+
+      <button id="openBtn">Accéder à mon bijou</button>
+
+      <div class="info">
+        En entrant ce code, vous serez redirigé vers la page sécurisée de votre bijou.<br />
+        Vous pourrez y voir son état, et écouter son murmure.
+      </div>
+
+      <div class="small">
+        Si vous avez scanné une puce NFC, ce code est déjà intégré au lien
+        et vous n’avez normalement rien à saisir.
+      </div>
     </div>
-
-    <label for="codeInput" id="labelCode">Code du bijou :</label>
-    <input type="text" id="codeInput" placeholder="ex : 95QN27" />
-
-    <button id="openBtn">Accéder à mon bijou</button>
-
-    <div class="hint" id="hint">
-      Le code se trouve sur la carte reçue avec le bijou, ou dans l’e-mail de confirmation.
-    </div>
-
-    <div class="small" id="small">
-      Si vous scannez directement la puce NFC, vous n’avez normalement pas besoin de cette page.
-    </div>
-
-    <div class="error" id="errorZone" style="display:none;"></div>
-  </div>
+  </main>
 
   <script>
-    const subtitleEl = document.getElementById("subtitle");
-    const labelCodeEl = document.getElementById("labelCode");
-    const hintEl = document.getElementById("hint");
-    const smallEl = document.getElementById("small");
-    const errorEl = document.getElementById("errorZone");
-    const codeInput = document.getElementById("codeInput");
-    const openBtn = document.getElementById("openBtn");
+    // Si un code est présent dans l’URL (?code=... ou ?c=...), on le pré-remplit
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get("code") || params.get("c") || "";
+    const codeInput = document.getElementById("code");
+    const idBadge = document.getElementById("idBadge");
+    const badgeText = document.getElementById("badgeText");
 
-    const btnFr = document.getElementById("langFr");
-    const btnEn = document.getElementById("langEn");
-
-    let UI_LANG = "fr";
-
-    function detectUiLang() {
-      const url = new URL(window.location.href);
-      const paramLang = (url.searchParams.get("lang") || "").toLowerCase();
-      if (paramLang === "fr" || paramLang === "en") return paramLang;
-
-      const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
-      if (navLang.startsWith("en")) return "en";
-
-      return "fr";
+    if (fromQuery) {
+      codeInput.value = fromQuery;
+      idBadge.style.display = "inline-flex";
+      badgeText.textContent = "Code détecté : " + fromQuery;
     }
 
-    function updateLangSwitchUi() {
-      if (UI_LANG === "en") {
-        btnEn.classList.add("active");
-        btnFr.classList.remove("active");
-        document.documentElement.lang = "en";
-      } else {
-        btnFr.classList.add("active");
-        btnEn.classList.remove("active");
-        document.documentElement.lang = "fr";
+    function cleanCode(raw) {
+      if (!raw) return "";
+      let code = raw.trim();
+      // Si l’utilisateur colle une URL complète, on essaie de récupérer le dernier segment ou le paramètre
+      try {
+        if (code.includes("http")) {
+          const url = new URL(code);
+          const qCode = url.searchParams.get("code") || url.searchParams.get("c");
+          if (qCode) return qCode.trim();
+          const parts = url.pathname.split("/").filter(Boolean);
+          return parts[parts.length - 1] || code;
+        }
+      } catch (e) {
+        // on laisse tomber, on garde le texte brut
       }
+      return code;
     }
 
-    function updateStaticTexts() {
-      if (UI_LANG === "en") {
-        subtitleEl.textContent = "Enter the code of your jewel to find it.";
-        labelCodeEl.textContent = "Jewel code:";
-        codeInput.placeholder = "e.g.: 95QN27";
-        openBtn.textContent = "Access my jewel";
-        hintEl.textContent =
-          "The code is written on the card received with the jewel, or in the confirmation email.";
-        smallEl.textContent =
-          "If you scan the NFC tag directly, you normally don’t need this page.";
-      } else {
-        subtitleEl.textContent =
-          "Indiquez le code de votre bijou pour le retrouver.";
-        labelCodeEl.textContent = "Code du bijou :";
-        codeInput.placeholder = "ex : 95QN27";
-        openBtn.textContent = "Accéder à mon bijou";
-        hintEl.textContent =
-          "Le code se trouve sur la carte reçue avec le bijou, ou dans l’e-mail de confirmation.";
-        smallEl.textContent =
-          "Si vous scannez directement la puce NFC, vous n’avez normalement pas besoin de cette page.";
-      }
-    }
-
-    function setLangAndReload(lang) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", lang);
-      window.location.href = url.toString();
-    }
-
-    btnFr.addEventListener("click", () => setLangAndReload("fr"));
-    btnEn.addEventListener("click", () => setLangAndReload("en"));
-
-    openBtn.addEventListener("click", () => {
-      const code = (codeInput.value || "").trim();
+    document.getElementById("openBtn").addEventListener("click", () => {
+      const raw = codeInput.value;
+      const code = cleanCode(raw);
       if (!code) {
-        errorEl.style.display = "block";
-        errorEl.textContent =
-          UI_LANG === "en"
-            ? "Please enter the code of your jewel."
-            : "Veuillez entrer le code de votre bijou.";
+        alert("Merci d’indiquer le code du bijou.");
         return;
       }
-      errorEl.style.display = "none";
-
-      const target = new URL(window.location.origin + "/b.html");
-      target.searchParams.set("code", code);
-      target.searchParams.set("lang", UI_LANG);
-      window.location.href = target.toString();
+      // Redirection vers la page publique du bijou (b.html)
+      const url = `/b.html?code=${encodeURIComponent(code)}`;
+      window.location.href = url;
     });
-
-    // Init
-    UI_LANG = detectUiLang();
-    updateLangSwitchUi();
-    updateStaticTexts();
   </script>
-  <script src="/lang-switch.js"></script>
 </body>
 </html>
