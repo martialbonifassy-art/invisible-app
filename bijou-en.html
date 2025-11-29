@@ -2,293 +2,381 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>I already own a jewel – The Atelier of Invisible Bonds</title>
+  <title>Jewel’s whisper – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Typewriter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
       --accent-soft: #eadcc8;
-      --text-main: #2e241b;
-      --text-soft: #5a4335;
-      --border-soft: rgba(170, 140, 90, 0.55);
-      --shadow-soft: 0 16px 38px rgba(0,0,0,0.30);
-      --radius-xl: 24px;
+      --text-main: #2b241c;
+      --text-soft: #7f6248;
+      --card-bg: rgba(255, 250, 243, 0.96);
+      --border-soft: rgba(170, 140, 90, 0.45);
+      --shadow-soft: 0 18px 40px rgba(0,0,0,0.20);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Helvetica Neue", Arial, sans-serif;
-      color: var(--text-main);
-      min-height: 100vh;
+      background: url("foret-atelier.jpg") center/cover fixed no-repeat;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 10px;
+      color: var(--text-main);
       position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
-    /* Forest background */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
-      filter: blur(3px) brightness(0.7);
-      transform: scale(1.03);
-      z-index: -2;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: rgba(246, 236, 220, 0.62);
+      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), transparent 55%),
+                  radial-gradient(circle at 10% 80%, rgba(255,230,200,0.25), transparent 50%),
+                  radial-gradient(circle at 90% 70%, rgba(210,190,160,0.25), transparent 50%),
+                  rgba(0,0,0,0.30);
+      pointer-events: none;
       z-index: -1;
     }
 
-    header {
-      max-width: 880px;
+    .carte {
+      max-width: 720px;
       width: 100%;
-      margin: 16px auto 0;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 22px 26px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
       backdrop-filter: blur(8px);
-      background: rgba(255, 248, 236, 0.9);
-      border-radius: 999px;
-      border: 1px solid rgba(200, 176, 130, 0.7);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
     }
 
-    .logo-zone { display: flex; flex-direction: column; }
-    .logo-title {
-      font-size: 1rem;
+    h1 {
+      font-size: 0.95rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
-    }
-    .logo-sub {
-      font-size: 0.82rem;
-      color: var(--text-soft);
+      margin: 0 0 6px;
     }
 
-    nav { display: flex; gap: 10px; font-size: 0.86rem; }
-    nav a {
-      text-decoration: none;
-      color: var(--text-main);
-      padding: 7px 12px;
+    .sous-titre {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-bottom: 12px;
+    }
+
+    .lang-switch-container {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .lang-switch button {
       border-radius: 999px;
-      background: #fff;
+      padding: 4px 9px;
       border: 1px solid var(--accent-soft);
+      background: #fff;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-size: 0.78rem;
       font-weight: 500;
     }
-    nav a:hover {
+
+    .lang-switch button.active {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
     }
-    nav .lang {
-      font-size: 0.8rem;
-      opacity: 0.85;
-    }
 
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 18px 12px 32px;
-    }
-
-    .card {
-      max-width: 520px;
-      width: 100%;
-      background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-soft);
+    .badge-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 14px;
+      background: #f5ebdd;
       border: 1px solid var(--border-soft);
-      padding: 22px 20px 24px;
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      font-size: 1.3rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent);
-      margin: 0 0 4px;
-    }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      margin-bottom: 18px;
-    }
-
-    .info {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    label {
-      display: block;
       font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #856549;
-      margin-bottom: 4px;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 999px;
-      border: 1px solid rgba(133,101,73,0.4);
-      padding: 9px 13px;
-      font-size: 0.95rem;
       margin-bottom: 10px;
-      background: #fffdf8;
-      outline: none;
     }
-
-    input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(184,134,51,0.3);
-    }
-
-    .hint {
-      font-size: 0.8rem;
-      color: #8a735a;
-      margin-bottom: 14px;
-    }
-
-    button {
+    .pastille {
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      background: #d6a85a;
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-      width: 100%;
-      margin-top: 4px;
-      font-weight: 600;
+      background: #4caf50;
+      box-shadow: 0 0 8px rgba(76,175,80,0.8);
     }
 
-    button:hover {
-      background: #b57f2c;
+    .etat {
+      font-size: 0.86rem;
+      color: #82644a;
+      margin-bottom: 10px;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-      box-shadow: none;
+    .murmure-wrapper {
+      position: relative;
+      margin: 16px 0 14px;
+    }
+
+    .murmure {
+      position: relative;
+      font-family: "Special Elite", "Courier New", Courier, ui-monospace, monospace;
+      font-size: 1.08rem;
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+      color: var(--text-main);
+      background: rgba(255,250,243,0.9);
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow:
+        inset 0 0 6px rgba(0,0,0,0.06),
+        0 2px 6px rgba(0,0,0,0.12);
+      text-align: left;
+      min-height: 4em;
+      white-space: pre-wrap;
+    }
+
+    .murmure::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background: radial-gradient(circle at 20% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
+      mix-blend-mode: soft-light;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .murmure::after {
+      content: "▌";
+      margin-left: 4px;
+      animation: blink 0.7s infinite;
+      opacity: 1;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 223, 150, 0.9);
+      box-shadow: 0 0 10px rgba(255, 223, 150, 0.95);
+      opacity: 0.0;
+      animation: floatSpark 6s linear infinite;
+      pointer-events: none;
+    }
+
+    .spark:nth-child(1) { top: 12%; left: 16%; animation-delay: 0s; }
+    .spark:nth-child(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
+    .spark:nth-child(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
+    .spark:nth-child(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
+
+    @keyframes floatSpark {
+      0%   { transform: translateY(6px); opacity: 0; }
+      10%  { opacity: 0.9; }
+      60%  { opacity: 0.7; }
+      100% { transform: translateY(-10px); opacity: 0; }
+    }
+
+    .compteur {
+      font-size: 0.82rem;
+      color: #7a6450;
+      margin-top: 6px;
     }
 
     .note {
-      font-size: 0.8rem;
-      color: #7e6754;
-      margin-top: 14px;
-      line-height: 1.4;
+      font-size: 0.78rem;
+      color: #a1896a;
+      margin-top: 10px;
     }
 
-    footer {
-      max-width: 880px;
-      width: 100%;
-      margin: 0 auto 18px;
-      padding: 0 16px;
-      font-size: 0.78rem;
-      display: flex;
-      justify-content: space-between;
-      color: #f5eee4;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    .note a {
+      color: #8b6425;
+      text-decoration: none;
     }
-    @media (max-width: 700px) {
-      header { flex-direction: column; align-items: flex-start; }
-      footer { flex-direction: column; gap: 4px; }
+
+    .note a:hover {
+      text-decoration: underline;
+    }
+
+    audio {
+      margin-top: 10px;
     }
   </style>
-</head>
-<body>
-  <header>
-    <div class="logo-zone">
-      <div class="logo-title">THE ATELIER OF INVISIBLE BONDS</div>
-      <div class="logo-sub">Handcrafted wooden objects, augmented with an intimate voice.</div>
-    </div>
-    <nav>
-      <a href="/index-en.html">Home</a>
-      <a href="/bijou-en.html?id=TEST001">Listen to a demo</a>
-      <a class="lang" href="/client.html">FR</a>
-    </nav>
-  </header>
-
-  <main>
-    <div class="card">
-      <h1>I ALREADY OWN A JEWEL</h1>
-      <div class="subtitle">Access the whisper linked to your wooden piece.</div>
-
-      <p class="info">
-        Each jewel has its own ID, engraved on a card, a label or on the packaging.
-        Enter this ID to listen to the whisper currently associated with your object.
-      </p>
-
-      <form id="formJewel">
-        <label for="idBijou">Jewel ID</label>
-        <input
-          id="idBijou"
-          type="text"
-          autocomplete="off"
-          placeholder="Example: BIJOU002 or TEST001"
-        />
-
-        <div class="hint">
-          The ID usually looks like <strong>BIJOU001</strong>, <strong>BIJOU002</strong>, etc.
-          Use the exact letters and numbers you see.
-        </div>
-
-        <button type="submit" id="btnAccess">
-          ✨ Access my whisper
-        </button>
-      </form>
-
-      <div class="note">
-        If the ID does not work or if the jewel seems silent, you can contact the Atelier so that we can check its configuration and, if necessary, recharge its whispers.
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div>© The Atelier of Invisible Bonds</div>
-    <div>atelierdesliensinvisibles.fr</div>
-  </footer>
 
   <script>
-    const form = document.getElementById("formJewel");
-    const input = document.getElementById("idBijou");
-    const btn = document.getElementById("btnAccess");
+    function switchLanguage(lang) {
+      const file = window.location.pathname.split("/").pop() || "bijou-en.html";
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const raw = (input.value || "").trim();
-      if (!raw) {
-        alert("Please enter the ID written on your jewel or card.");
-        return;
+      const mapping = {
+        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
+
+        "index.html": { fr: "index.html", en: "index-en.html" },
+        "index-en.html": { fr: "index.html", en: "index-en.html" },
+        "client.html": { fr: "client.html", en: "client-en.html" },
+        "client-en.html": { fr: "client.html", en: "client-en.html" },
+        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
+        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
+      };
+
+      localStorage.setItem("preferred_lang", lang);
+
+      const target =
+        (mapping[file] && mapping[file][lang]) ||
+        (lang === "fr" ? "bijou.html" : "bijou-en.html");
+
+      window.location.href = "/" + target + window.location.search;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const file = window.location.pathname.split("/").pop() || "bijou-en.html";
+      const currentLang = file.includes("-en") ? "en" : "fr";
+      const btn = document.querySelector(".lang-" + currentLang);
+      if (btn) btn.classList.add("active");
+    });
+  </script>
+</head>
+<body>
+  <div class="carte">
+    <div class="lang-switch-container">
+      <div class="lang-switch">
+        <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
+        <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
+      </div>
+    </div>
+
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="sous-titre">Whisper of the jewel, bound to wood and AI.</div>
+
+    <div class="badge-id">
+      <span class="pastille"></span>
+      <span id="badgeId">Unknown jewel</span>
+    </div>
+
+    <div class="etat" id="etat">The jewel is waking up…</div>
+
+    <div class="murmure-wrapper">
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+
+      <div class="murmure" id="murmure">
+        The whisper will appear here…
+      </div>
+    </div>
+
+    <audio id="murmureAudio" controls style="margin-top:12px; width:100%; display:none;">
+      Your browser does not support audio playback.
+    </audio>
+
+    <div class="compteur" id="compteur"></div>
+
+    <div class="note">
+      This whisper is unique, generated from the parameters chosen when the jewel was created.
+      <br />
+      If something feels strange, please contact the workshop.
+    </div>
+  </div>
+
+  <script>
+    const murEl = document.getElementById("murmure");
+    const etatEl = document.getElementById("etat");
+    const badgeIdEl = document.getElementById("badgeId");
+    const compteurEl = document.getElementById("compteur");
+    const audioEl = document.getElementById("murmureAudio");
+
+    function typeWriterEffect(text, speed = 28) {
+      murEl.innerHTML = "";
+      let i = 0;
+
+      function step() {
+        if (i <= text.length) {
+          const partial = text.slice(0, i);
+          murEl.innerHTML = partial
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\n/g, "<br>");
+          i++;
+          setTimeout(step, speed);
+        }
       }
 
-      // Normalize: remove spaces, keep simple form, uppercase
-      const id = raw.replace(/\s+/g, "").toUpperCase();
+      step();
+    }
 
-      btn.disabled = true;
-      // Redirect to the English jewel page
-      window.location.href = `/bijou-en.html?id=${encodeURIComponent(id)}`;
-    });
+    function getBijouIdFromUrl() {
+      const url = new URL(window.location.href);
+      return url.searchParams.get("id") || "BIJOU001";
+    }
+
+    async function loadWhisper() {
+      const id = getBijouIdFromUrl();
+      badgeIdEl.textContent = `ID: ${id}`;
+      etatEl.textContent = "The jewel is listening to your presence…";
+
+      try {
+        const params = new URLSearchParams({
+          id,
+          lang: "en"
+        });
+
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+
+        const texte = data.text || "I am here, silent, but still by your side.";
+        typeWriterEffect(texte);
+
+        etatEl.textContent = "Today’s whisper has been generated.";
+
+        if (data.audio) {
+          audioEl.style.display = "block";
+          audioEl.src = data.audio;
+        } else {
+          audioEl.style.display = "none";
+          audioEl.src = "";
+        }
+
+        compteurEl.textContent = "";
+      } catch (e) {
+        console.error(e);
+        etatEl.textContent = "Error: unable to reach the jewel’s voice.";
+        typeWriterEffect("I am here, silent, but still by your side.");
+        audioEl.style.display = "none";
+        audioEl.src = "";
+      }
+    }
+
+    window.addEventListener("load", loadWhisper);
   </script>
 </body>
 </html>
