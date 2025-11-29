@@ -1,66 +1,61 @@
 // api/publicMessage.js
+//
+// Point d’entrée PUBLIC par `public_id`.
+// - Résout public_id -> id interne dans la table "bijous"
+// - Réutilise tout le handler de /api/message (génération texte + audio, quotas, locked, etc.)
+
 import { createClient } from "@supabase/supabase-js";
 import messageHandler from "./message";
 
-// Client Supabase côté serveur (service role pour pouvoir décrémenter les compteurs)
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn(
-    "[publicMessage] SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY manquants dans les variables d'environnement."
-  );
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Méthode non autorisée." });
+  }
+
   try {
-    if (req.method !== "GET") {
-      res.setHeader("Allow", "GET");
-      return res.status(405).json({ error: "Method not allowed" });
+    // Compatibilité : ?public_id=XXX (nouveau), ou ?code= / ?c= (ancien)
+    const { public_id, code, c } = req.query || {};
+    const effectivePublicId = public_id || code || c;
+
+    if (!effectivePublicId) {
+      return res.status(400).json({ error: "Paramètre public_id manquant." });
     }
 
-    const { public_id } = req.query;
-
-    if (!public_id) {
-      return res.status(400).json({ error: "Missing public_id parameter" });
-    }
-
-    // 1) On retrouve le bijou via son public_id
+    // 1) retrouver le bijou via son public_id
     const { data: bijou, error } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .select("id")
-      .eq("public_id", public_id)
+      .eq("public_id", effectivePublicId)
       .maybeSingle();
 
     if (error) {
-      console.error("[publicMessage] Supabase error:", error);
+      console.error("[publicMessage] Erreur Supabase:", error);
       return res
         .status(500)
-        .json({ error: "Failed to fetch jewel from database" });
+        .json({ error: "Erreur lors de la lecture du bijou." });
     }
 
     if (!bijou) {
-      return res.status(404).json({ error: "Unknown public_id" });
+      return res.status(404).json({ error: "Bijou inconnu pour ce public_id." });
     }
 
-    // 2) On adapte la query pour réutiliser le handler /api/message
-    //    → on force l'id interne trouvé
+    // 2) Injecter l'id interne dans la query et déléguer à /api/message
     req.query = {
       ...req.query,
-      id: bijou.id,
+      id: bijou.id
     };
 
-    // Option : on pourrait aussi purger public_id si tu préfères
-    // delete req.query.public_id;
-
-    // 3) Déléguer à l'API existante /api/message
-    //    (qui gère déjà langue, quota, locked, TTS, etc.)
+    // On laisse message.js gérer toute la logique (quotas, locked, TTS, etc.)
     return messageHandler(req, res);
   } catch (e) {
-    console.error("[publicMessage] Unexpected error:", e);
-    return res.status(500).json({ error: "Unexpected server error" });
+    console.error("[publicMessage] Erreur interne:", e);
+    return res.status(500).json({ error: "Erreur interne serveur." });
   }
 }
