@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Artisan dashboard – L’Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #050607 url("assets/foret-atelier.jpg") center/cover fixed no-repeat;
+      color: #f9f7f1;
+    }
+    .overlay {
+      min-height: 100vh;
+      background: linear-gradient(
+        to bottom,
+        rgba(5, 6, 8, 0.95),
+        rgba(6, 5, 4, 0.95)
+      );
+      padding: 1.5rem 2rem 2rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .logo {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .lang-switch button {
+      background: transparent;
+      border: 1px solid rgba(255, 240, 210, 0.5);
+      color: #f9f4e5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .lang-switch button.active {
+      background: rgba(255, 240, 210, 0.15);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(10, 9, 8, 0.95);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    th {
+      text-align: left;
+      background: rgba(28, 20, 13, 0.95);
+      border-bottom: 1px solid rgba(246, 224, 188, 0.3);
+    }
+    tr:nth-child(even) td {
+      background: rgba(16, 13, 11, 0.95);
+    }
+    tr:nth-child(odd) td {
+      background: rgba(9, 7, 6, 0.95);
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(246, 224, 188, 0.4);
+      background: rgba(6, 4, 3, 0.9);
+    }
+    .actions button {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(246, 224, 188, 0.4);
+      background: transparent;
+      color: #f9f7f1;
+      cursor: pointer;
+      margin-right: 0.25rem;
+    }
+  </style>
+  <script>
+    function switchLanguage(lang) {
+      if (lang === "fr") {
+        localStorage.setItem("preferred_lang", "fr");
+        window.location.href = "dashboard.html";
+      } else {
+        localStorage.setItem("preferred_lang", "en");
+        window.location.href = "dashboard-en.html";
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="overlay">
+    <header>
+      <div class="logo">Artisan dashboard</div>
+      <div class="lang-switch">
+        <button onclick="switchLanguage('fr')">FR</button>
+        <button class="active" onclick="switchLanguage('en')">EN</button>
+      </div>
+    </header>
+
+    <table id="bijoux-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Public ID</th>
+          <th>First name</th>
+          <th>Theme</th>
+          <th>Subtheme</th>
+          <th>Remaining</th>
+          <th>Locked</th>
+          <th>Paid</th>
+          <th>Last whisper</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Adapte cette logique à ton dashboard FR existant (copie/colle le JS de dashboard.html en le gardant identique)
+    async function loadBijoux() {
+      const tbody = document.querySelector("#bijoux-table tbody");
+      tbody.innerHTML = "<tr><td colspan='10'>Loading jewels...</td></tr>";
+
+      try {
+        const resp = await fetch("/api/listBijoux");
+        if (!resp.ok) throw new Error("Server error");
+        const bijoux = await resp.json();
+
+        if (!bijoux.length) {
+          tbody.innerHTML = "<tr><td colspan='10'>No jewels yet.</td></tr>";
+          return;
+        }
+
+        tbody.innerHTML = "";
+        for (const b of bijoux) {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${b.id}</td>
+            <td>${b.public_id || "-"}</td>
+            <td>${b.prenom || "-"}</td>
+            <td>${b.theme || "-"}</td>
+            <td>${b.sous_theme || "-"}</td>
+            <td>${b.messages_restants}/${b.messages_max}</td>
+            <td>${b.locked ? "<span class='tag'>Locked</span>" : ""}</td>
+            <td>${b.paid ? "<span class='tag'>Paid</span>" : ""}</td>
+            <td>${b.last_murmur_at ? new Date(b.last_murmur_at).toLocaleString() : "-"}</td>
+            <td class="actions">
+              <button onclick="recharge('${b.id}')">Recharge</button>
+              <button onclick="removeBijou('${b.id}')">Delete</button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        }
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = "<tr><td colspan='10'>Error loading jewels.</td></tr>";
+      }
+    }
+
+    async function recharge(id) {
+      if (!confirm("Recharge whispers for this jewel?")) return;
+      await fetch("/api/rechargeBijou", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      loadBijoux();
+    }
+
+    async function removeBijou(id) {
+      if (!confirm("Delete this jewel? This cannot be undone.")) return;
+      await fetch("/api/deleteBijou", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      loadBijoux();
+    }
+
+    loadBijoux();
+  </script>
+</body>
+</html>
