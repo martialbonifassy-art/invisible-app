@@ -2,27 +2,342 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>I already have a jewel – L’Atelier des Liens Invisibles</title>
+  <title>I already have a jewel – The Atelier of Invisible Threads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* Switch FR / EN global (no JS) */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      margin-left: 8px;
+    }
+
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 22px;
+    }
+
+    html { overflow-y: scroll; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    header {
+      max-width: 980px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 248, 236, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(200, 176, 130, 0.7);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
+
+    .logo-zone { display: flex; flex-direction: column; }
+    .logo-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .logo-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      font-size: 0.82rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--accent-soft);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    nav a:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 760px) {
+      header { flex-direction: column; align-items: flex-start; }
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px 32px;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 20px 26px;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(250, 240, 225, 0.95);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0 auto 18px;
+      display: none;
+      width: fit-content;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #82a738;
+      box-shadow: 0 0 8px rgba(130,167,56,0.9);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(255,255,255,0.9);
+      margin-top: 5px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 11px 18px;
+      border-radius: 18px;
+      border: 1px solid #8a5f25;
+      background: var(--accent);
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #8a5f25;
+      transform: translateY(-1px);
+    }
+
+    .info {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      text-align: center;
+    }
+
+    .small {
+      font-size: 0.78rem;
+      color: #8a735a;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to the English client page…</p>
+  <header>
+    <div class="logo-zone">
+      <div class="logo-title">THE ATELIER OF INVISIBLE THREADS</div>
+      <div class="logo-sub">Wooden objects augmented with an intimate voice.</div>
+    </div>
+    <nav>
+      <a href="/index-en.html">Home</a>
+      <a href="/login.html">Artisan space</a>
+      <div class="lang-switch">
+        <a class="lang-btn" href="/client.html">FR</a>
+        <span class="lang-btn active">EN</span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="logo">THE ATELIER OF INVISIBLE THREADS</div>
+      <div class="subtitle">Access the whisper linked to your jewel.</div>
+
+      <div class="id-badge" id="idBadge">
+        <div class="badge-dot"></div>
+        <span id="badgeText"></span>
+      </div>
+
+      <label for="code">Jewel code</label>
+      <input
+        type="text"
+        id="code"
+        placeholder="e.g. 95QN27 (written on the card or the jewel)"
+      />
+
+      <button id="openBtn">Open my jewel</button>
+
+      <div class="info">
+        By entering this code, you will be redirected to the secure page of your jewel.<br />
+        There you can see its status and listen to its whisper.
+      </div>
+
+      <div class="small">
+        If you scanned an NFC tag, this code is already embedded in the link
+        and you normally don’t need to type anything.
+      </div>
+    </div>
+  </main>
 
   <script>
-    (function () {
-      const current = new URL(window.location.href);
-      const target = new URL(window.location.origin + "/client.html");
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get("code") || params.get("c") || "";
+    const codeInput = document.getElementById("code");
+    const idBadge = document.getElementById("idBadge");
+    const badgeText = document.getElementById("badgeText");
 
-      current.searchParams.forEach((value, key) => {
-        if (key.toLowerCase() !== "lang") {
-          target.searchParams.set(key, value);
+    if (fromQuery) {
+      codeInput.value = fromQuery;
+      idBadge.style.display = "inline-flex";
+      badgeText.textContent = "Detected code: " + fromQuery;
+    }
+
+    function cleanCode(raw) {
+      if (!raw) return "";
+      let code = raw.trim();
+      try {
+        if (code.includes("http")) {
+          const url = new URL(code);
+          const qCode = url.searchParams.get("code") || url.searchParams.get("c");
+          if (qCode) return qCode.trim();
+          const parts = url.pathname.split("/").filter(Boolean);
+          return parts[parts.length - 1] || code;
         }
-      });
+      } catch (e) {}
+      return code;
+    }
 
-      target.searchParams.set("lang", "en");
-
-      window.location.href = target.toString();
-    })();
+    document.getElementById("openBtn").addEventListener("click", () => {
+      const raw = codeInput.value;
+      const code = cleanCode(raw);
+      if (!code) {
+        alert("Please enter the jewel code.");
+        return;
+      }
+      const url = `/b.html?code=${encodeURIComponent(code)}`;
+      window.location.href = url;
+    });
   </script>
 </body>
 </html>
