@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+  <script>
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("lang")) return;
+
+  const userLang = navigator.language || navigator.userLanguage || "en";
+  const isFrench = userLang.toLowerCase().startsWith("fr");
+
+  // Si utilisateur est français → renvoyer vers index.html
+  if (isFrench && window.location.pathname.endsWith("index-en.html")) {
+    window.location.href = "index.html";
+  }
+})();
+</script>
+
 <head>
   <meta charset="UTF-8" />
   <title>L’Atelier des Liens Invisibles</title>
