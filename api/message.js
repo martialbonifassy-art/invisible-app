@@ -248,15 +248,15 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────
-// 9) Réponse finale
-// ─────────────────────────────────────
-return res.status(200).json({
-  text: texte,
-  audio: audioDataUrl,
-  // champs supplémentaires utiles pour l’UI (b.html, client, etc.)
-  lang: langue,
-  messages_restants: nouveauSolde,
-  messages_max: typeof bijou.messages_max === "number" ? bijou.messages_max : null
+    // 9) Réponse finale
+    // ─────────────────────────────────────
+    return res.status(200).json({
+      text: texte,
+      audio: audioDataUrl,
+      lang: langue,
+      messages_restants: nouveauSolde,
+      messages_max:
+        typeof bijou.messages_max === "number" ? bijou.messages_max : null
     });
   } catch (e) {
     console.error("Erreur interne /api/message:", e);
