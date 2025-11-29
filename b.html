@@ -257,7 +257,6 @@
     const subtitleEl = document.getElementById("subtitle");
     const noteTextEl = document.getElementById("noteText");
 
-    // Textes UI FR/EN choisis selon data.lang
     const UI_FR = {
       title: "L’ATELIER DES LIENS INVISIBLES",
       subtitle: "Murmure du bijou relié au bois et à l’IA.",
@@ -310,7 +309,6 @@
       return pickUI(lang).fallbackText;
     }
 
-    // Effet machine à écrire
     function typeWriterEffect(text, speed = 28) {
       murEl.innerHTML = "";
       let i = 0;
@@ -331,15 +329,14 @@
       step();
     }
 
-    // Récupération du code public depuis l’URL
     function getPublicIdFromUrl() {
       const url = new URL(window.location.href);
 
-      // 1) Paramètre ?public_id=XXX
+      // 1) ?public_id=XXX (nouveau format)
       const fromPublic = url.searchParams.get("public_id");
       if (fromPublic) return fromPublic;
 
-      // 2) Compat : ?code=XXX ou ?c=XXX (ton ancien format)
+      // 2) Compatibilité avec tes anciens liens : ?code=XXX ou ?c=XXX
       const fromLegacy = url.searchParams.get("code") || url.searchParams.get("c");
       if (fromLegacy) return fromLegacy;
 
@@ -359,7 +356,6 @@
       applyUIStrings("fr", publicId || "—");
 
       if (!publicId) {
-        // pas de public_id → message d’erreur simple
         setStateText("error", "fr");
         typeWriterEffect("Impossible d’identifier ce bijou. Le lien est peut-être incomplet.");
         audioEl.style.display = "none";
