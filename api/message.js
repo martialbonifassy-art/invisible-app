@@ -691,46 +691,71 @@ function pickVoiceName({ voix, theme }) {
   const t = (theme || "").toLowerCase();
   const v = (voix || "neutre").toLowerCase();
 
-  // Si le client a explicitement choisi une voix, on la respecte en priorité
-  if (v === "feminine" || v === "féminine") {
-    // variante féminine chaleureuse
-    return "nova";
-  }
-  if (v === "masculine" || v === "masculin") {
-    // variante plus grave
-    return "onyx";
+  const isFem =
+    v === "feminine" ||
+    v === "féminine" ||
+    v === "feminin" ||
+    v === "féminin";
+  const isMasc = v === "masculine" || v === "masculin";
+
+  // --- AMOUR ---
+  if (t.includes("amour")) {
+    if (isMasc) return "onyx";      // voix grave, chaleureuse
+    if (isFem) return "nova";       // voix très douce, intime
+    return "nova";                  // par défaut : intime
   }
 
-  // Sinon, on choisit en fonction du thème (pour la voix "neutre")
-  if (t.includes("amour")) {
-    return "nova"; // chaleureux, intime
-  }
+  // --- GUÉRISON & APAISEMENT ---
   if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
-    return "fable"; // voix douce, rassurante
+    if (isFem) return "fable";      // très douce, maternante
+    if (isMasc) return "alloy";     // neutre mais calme
+    return "fable";                 // par défaut : cocon
   }
+
+  // --- RÊVES & NUIT ---
   if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
-    return "alloy"; // voix neutre douce, un peu vaporeuse
+    if (isFem) return "fable";      // berceuse douce
+    if (isMasc) return "echo";      // un peu mystérieuse
+    return "alloy";                 // neutre, douce
   }
+
+  // --- LE GARDIEN DU BOIS ---
   if (t.includes("gardien") || t.includes("bois")) {
-    return "onyx"; // plus grave pour l'esprit du bois
+    if (isFem) return "alloy";      // neutre, un peu grave
+    if (isMasc) return "onyx";      // grave, enraciné
+    return "onyx";                  // par défaut : esprit ancien
   }
+
+  // --- ÉNERGIE & VITALITÉ ---
   if (
     t.includes("énergie") ||
     t.includes("energie") ||
     t.includes("vitalité") ||
     t.includes("vitalite")
   ) {
-    return "shimmer"; // plus dynamique
-  }
-  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
-    return "shimmer"; // vive, inspirante
-  }
-  if (t.includes("intuition") || t.includes("synchronicit")) {
-    return "echo"; // un peu mystérieuse
+    if (isFem) return "shimmer";    // lumineuse, dynamique
+    if (isMasc) return "onyx";      // énergie plus terrienne
+    return "shimmer";               // par défaut : solaire
   }
 
-  // Par défaut
-  return "alloy";
+  // --- CRÉATIVITÉ & INSPIRATION ---
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    if (isFem) return "shimmer";    // pétillante, inspirée
+    if (isMasc) return "echo";      // un peu étrange, créative
+    return "shimmer";
+  }
+
+  // --- INTUITION & SYNCHRONICITÉS ---
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    if (isFem) return "fable";      // douce, intuitive
+    if (isMasc) return "echo";      // mystérieuse
+    return "echo";
+  }
+
+  // --- PAR DÉFAUT (autres thèmes) ---
+  if (isFem) return "nova";        // féminine générique
+  if (isMasc) return "onyx";       // masculine générique
+  return "alloy";                  // neutre générique
 }
 
 // ─────────────────────────────────────────
