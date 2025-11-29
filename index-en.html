@@ -1,25 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <script>
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("lang")) return;
-
-  const userLang = navigator.language || navigator.userLanguage || "en";
-  const isFrench = userLang.toLowerCase().startsWith("fr");
-
-  // Si utilisateur est français → renvoyer vers index.html
-  if (isFrench && window.location.pathname.endsWith("index-en.html")) {
-    window.location.href = "index.html";
-  }
-})();
-</script>
-
 <head>
   <meta charset="UTF-8" />
-  <title>L’Atelier des Liens Invisibles</title>
+  <title>The Atelier of Invisible Threads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* Switch FR / EN global (sans JS) */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      margin-left: 8px;
+    }
+
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+      cursor: default;
+    }
+
     :root {
       --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
@@ -29,6 +45,10 @@
       --border-soft: rgba(170, 140, 90, 0.55);
       --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
       --radius-xl: 26px;
+    }
+
+    html {
+      overflow-y: scroll;
     }
 
     * { box-sizing: border-box; }
@@ -63,7 +83,6 @@
       z-index: -1;
     }
 
-    /* HEADER */
     header {
       max-width: 980px;
       width: 100%;
@@ -92,7 +111,15 @@
       color: var(--text-soft);
     }
 
-    nav { display: flex; gap: 10px; font-size: 0.86rem; }
+    nav { 
+      display: flex; 
+      gap: 10px; 
+      font-size: 0.86rem; 
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     nav a {
       text-decoration: none;
       color: var(--text-main);
@@ -119,29 +146,6 @@
       color: #fff;
     }
 
-    /* SWITCH LANGUE */
-    .lang-switch {
-      display: flex;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-    .lang-switch button {
-      border-radius: 999px;
-      padding: 6px 11px;
-      border: 1px solid var(--accent-soft);
-      background: #fff;
-      color: var(--text-soft);
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .lang-switch button.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    /* MAIN */
     main {
       flex: 1;
       display: flex;
@@ -163,10 +167,9 @@
       backdrop-filter: blur(10px);
     }
 
-    @media (max-width: 800px) {
-      .page { grid-template-columns: 1fr; border-radius: 18px; }
+    @media (max-width: 760px) {
       header { flex-direction: column; align-items: flex-start; }
-      nav { flex-wrap: wrap; }
+      .page { grid-template-columns: 1fr; border-radius: 18px; }
     }
 
     .hero-badge {
@@ -304,7 +307,7 @@
       gap: 12px;
       font-size: 0.88rem;
     }
-    @media (max-width: 800px) { .blocks { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .blocks { grid-template-columns: 1fr; } }
 
     .block {
       padding: 12px;
@@ -338,57 +341,25 @@
       text-decoration: underline;
     }
   </style>
-
-  <script>
-    function switchLanguage(lang) {
-      const file = window.location.pathname.split("/").pop() || "index.html";
-
-      const mapping = {
-        "index.html": { fr: "index.html", en: "index-en.html" },
-        "index-en.html": { fr: "index.html", en: "index-en.html" },
-        "client.html": { fr: "client.html", en: "client-en.html" },
-        "client-en.html": { fr: "client.html", en: "client-en.html" },
-        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
-        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
-        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
-        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
-        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
-        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
-      };
-
-      localStorage.setItem("preferred_lang", lang);
-
-      const target =
-        (mapping[file] && mapping[file][lang]) ||
-        (lang === "fr" ? "index.html" : "index-en.html");
-
-      window.location.href = "/" + target + window.location.search;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const file = window.location.pathname.split("/").pop() || "index.html";
-      const currentLang = file.includes("-en") ? "en" : "fr";
-      const btn = document.querySelector(".lang-" + currentLang);
-      if (btn) btn.classList.add("active");
-    });
-  </script>
 </head>
 <body>
   <header>
     <div class="logo-zone">
-      <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-title">THE ATELIER OF INVISIBLE THREADS</div>
       <div class="logo-sub">Wooden objects augmented with an intimate voice.</div>
     </div>
     <nav>
       <a href="#concept">Concept</a>
-      <a href="#fonctionnement">How it works</a>
+      <a href="#fonctionnement">How it works?</a>
       <a href="/client-en.html">I already have a jewel</a>
       <a href="/login.html" class="nav-artisan">Artisan space</a>
+
+      <!-- Switch FR / EN sans JS -->
+      <div class="lang-switch">
+        <a class="lang-btn" href="/index.html">FR</a>
+        <span class="lang-btn active">EN</span>
+      </div>
     </nav>
-    <div class="lang-switch">
-      <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
-      <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
-    </div>
   </header>
 
   <main>
@@ -399,19 +370,19 @@
           <div>Wooden objects & digital whispers</div>
         </div>
 
-        <h1>The emotion programmed into matter.</h1>
+        <h1>The programmed emotion of matter.</h1>
 
         <div class="hero-slogan">
-          Wooden jewels and objects, equipped with an NFC chip, whispering
-          unique messages written and read by a poetic AI.
+          Handcrafted wooden jewels and objects, equipped with an NFC chip,
+          that whisper unique messages written and spoken by a poetic AI.
         </div>
 
         <div class="hero-text">
-          Each piece is crafted in the workshop, then linked to an artificial
-          intelligence that composes intimate messages from a few details:
-          a first name, a memory, a date, a place, an intention.  
-          Each time the phone comes close, the jewel breathes a new whisper –
-          until its messages are exhausted, then can be recharged at the workshop.
+          Each piece is created in the workshop, then linked to an artificial intelligence
+          that composes intimate messages from a few details:
+          a first name, a memory, a date, a place, an intention.
+          Each time a phone touches the jewel, it releases a new whisper –
+          until its quota of messages is reached, then rechargeable at the workshop.
         </div>
 
         <div class="cta-row">
@@ -422,7 +393,7 @@
             ✨ Listen to a demo whisper
           </a>
           <a class="btn-outline" href="/client-en.html">
-            I already own a jewel
+            I already have a jewel
           </a>
         </div>
 
@@ -433,24 +404,24 @@
         <div class="blocks" id="fonctionnement">
           <div class="block">
             <div class="block-title">1. The object</div>
-            <p>A jewel or wooden object, handcrafted, with a discreetly embedded NFC chip.</p>
+            <p>A jewel or wooden object, handcrafted, with a discreet NFC chip inside.</p>
           </div>
           <div class="block">
-            <div class="block-title">2. The personalization</div>
+            <div class="block-title">2. Personalisation</div>
             <p>You choose who it is for, what you want it to whisper, and a few personal details.</p>
           </div>
           <div class="block">
             <div class="block-title">3. The living whisper</div>
-            <p>The AI voice composes and reads a unique message each time it's opened, like a secret entrusted to the wood.</p>
+            <p>The AI voice composes and reads a unique message each time it is opened, like a secret entrusted to the wood.</p>
           </div>
         </div>
       </section>
 
       <aside class="side-card">
-        <div class="side-title">Whisper example</div>
+        <div class="side-title">Example whisper</div>
         <div class="side-quote">
-          “Marie, just like spring in Toulouse, know that every step on this new path
-          is accompanied by a soft light you cannot see yet, but the wood has already recognized.”
+          “Marie, like that spring in Toulouse, know that every step on this new path
+          is accompanied by a soft light you cannot see yet, but the wood has already recognised.”
         </div>
         <div class="side-meta">Demo jewel · ID TEST001 · AI voice</div>
         <div class="side-orbit"></div>
@@ -459,10 +430,10 @@
   </main>
 
   <footer>
-    <div>© L’Atelier des Liens Invisibles</div>
+    <div>© The Atelier of Invisible Threads</div>
     <div>
-      <a href="/login.html">Workshop access</a> ·
-      <a href="/personnalisation-en.html">Internal personalization</a>
+      <a href="/login.html">Artisan access</a> ·
+      <a href="/personnalisation-en.html">Internal personalisation</a>
     </div>
   </footer>
 </body>
