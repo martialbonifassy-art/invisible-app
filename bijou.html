@@ -77,6 +77,35 @@
       margin-bottom: 6px;
     }
 
+    /* Switch langue */
+    .lang-switch {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+    }
+
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-soft);
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
     .badge-id {
       display: inline-flex;
       align-items: center;
@@ -208,8 +237,15 @@
 </head>
 <body>
   <div class="carte">
+    <div class="lang-switch">
+      <button type="button" class="lang-btn" id="langFr">FR</button>
+      <button type="button" class="lang-btn" id="langEn">EN</button>
+    </div>
+
     <h1>L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
+    <div class="sous-titre" id="subtitle">
+      Murmure du bijou relié au bois et à l’IA.
+    </div>
 
     <div class="badge-id">
       <span class="pastille"></span>
@@ -237,7 +273,7 @@
 
     <div class="compteur" id="compteur"></div>
 
-    <div class="note">
+    <div class="note" id="note">
       Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
       <br />
       Si quelque chose vous semble anormal, contactez l’atelier.
@@ -250,6 +286,73 @@
     const badgeIdEl = document.getElementById("badgeId");
     const compteurEl = document.getElementById("compteur");
     const audioEl = document.getElementById("murmureAudio");
+    const subtitleEl = document.getElementById("subtitle");
+    const noteEl = document.getElementById("note");
+
+    const btnFr = document.getElementById("langFr");
+    const btnEn = document.getElementById("langEn");
+
+    let UI_LANG = "fr";
+
+    // Détection de la langue de l’interface
+    function detectUiLang() {
+      const url = new URL(window.location.href);
+      const paramLang = (url.searchParams.get("lang") || "").toLowerCase();
+      if (paramLang === "fr" || paramLang === "en") return paramLang;
+
+      const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
+      if (navLang.startsWith("en")) return "en";
+
+      return "fr";
+    }
+
+    function updateLangSwitchUi() {
+      if (UI_LANG === "en") {
+        btnEn.classList.add("active");
+        btnFr.classList.remove("active");
+        document.documentElement.lang = "en";
+      } else {
+        btnFr.classList.add("active");
+        btnEn.classList.remove("active");
+        document.documentElement.lang = "fr";
+      }
+    }
+
+    function updateStaticTexts() {
+      if (UI_LANG === "en") {
+        subtitleEl.textContent = "Whisper of the jewel linked to wood and AI.";
+        etatEl.textContent = "The jewel is waking up…";
+        if (!audioEl.dataset.originalTextSet) {
+          audioEl.dataset.originalTextSet = "1";
+        }
+        audioEl.innerHTML = "Your browser does not support audio playback.";
+        noteEl.innerHTML =
+          "This whisper is unique, generated from the parameters chosen when the jewel was created." +
+          "<br />If something feels wrong, please contact the Atelier.";
+        if (murEl.textContent.trim() === "" || murEl.textContent.includes("Le murmure va apparaître ici")) {
+          murEl.textContent = "The whisper will appear here…";
+        }
+      } else {
+        subtitleEl.textContent = "Murmure du bijou relié au bois et à l’IA.";
+        etatEl.textContent = "Le bijou se réveille…";
+        audioEl.innerHTML = "Votre navigateur ne supporte pas la lecture audio.";
+        noteEl.innerHTML =
+          "Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou." +
+          "<br />Si quelque chose vous semble anormal, contactez l’atelier.";
+        if (murEl.textContent.trim() === "" || murEl.textContent.includes("The whisper will appear here")) {
+          murEl.textContent = "Le murmure va apparaître ici…";
+        }
+      }
+    }
+
+    function setLangAndReload(lang) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", lang);
+      window.location.href = url.toString();
+    }
+
+    btnFr.addEventListener("click", () => setLangAndReload("fr"));
+    btnEn.addEventListener("click", () => setLangAndReload("en"));
 
     // Effet machine à écrire
     function typeWriterEffect(text, speed = 28) {
@@ -280,21 +383,32 @@
     async function chargerMurmure() {
       const id = getBijouIdFromUrl();
       badgeIdEl.textContent = `ID : ${id}`;
-      etatEl.textContent = "Le bijou écoute votre présence…";
+
+      if (UI_LANG === "en") {
+        etatEl.textContent = "The jewel is listening to your presence…";
+      } else {
+        etatEl.textContent = "Le bijou écoute votre présence…";
+      }
 
       try {
         const params = new URLSearchParams({
           id,
-          lang: "fr"
+          lang: UI_LANG
         });
 
         const r = await fetch(`/api/message?${params.toString()}`);
         const data = await r.json();
 
-        const texte = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        const fallbackText =
+          UI_LANG === "en"
+            ? "I am here, silently, but present for you."
+            : "Je suis là, silencieux, mais présent pour toi.";
+
+        const texte = data.text || fallbackText;
         typeWriterEffect(texte);
 
-        etatEl.textContent = "Murmure du jour généré.";
+        etatEl.textContent =
+          UI_LANG === "en" ? "Whisper generated." : "Murmure du jour généré.";
 
         if (data.audio) {
           audioEl.style.display = "block";
@@ -304,18 +418,33 @@
           audioEl.src = "";
         }
 
-        // Si plus tard on renvoie messages_restants depuis l’API, on pourra l’afficher ici.
+        // compteur (optionnel, vide pour l’instant)
         compteurEl.textContent = "";
       } catch (e) {
         console.error(e);
-        etatEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
-        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
+        etatEl.textContent =
+          UI_LANG === "en"
+            ? "Error: unable to reach the jewel’s voice."
+            : "Erreur : impossible de joindre la voix du bijou.";
+
+        const fallbackText =
+          UI_LANG === "en"
+            ? "I am here, silently, but present for you."
+            : "Je suis là, silencieux, mais présent pour toi.";
+
+        typeWriterEffect(fallbackText);
         audioEl.style.display = "none";
         audioEl.src = "";
       }
     }
 
-    window.addEventListener("load", chargerMurmure);
+    // Initialisation
+    window.addEventListener("load", () => {
+      UI_LANG = detectUiLang();
+      updateLangSwitchUi();
+      updateStaticTexts();
+      chargerMurmure();
+    });
   </script>
 </body>
 </html>
