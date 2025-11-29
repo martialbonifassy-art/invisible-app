@@ -2,258 +2,309 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Read a whisper – L’Atelier des Liens Invisibles</title>
+  <title>Jewel personalization – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="assets/styles.css" />
+
   <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-dark: #8a5f25;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.26);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #f9f7f1;
-      background: #050607 url("assets/foret-atelier.jpg") center/cover fixed no-repeat;
-    }
-    .overlay {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
       min-height: 100vh;
-      background: radial-gradient(circle at top, rgba(255, 240, 200, 0.25), transparent 55%);
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow: hidden;
     }
-    header {
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 20px 26px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 2rem;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
     }
-    .logo {
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-    }
-    .lang-switch button {
-      background: transparent;
-      border: 1px solid rgba(255, 240, 210, 0.5);
-      color: #f9f4e5;
-      padding: 0.4rem 0.8rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-    .lang-switch button.active {
-      background: rgba(255, 240, 210, 0.15);
-    }
-    main {
+
+    .card-header-text {
       flex: 1;
+      min-width: 0;
+    }
+
+    .logo {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: left;
+      margin-bottom: 4px;
+      white-space: nowrap;
+    }
+
+    .subtitle {
+      font-size: 0.83rem;
+      color: var(--text-soft);
+      text-align: left;
+      margin-bottom: 0;
+    }
+
+    .lang-switch {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    .card {
-      max-width: 600px;
-      width: 100%;
-      border-radius: 1.5rem;
-      padding: 2rem 1.75rem;
-      backdrop-filter: blur(16px);
-      background: linear-gradient(
-        135deg,
-        rgba(6, 6, 8, 0.95),
-        rgba(40, 25, 14, 0.92)
-      );
-      border: 1px solid rgba(246, 224, 188, 0.35);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
-    }
-    .card h1 {
-      margin-top: 0;
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: 1.4rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-    input[type="text"] {
-      margin-top: 0.4rem;
-      width: 100%;
-      border-radius: 999px;
-      border: 1px solid rgba(246, 224, 188, 0.35);
-      background: rgba(10, 8, 6, 0.9);
-      padding: 0.6rem 0.9rem;
-      color: #f9f7f1;
-      outline: none;
-    }
-    input[type="text"]:focus {
-      border-color: #f1d19c;
-    }
-    .btn-primary {
-      margin-top: 1.4rem;
-      border-radius: 999px;
-      padding: 0.7rem 1.15rem;
-      border: none;
-      background: linear-gradient(120deg, #f1d19c, #f5e3c4);
-      color: #3a2a15;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-    .hint {
-      margin-top: 0.45rem;
+      gap: 4px;
       font-size: 0.8rem;
-      opacity: 0.8;
     }
-    .result {
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px dashed rgba(246, 224, 188, 0.4);
-      font-size: 0.95rem;
-      min-height: 3rem;
-      white-space: pre-wrap;
-    }
-    .status {
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
-      opacity: 0.8;
-    }
-    .audio-controls {
-      margin-top: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .play-button {
-      width: 42px;
-      height: 42px;
+
+    .lang-switch button {
       border-radius: 999px;
-      border: none;
+      padding: 4px 9px;
+      border: 1px solid var(--accent-soft);
+      background: #fff;
+      color: var(--text-soft);
       cursor: pointer;
-      background: radial-gradient(circle at 30% 30%, #ffffff, #f1d19c);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .id-badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      color: #3a2a15;
-      font-size: 1.1rem;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(250, 240, 225, 0.95);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 12px auto 18px;
+      display: block;
+      width: fit-content;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-size: 0.87rem;
+      color: var(--text-soft);
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(255,255,255,0.9);
+      margin-top: 6px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    textarea {
+      resize: none;
+      height: 70px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
+    }
+
+    button#saveBtn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--accent-dark);
+      background: var(--accent);
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+      transition: 0.2s;
+    }
+
+    button#saveBtn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+
+    #result {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-soft);
     }
   </style>
+
   <script>
     function switchLanguage(lang) {
-      if (lang === "fr") {
-        localStorage.setItem("preferred_lang", "fr");
-        window.location.href = "client.html";
-      } else {
-        localStorage.setItem("preferred_lang", "en");
-        window.location.href = "client-en.html";
-      }
+      const file = window.location.pathname.split("/").pop() || "client-en.html";
+
+      const mapping = {
+        "client.html": { fr: "client.html", en: "client-en.html" },
+        "client-en.html": { fr: "client.html", en: "client-en.html" },
+
+        "index.html": { fr: "index.html", en: "index-en.html" },
+        "index-en.html": { fr: "index.html", en: "index-en.html" },
+        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
+        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
+      };
+
+      localStorage.setItem("preferred_lang", lang);
+
+      const target =
+        (mapping[file] && mapping[file][lang]) ||
+        (lang === "fr" ? "client.html" : "client-en.html");
+
+      window.location.href = "/" + target + window.location.search;
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const file = window.location.pathname.split("/").pop() || "client-en.html";
+      const currentLang = file.includes("-en") ? "en" : "fr";
+      const btn = document.querySelector(".lang-" + currentLang);
+      if (btn) btn.classList.add("active");
+    });
   </script>
 </head>
+
 <body>
-  <div class="overlay">
-    <header>
-      <div class="logo">L’Atelier des Liens Invisibles</div>
+  <div class="card">
+
+    <div class="card-header-row">
+      <div class="card-header-text">
+        <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="subtitle">Customize the voice linked to your jewel.</div>
+      </div>
       <div class="lang-switch">
-        <button onclick="switchLanguage('fr')">FR</button>
-        <button class="active" onclick="switchLanguage('en')">EN</button>
+        <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
+        <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
       </div>
-    </header>
+    </div>
 
-    <main>
-      <div class="card">
-        <h1>Read a whisper from your jewel</h1>
-        <p class="hint">
-          If you scanned your jewel with NFC, the code may already be in the URL.
-          Otherwise, enter the code given with your jewel.
-        </p>
+    <div class="id-badge" id="idBadge">ID: unknown</div>
 
-        <label for="bijou-id">Jewel code / public ID</label>
-        <input id="bijou-id" type="text" placeholder="Example: BIJOU001 or public ID" />
+    <label for="prenom">First name:</label>
+    <input type="text" id="prenom" placeholder="e.g. Marie">
 
-        <button class="btn-primary" id="read-button">Read the whisper</button>
+    <label for="souvenir">Memory / place / personal detail:</label>
+    <textarea id="souvenir" placeholder="e.g. Spring in Toulouse…"></textarea>
 
-        <div class="status" id="status"></div>
-        <div class="result" id="result"></div>
+    <label for="voix">Voice choice:</label>
+    <select id="voix">
+      <option value="femme">Feminine voice</option>
+      <option value="homme">Masculine voice</option>
+    </select>
 
-        <div class="audio-controls" id="audio-container" style="display:none;">
-          <button class="play-button" id="play-audio" title="Play audio whisper">▶</button>
-          <span style="font-size:0.85rem;opacity:0.85;">Audio whisper</span>
-          <audio id="audio" style="display:none;"></audio>
-        </div>
-      </div>
-    </main>
+    <button id="saveBtn">Save settings</button>
+
+    <div id="result"></div>
+
   </div>
 
   <script>
-    // 🧠 Même logique que client.html (à adapter à ton backend actuel)
+    // Get ID from URL
     const params = new URLSearchParams(window.location.search);
-    const initialId = params.get("id") || params.get("public_id");
-    const idInput = document.getElementById("bijou-id");
-    const statusEl = document.getElementById("status");
-    const resultEl = document.getElementById("result");
-    const audioEl = document.getElementById("audio");
-    const audioContainer = document.getElementById("audio-container");
-    const playBtn = document.getElementById("play-audio");
+    const id = params.get("id") || "UNKNOWN";
+    document.getElementById("idBadge").textContent = "ID: " + id;
 
-    if (initialId) {
-      idInput.value = initialId;
-      fetchMurmur();
-    }
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const result = document.getElementById("result");
 
-    document.getElementById("read-button").addEventListener("click", fetchMurmur);
-    playBtn.addEventListener("click", () => {
-      if (audioEl.paused) {
-        audioEl.play();
-        playBtn.textContent = "⏸";
-      } else {
-        audioEl.pause();
-        playBtn.textContent = "▶";
-      }
-    });
+      const data = {
+        id: id,
+        prenom: document.getElementById("prenom").value.trim(),
+        souvenir: document.getElementById("souvenir").value.trim(),
+        voix: document.getElementById("voix").value,
+        langue: "en" // optionnel si ton backend l'utilise
+      };
 
-    async function fetchMurmur() {
-      const id = idInput.value.trim();
-      if (!id) {
-        statusEl.textContent = "Please enter a jewel code first.";
-        return;
-      }
-
-      statusEl.textContent = "Calling the forest spirits...";
-      resultEl.textContent = "";
-      audioContainer.style.display = "none";
+      result.textContent = "Saving…";
 
       try {
-        const response = await fetch("/api/message", {
+        const r = await fetch("/api/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }) // adapte si tu utilises public_id côté backend
+          body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-          throw new Error("Server error");
-        }
+        const res = await r.json();
 
-        const data = await response.json();
-        if (!data || !data.text) {
-          statusEl.textContent = "No whisper available for this jewel.";
+        if (!r.ok || res.error) {
+          result.textContent = "❌ Error: " + (res.error || "Unable to save");
           return;
         }
 
-        statusEl.textContent = "";
-        resultEl.textContent = data.text;
+        result.textContent = "✔️ Settings saved successfully!";
 
-        if (data.audio) {
-          audioEl.src = "data:audio/mp3;base64," + data.audio;
-          audioContainer.style.display = "flex";
-          playBtn.textContent = "▶";
-        } else {
-          audioContainer.style.display = "none";
-        }
       } catch (e) {
         console.error(e);
-        statusEl.textContent = "Unable to read the whisper. Please try again later.";
+        result.textContent = "❌ Server connection error.";
       }
-    }
+    });
   </script>
 </body>
 </html>
