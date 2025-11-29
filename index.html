@@ -23,7 +23,7 @@
       font-size: 0.78rem;
       cursor: pointer;
       background: transparent;
-      color: #5a4335; /* tu peux ajuster */
+      color: #5a4335;
     }
 
     .lang-btn.active {
@@ -111,14 +111,7 @@
       color: var(--text-soft);
     }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    nav { display: flex; gap: 10px; font-size: 0.86rem; }
+    nav { display: flex; gap: 10px; font-size: 0.86rem; align-items: center; }
     nav a {
       text-decoration: none;
       color: var(--text-main);
@@ -167,10 +160,8 @@
       backdrop-filter: blur(10px); /* renforce la lisibilité dessus la forêt */
     }
 
-    /* ✅ Breakpoint un peu plus bas pour éviter les oscillations autour de 800px */
     @media (max-width: 760px) {
       header { flex-direction: column; align-items: flex-start; }
-      .header-right { width: 100%; justify-content: flex-start; }
       nav { flex-wrap: wrap; }
       .page { grid-template-columns: 1fr; border-radius: 18px; }
     }
@@ -355,19 +346,18 @@
       <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
     </div>
 
-    <div class="header-right">
-      <nav>
-        <a href="#concept">Concept</a>
-        <a href="#fonctionnement">Comment ça marche ?</a>
-        <a href="/client.html">J’ai déjà un bijou</a>
-        <a href="/login.html" class="nav-artisan">Espace artisan</a>
-      </nav>
+    <nav>
+      <a href="#concept">Concept</a>
+      <a href="#fonctionnement">Comment ça marche ?</a>
+      <a href="/client.html">J’ai déjà un bijou</a>
+      <a href="/login.html" class="nav-artisan">Espace artisan</a>
 
+      <!-- Switch FR / EN dans le header -->
       <div class="lang-switch">
         <button type="button" class="lang-btn" data-lang="fr">FR</button>
         <button type="button" class="lang-btn" data-lang="en">EN</button>
       </div>
-    </div>
+    </nav>
   </header>
 
   <main>
@@ -445,6 +435,7 @@
     </div>
   </footer>
 
+  <!-- script du switch -->
   <script src="/lang-switch.js"></script>
 </body>
 </html>
