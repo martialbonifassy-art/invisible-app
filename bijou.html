@@ -50,7 +50,7 @@
     }
 
     .carte {
-      max-width: 720px;
+      max-width: 960px;
       width: 100%;
       background: var(--card-bg);
       border-radius: 28px;
@@ -74,37 +74,7 @@
     .sous-titre {
       font-size: 0.9rem;
       color: var(--text-soft);
-      margin-bottom: 12px;
-    }
-
-    /* switch langue discret en haut à droite de la carte */
-    .lang-switch-container {
-      position: absolute;
-      top: 10px;
-      right: 14px;
-    }
-
-    .lang-switch {
-      display: flex;
-      gap: 4px;
-      font-size: 0.8rem;
-    }
-
-    .lang-switch button {
-      border-radius: 999px;
-      padding: 4px 9px;
-      border: 1px solid var(--accent-soft);
-      background: #fff;
-      color: var(--text-soft);
-      cursor: pointer;
-      font-size: 0.78rem;
-      font-weight: 500;
-    }
-
-    .lang-switch button.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
+      margin-bottom: 6px;
     }
 
     .badge-id {
@@ -116,7 +86,7 @@
       background: #f5ebdd;
       border: 1px solid var(--border-soft);
       font-size: 0.82rem;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
     }
     .pastille {
       width: 8px;
@@ -147,7 +117,7 @@
       color: var(--text-main);
       background: rgba(255,250,243,0.9);
       border-radius: 10px;
-      padding: 14px 16px;
+      padding: 18px 18px;
       border: 1px solid rgba(0,0,0,0.12);
       box-shadow:
         inset 0 0 6px rgba(0,0,0,0.06),
@@ -193,4 +163,159 @@
       background: rgba(255, 223, 150, 0.9);
       box-shadow: 0 0 10px rgba(255, 223, 150, 0.95);
       opacity: 0.0;
-      animation: floatSpark
+      animation: floatSpark 6s linear infinite;
+      pointer-events: none;
+    }
+
+    .spark:nth-child(1) { top: 12%; left: 16%; animation-delay: 0s; }
+    .spark:nth-child(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
+    .spark:nth-child(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
+    .spark:nth-child(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
+
+    @keyframes floatSpark {
+      0%   { transform: translateY(6px); opacity: 0; }
+      10%  { opacity: 0.9; }
+      60%  { opacity: 0.7; }
+      100% { transform: translateY(-10px); opacity: 0; }
+    }
+
+    .compteur {
+      font-size: 0.82rem;
+      color: #7a6450;
+      margin-top: 6px;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #a1896a;
+      margin-top: 10px;
+    }
+
+    .note a {
+      color: #8b6425;
+      text-decoration: none;
+    }
+
+    .note a:hover {
+      text-decoration: underline;
+    }
+
+    audio {
+      margin-top: 10px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="carte">
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
+
+    <div class="badge-id">
+      <span class="pastille"></span>
+      <span id="badgeId">Bijou inconnu</span>
+    </div>
+
+    <div class="etat" id="etat">Le bijou se réveille…</div>
+
+    <div class="murmure-wrapper">
+      <!-- petits points lumineux -->
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+
+      <div class="murmure" id="murmure">
+        Le murmure va apparaître ici…
+      </div>
+    </div>
+
+    <!-- Audio du murmure (caché tant qu’il n’y a pas de son) -->
+    <audio id="murmureAudio" controls style="display:none;">
+      Votre navigateur ne supporte pas la lecture audio.
+    </audio>
+
+    <div class="compteur" id="compteur"></div>
+
+    <div class="note">
+      Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
+      <br />
+      Si quelque chose vous semble anormal, contactez l’atelier.
+    </div>
+  </div>
+
+  <script>
+    const murEl = document.getElementById("murmure");
+    const etatEl = document.getElementById("etat");
+    const badgeIdEl = document.getElementById("badgeId");
+    const compteurEl = document.getElementById("compteur");
+    const audioEl = document.getElementById("murmureAudio");
+
+    // Effet machine à écrire
+    function typeWriterEffect(text, speed = 28) {
+      murEl.innerHTML = "";
+      let i = 0;
+
+      function step() {
+        if (i <= text.length) {
+          const partial = text.slice(0, i);
+          murEl.innerHTML = partial
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\n/g, "<br>");
+          i++;
+          setTimeout(step, speed);
+        }
+      }
+
+      step();
+    }
+
+    function getBijouIdFromUrl() {
+      const url = new URL(window.location.href);
+      return url.searchParams.get("id") || "TEST001";
+    }
+
+    async function chargerMurmure() {
+      const id = getBijouIdFromUrl();
+      badgeIdEl.textContent = `ID : ${id}`;
+      etatEl.textContent = "Le bijou écoute votre présence…";
+
+      try {
+        const params = new URLSearchParams({
+          id,
+          lang: "fr"
+        });
+
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+
+        const texte = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        typeWriterEffect(texte);
+
+        etatEl.textContent = "Murmure du jour généré.";
+
+        if (data.audio) {
+          audioEl.style.display = "block";
+          audioEl.src = data.audio;
+        } else {
+          audioEl.style.display = "none";
+          audioEl.src = "";
+        }
+
+        // Si plus tard on renvoie messages_restants depuis l’API, on pourra l’afficher ici.
+        compteurEl.textContent = "";
+      } catch (e) {
+        console.error(e);
+        etatEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
+        audioEl.style.display = "none";
+        audioEl.src = "";
+      }
+    }
+
+    window.addEventListener("load", chargerMurmure);
+  </script>
+</body>
+</html>
