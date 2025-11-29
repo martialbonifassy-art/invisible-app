@@ -1,15 +1,15 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Personalize the whisper – The Atelier of Invisible Bonds</title>
+  <title>Personalise the whisper – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       --bg-page: #f7efe2;
       --bg-card: #fffaf3;
       --accent: #b8833a;
-      --accent-soft: rgba(170, 140, 90, 0.35);
+      --accent-soft: #eadcc8;
       --text-main: #3c2f25;
       --text-soft: #7f6248;
       --border-soft: rgba(170, 140, 90, 0.35);
@@ -31,21 +31,14 @@
     }
 
     .page {
-      max-width: 800px;
+      max-width: 720px;
       width: 100%;
       background: var(--bg-card);
       border-radius: var(--radius-xl);
       padding: 22px 18px 26px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 10px;
+      position: relative;
     }
 
     h1 {
@@ -55,27 +48,13 @@
       color: var(--accent);
       margin: 0 0 4px;
     }
-
     .slogan {
       font-size: 0.9rem;
       color: var(--text-soft);
-      margin-bottom: 6px;
+      margin-bottom: 14px;
     }
-
-    .lang-switch {
-      font-size: 0.82rem;
-      text-align: right;
-    }
-    .lang-switch a {
-      color: var(--text-soft);
-      text-decoration: none;
-    }
-    .lang-switch a:hover {
-      text-decoration: underline;
-    }
-
     .intro {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       margin-bottom: 16px;
       color: var(--text-soft);
     }
@@ -96,7 +75,7 @@
       border: 1px solid rgba(133,101,73,0.4);
       padding: 8px 12px;
       font-size: 0.9rem;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       background: #fffdf8;
       outline: none;
     }
@@ -107,43 +86,26 @@
       resize: vertical;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(184, 134, 51, 0.25);
+    select {
+      appearance: none;
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #b8833a 50%),
+        linear-gradient(135deg, #b8833a 50%, transparent 50%);
+      background-position:
+        calc(100% - 16px) calc(50% - 3px),
+        calc(100% - 10px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
     }
 
-    .row {
+    .ligne {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
+      margin-bottom: 8px;
     }
-
-    .row > div {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .hint {
-      font-size: 0.78rem;
-      color: #8a735a;
-      margin: -4px 0 8px;
-    }
-
-    .theme-help {
-      font-size: 0.8rem;
-      color: #7a5c42;
-      background: #f6ebdc;
-      border-radius: 12px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-    }
-
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .ligne > div { flex: 1; }
 
     button {
       border-radius: 999px;
@@ -154,29 +116,32 @@
       background: #d6a85a;
       color: #fff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.16);
-      flex: 1;
-      min-width: 140px;
+      margin-top: 6px;
+      width: 100%;
     }
     button:disabled {
       opacity: 0.6;
       cursor: wait;
     }
 
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border: 1px solid var(--accent-soft);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.14);
+    .buttons-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
     }
-
-    .status {
-      font-size: 0.8rem;
-      color: #a08967;
-      margin-top: 8px;
+    @media (min-width: 600px) {
+      .buttons-row {
+        flex-direction: row;
+      }
+      .buttons-row button {
+        width: auto;
+        flex: 1;
+      }
     }
 
     .preview {
-      margin-top: 16px;
+      margin-top: 18px;
       padding: 12px 14px;
       border-radius: 16px;
       background: #f3e3cc;
@@ -185,11 +150,13 @@
       white-space: pre-wrap;
     }
 
-    .audio-preview {
+    .etat {
+      font-size: 0.8rem;
+      color: #a08967;
       margin-top: 8px;
     }
 
-    .tech-note {
+    .note-tech {
       margin-top: 16px;
       font-size: 0.8rem;
       color: #8a735a;
@@ -204,483 +171,615 @@
       margin-top: 4px;
       word-break: break-all;
     }
+
+    .helper-card {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f8ecda;
+      border: 1px solid #e0c8a2;
+      font-size: 0.84rem;
+    }
+    .helper-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #7a5a3c;
+      margin-bottom: 4px;
+    }
+    .helper-desc {
+      margin-bottom: 6px;
+      color: #5d4632;
+    }
+    .helper-example-label {
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-bottom: 2px;
+    }
+    .helper-example {
+      font-style: italic;
+      color: #4a3523;
+    }
+
+    /* language switch */
+    .lang-switch-container {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+    }
+    .lang-switch {
+      display: flex;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+    .lang-switch button {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid var(--accent-soft);
+      background: #fff;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 500;
+      box-shadow: none;
+      margin-top: 0;
+      width: auto;
+    }
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
   </style>
+
+  <script>
+    // Reusable language switch
+    function switchLanguage(lang) {
+      const file = window.location.pathname.split("/").pop() || "personnalisation-en.html";
+
+      const mapping = {
+        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
+
+        "index.html": { fr: "index.html", en: "index-en.html" },
+        "index-en.html": { fr: "index.html", en: "index-en.html" },
+        "client.html": { fr: "client.html", en: "client-en.html" },
+        "client-en.html": { fr: "client.html", en: "client-en.html" },
+        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
+        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
+        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
+      };
+
+      localStorage.setItem("preferred_lang", lang);
+
+      const target =
+        (mapping[file] && mapping[file][lang]) ||
+        (lang === "fr" ? "personnalisation.html" : "personnalisation-en.html");
+
+      window.location.href = "/" + target + window.location.search;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const file = window.location.pathname.split("/").pop() || "personnalisation-en.html";
+      const currentLang = file.includes("-en") ? "en" : "fr";
+      const btn = document.querySelector(".lang-" + currentLang);
+      if (btn) btn.classList.add("active");
+    });
+  </script>
 </head>
 <body>
   <div class="page">
-    <header>
-      <div>
-        <h1>THE ATELIER OF INVISIBLE BONDS</h1>
-        <div class="slogan">Personalization of the jewel’s whisper.</div>
-      </div>
+    <div class="lang-switch-container">
       <div class="lang-switch">
-        <div>Language of this page: EN</div>
-        <a href="/personnalisation.html">Switch to French version</a>
-      </div>
-    </header>
-
-    <p class="intro">
-      These details allow the AI to compose a unique whisper for the person who will receive the object.
-      You can choose a main theme, a sub–theme, and a few personal elements that will guide the tone.
-    </p>
-
-    <div class="row">
-      <div>
-        <label for="idBijou">Jewel ID</label>
-        <input id="idBijou" type="text" placeholder="e.g. BIJOU001" />
-        <div class="hint">
-          This ID is engraved on the card or packaging (e.g. <strong>BIJOU001</strong>).
-        </div>
-      </div>
-      <div>
-        <label for="langue">Whisper language</label>
-        <select id="langue">
-          <option value="en" selected>English</option>
-          <option value="fr">French</option>
-        </select>
-        <div class="hint">
-          This defines the language used for the messages.
-        </div>
+        <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
+        <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
       </div>
     </div>
 
-    <div class="row">
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="slogan">Whisper personalization for the jewel.</div>
+
+    <p class="intro">
+      This information allows the AI to compose a unique whisper for the person
+      who will receive the object. Choose a theme, a sub-theme, then give a few
+      simple details – the AI will take care of the rest.
+    </p>
+
+    <div class="ligne">
       <div>
-        <label for="prenom">First name of the person</label>
-        <input id="prenom" type="text" placeholder="e.g. Marie" />
+        <label for="idBijou">Jewel ID</label>
+        <input id="idBijou" type="text" placeholder="e.g. BIJOU001" />
       </div>
       <div>
-        <label for="voix">Voice color</label>
+        <label for="voix">Voice</label>
         <select id="voix">
           <option value="neutre">Neutral</option>
           <option value="feminine">Feminine</option>
           <option value="masculine">Masculine</option>
         </select>
-        <div class="hint">
-          The exact voice will be chosen depending on the theme and this preference.
-        </div>
       </div>
     </div>
 
     <label for="theme">Main theme</label>
-    <select id="theme"></select>
-    <div class="theme-help" id="themeHelp">
-      Choose a theme to see a short description here.
-    </div>
-
-    <label for="sousTheme">Sub–theme</label>
-    <select id="sousTheme">
-      <option value="">Choose a main theme first…</option>
+    <select id="theme">
+      <!-- filled in JS -->
     </select>
-    <div class="hint" id="sousThemeHint">
-      The sub–theme refines the tone of the whisper (e.g. “For my wife”, “After a separation”…).
+
+    <div class="helper-card" id="helperCard" style="display:none; margin-bottom: 10px;">
+      <div class="helper-title" id="helperTitle"></div>
+      <div class="helper-desc" id="helperDesc"></div>
+      <div class="helper-example-label">Example of how to use it:</div>
+      <div class="helper-example" id="helperExample"></div>
     </div>
 
-    <label for="intention">
-      Free text to guide the whisper
-    </label>
-    <textarea
-      id="intention"
-      placeholder="e.g. To support her while her father is ill; to remind her of our nights on the beach in Graissant."
-    ></textarea>
-    <div class="hint">
-      A sentence or two is enough: the AI will weave from there.
+    <label for="sousTheme">Sub-theme</label>
+    <select id="sousTheme">
+      <option value="">Please choose a theme first…</option>
+    </select>
+
+    <label for="prenom">Person’s first name</label>
+    <input id="prenom" type="text" placeholder="e.g. Marie" />
+
+    <label for="intention">Free text for the AI</label>
+    <textarea id="intention" placeholder="e.g. A message to encourage them in a fresh start in Toulouse."></textarea>
+
+    <label for="detail">A detail or memory to weave in</label>
+    <input id="detail" type="text" placeholder="e.g. Night on Graissant beach, our first dance, the old oak in the garden" />
+
+    <div class="buttons-row">
+      <button id="btnTester">Test the whisper</button>
+      <button id="saveBtn">Save this jewel</button>
     </div>
 
-    <label for="detail">
-      Detail or memory (place, date, object…)
-    </label>
-    <input
-      id="detail"
-      type="text"
-      placeholder="e.g. April 18 in Toulouse, the book she loves, the wooden bracelet…"
-    />
-    <div class="hint">
-      This can appear as a discrete image in the text.
-    </div>
-
-    <div class="buttons">
-      <button id="btnSave">💾 Save this jewel</button>
-      <button id="btnTest" class="btn-secondary">▶️ Test the whisper</button>
-    </div>
-
-    <div class="status" id="status">
-      Waiting for your settings…
-    </div>
+    <div class="etat" id="etat">Waiting for your information…</div>
 
     <div class="preview" id="preview">
-      The whisper preview will appear here after the test.
+      The whisper will appear here after the test.
     </div>
 
-    <div class="audio-preview" id="audioPreview"></div>
-
-    <div class="tech-note">
-      NFC URL associated with this jewel (English page):
-      <div class="id-url" id="urlExampleEn"></div>
-      NFC URL associated with this jewel (French page):
-      <div class="id-url" id="urlExampleFr"></div>
+    <div class="note-tech">
+      NFC URL linked to this jewel:
+      <div class="id-url" id="urlExemple"></div>
     </div>
   </div>
 
   <script>
-    // ─────────────────────────────────────
-    // THEMES : FR = valeur canon / EN = affichage
-    // ─────────────────────────────────────
+    // 1) Theme data – FR canon keys, EN labels/descriptions/examples
+
     const THEMES = [
       {
-        key: "AMOUR",
-        label: "Love",
-        help: "Messages that nourish tenderness, connection and the depth of bonds.",
+        id: "amour",
+        value: "Amour",
+        label: "❤️ Love",
+        description: "Messages that nurture tenderness, connection and the depth of romantic bonds.",
         subthemes: [
-          { fr: "Pour ma femme", en: "For my wife" },
-          { fr: "Pour mon mari", en: "For my husband" },
-          { fr: "Pour ma fiancée", en: "For my fiancée" },
-          { fr: "Pour mon fiancé", en: "For my fiancé" },
-          { fr: "Pour un amour secret", en: "For a secret love" },
-          { fr: "Pour un amour ancien", en: "For an old love" },
-          { fr: "Pour une relation naissante", en: "For a budding relationship" },
-          { fr: "Pour un amour à distance", en: "For a long-distance love" },
-          { fr: "Pour une occasion spéciale", en: "For a special occasion" }
+          { value: "Pour ma femme", label: "For my wife", example: "e.g.: A message for my wife, to remind her how much she matters after a difficult time." },
+          { value: "Pour mon mari", label: "For my husband", example: "e.g.: A message for my husband, to thank him for everything he does every day." },
+          { value: "Pour ma fiancée", label: "For my fiancée", example: "e.g.: A tender message for my fiancée, as our wedding approaches." },
+          { value: "Pour mon fiancé", label: "For my fiancé", example: "e.g.: A message for my fiancé, to encourage him in a new project." },
+          { value: "Pour un amour secret", label: "For a secret love", example: "e.g.: A discreet message for someone I love in silence." },
+          { value: "Pour un amour ancien", label: "For an old love", example: "e.g.: A message for a childhood or teenage love I’ve reconnected with." },
+          { value: "Pour une relation naissante", label: "For a budding relationship", example: "e.g.: A message to accompany the first steps of a new story." },
+          { value: "Pour un amour à distance", label: "For a long-distance love", example: "e.g.: A message to maintain the bond despite the miles." },
+          { value: "Pour une occasion spéciale", label: "For a special occasion", example: "e.g.: A message for our wedding anniversary." }
         ]
       },
       {
-        key: "GRATITUDE",
-        label: "Gratitude",
-        help: "Messages that honor recognition, invisible gestures and supportive presences.",
+        id: "gratitude",
+        value: "Gratitude",
+        label: "🌿 Gratitude",
+        description: "Messages that honour appreciation, invisible gestures and the presences that support us.",
         subthemes: [
-          { fr: "Gratitude envers un proche", en: "Gratitude toward a loved one" },
-          { fr: "Gratitude envers un parent", en: "Gratitude toward a parent" },
-          { fr: "Gratitude envers un ami", en: "Gratitude toward a friend" },
-          { fr: "Gratitude envers un mentor", en: "Gratitude toward a mentor" },
-          { fr: "Gratitude envers un collègue", en: "Gratitude toward a colleague" },
-          { fr: "Gratitude envers la vie", en: "Gratitude toward life" }
+          { value: "Gratitude envers un proche", label: "Gratitude to a loved one", example: "e.g.: Saying thank you to a friend who was there during a difficult period." },
+          { value: "Gratitude envers un parent", label: "Gratitude to a parent", example: "e.g.: Thanking my mother or father for their lifelong support." },
+          { value: "Gratitude envers un ami", label: "Gratitude to a friend", example: "e.g.: Honouring a long-standing friendship." },
+          { value: "Gratitude envers un mentor", label: "Gratitude to a mentor", example: "e.g.: Thanking someone who guided my career." },
+          { value: "Gratitude envers un collègue", label: "Gratitude to a colleague", example: "e.g.: Thanking a colleague for their help on a project." },
+          { value: "Gratitude universelle", label: "Gratitude for life", example: "e.g.: Expressing my gratitude for life itself, without a specific person." }
         ]
       },
       {
-        key: "GUÉRISON & APAISEMENT",
-        label: "Healing & Soothing",
-        help: "Messages that offer refuge and softness in fragile or intense moments.",
+        id: "guerison",
+        value: "Guérison & apaisement",
+        label: "🌊 Healing & soothing",
+        description: "Messages that offer refuge and gentleness in sensitive or fragile moments.",
         subthemes: [
-          { fr: "Apaisement après un conflit", en: "Soothing after a conflict" },
-          { fr: "Guérison émotionnelle", en: "Emotional healing" },
-          { fr: "Accompagnement d’un deuil", en: "Support through grief" },
-          { fr: "Soutien dans le stress ou l’angoisse", en: "Support during stress or anxiety" },
-          { fr: "Après une séparation", en: "After a breakup" },
-          { fr: "Reprendre confiance", en: "Regaining confidence" }
+          { value: "Apaisement après un conflit", label: "Soothing after conflict", example: "e.g.: Easing tension with someone I love." },
+          { value: "Guérison émotionnelle", label: "Emotional healing", example: "e.g.: Supporting someone in an inner healing phase." },
+          { value: "Accompagnement d’un deuil", label: "Grief companion", example: "e.g.: Accompanying someone in grief with softness." },
+          { value: "Soutien stress ou angoisse", label: "Support in stress or anxiety", example: "e.g.: A message to reassure someone who is anxious." },
+          { value: "Après une séparation", label: "After a separation", example: "e.g.: Helping someone through a breakup." },
+          { value: "Reprendre confiance", label: "Regaining confidence", example: "e.g.: Helping rebuild confidence after a failure." }
         ]
       },
       {
-        key: "CHEMIN DE VIE & ORIENTATION",
-        label: "Life path & Guidance",
-        help: "Messages that shed light on choices, transitions and inner crossroads.",
+        id: "chemin_vie",
+        value: "Chemin de vie & orientation",
+        label: "🌌 Life path & orientation",
+        description: "Messages that shed light on choices, transitions and inner crossroads.",
         subthemes: [
-          { fr: "Prendre une décision", en: "Taking a decision" },
-          { fr: "Changer de voie", en: "Changing path" },
-          { fr: "Trouver sa direction", en: "Finding one’s direction" },
-          { fr: "Doute existentiel", en: "Existential doubt" },
-          { fr: "Début d’un projet", en: "Beginning a project" },
-          { fr: "Recherche de clarté", en: "Seeking clarity" }
+          { value: "Prendre une décision", label: "Making a decision", example: "e.g.: Helping choose between two professional paths." },
+          { value: "Changer de voie", label: "Changing direction", example: "e.g.: Accompanying a career or life change." },
+          { value: "Trouver sa direction", label: "Finding direction", example: "e.g.: Clarifying a moment of existential doubt." },
+          { value: "Doute existentiel", label: "Existential doubt", example: "e.g.: A message for someone questioning everything." },
+          { value: "Début d’un projet", label: "Beginning a project", example: "e.g.: Encouraging the start of a new creative or professional project." },
+          { value: "Recherche de clarté", label: "Seeking clarity", example: "e.g.: Looking for clear words on a complex situation." }
         ]
       },
       {
-        key: "COURAGE & DÉPASSEMENT",
-        label: "Courage & Overcoming",
-        help: "Messages that activate inner strength, determination and the impulse to act.",
+        id: "courage",
+        value: "Courage & dépassement",
+        label: "🔥 Courage & overcoming",
+        description: "Messages that activate inner strength and determination.",
         subthemes: [
-          { fr: "Défi personnel", en: "Personal challenge" },
-          { fr: "Défi professionnel", en: "Professional challenge" },
-          { fr: "Surmonter une peur", en: "Overcoming a fear" },
-          { fr: "Se lancer dans l’inconnu", en: "Leaping into the unknown" },
-          { fr: "Reprendre confiance", en: "Regaining confidence" },
-          { fr: "Maintenir l’effort", en: "Maintaining effort" }
+          { value: "Défi personnel", label: "Personal challenge", example: "e.g.: Supporting someone taking on a sports challenge." },
+          { value: "Défi professionnel", label: "Professional challenge", example: "e.g.: Encouraging a change of job or company." },
+          { value: "Surmonter une peur", label: "Overcoming a fear", example: "e.g.: A message before public speaking or an exam." },
+          { value: "Se lancer dans l’inconnu", label: "Stepping into the unknown", example: "e.g.: Moving to another country." },
+          { value: "Reprendre confiance", label: "Regaining confidence", example: "e.g.: Getting back up after a disappointment." },
+          { value: "Maintenir l’effort", label: "Sustaining effort", example: "e.g.: Staying motivated over a demanding long-term project." }
         ]
       },
       {
-        key: "CRÉATIVITÉ & INSPIRATION",
-        label: "Creativity & Inspiration",
-        help: "Messages that open imagination, unblock thoughts and awaken the inner muse.",
+        id: "creativite",
+        value: "Créativité & inspiration",
+        label: "🎨 Creativity & inspiration",
+        description: "Messages that open imagination and unblock creation.",
         subthemes: [
-          { fr: "Blocage créatif", en: "Creative block" },
-          { fr: "Début d’un projet artistique", en: "Beginning an artistic project" },
-          { fr: "Inspiration quotidienne", en: "Everyday inspiration" },
-          { fr: "Recherche d’idées nouvelles", en: "Searching for new ideas" },
-          { fr: "Fatigue créative", en: "Creative fatigue" },
-          { fr: "Explorations imaginaires", en: "Imaginary explorations" }
+          { value: "Blocage créatif", label: "Creative block", example: "e.g.: Supporting an artist or writer in lack of inspiration." },
+          { value: "Début d’un projet artistique", label: "Beginning an artistic project", example: "e.g.: Launching a new painting, music or writing project." },
+          { value: "Inspiration quotidienne", label: "Daily inspiration", example: "e.g.: A small creative breath each day." },
+          { value: "Recherche d’idées nouvelles", label: "Looking for new ideas", example: "e.g.: Generating ideas for a project." },
+          { value: "Fatigue créative", label: "Creative fatigue", example: "e.g.: Rekindling desire after creative burnout." },
+          { value: "Explorations imaginaires", label: "Imaginary explorations", example: "e.g.: Creating a symbolic world to dream in." }
         ]
       },
       {
-        key: "RÊVES & NUIT",
-        label: "Dreams & Night",
-        help: "Messages that accompany falling asleep and nourish the dream world.",
+        id: "reves",
+        value: "Rêves & nuit",
+        label: "🌙 Dreams & night",
+        description: "Messages that accompany falling asleep and the dream world.",
         subthemes: [
-          { fr: "Aide à l’endormissement", en: "Help with falling asleep" },
-          { fr: "Rituels du soir", en: "Evening rituals" },
-          { fr: "Accompagner les peurs nocturnes", en: "Supporting night fears" },
-          { fr: "Rêves lucides", en: "Lucid dreams" },
-          { fr: "Symbolique du rêve", en: "Dream symbolism" },
-          { fr: "Préparer la nuit", en: "Preparing for the night" }
+          { value: "Aide à l’endormissement", label: "Help falling asleep", example: "e.g.: To soothe someone before sleep." },
+          { value: "Rituels du soir", label: "Evening rituals", example: "e.g.: Creating a gentle moment before the night." },
+          { value: "Peur nocturne", label: "Night fears", example: "e.g.: Reassuring a child or adult who fears the dark." },
+          { value: "Rêves lucides", label: "Lucid dreams", example: "e.g.: Feeding the universe of conscious dreaming." },
+          { value: "Symbolique du rêve", label: "Dream symbolism", example: "e.g.: Giving meaning to a striking dream." },
+          { value: "Préparer la nuit", label: "Preparing the night", example: "e.g.: Installing an atmosphere of calm and trust." }
         ]
       },
       {
-        key: "PRÉSENCE & PLEINE CONSCIENCE",
-        label: "Presence & Mindfulness",
-        help: "Messages that bring you back to the breath, the present moment and the quality of being.",
+        id: "presence",
+        value: "Présence & pleine conscience",
+        label: "🌬️ Presence & mindfulness",
+        description: "Messages that bring us back to breath, body and the present moment.",
         subthemes: [
-          { fr: "Anxiété", en: "Anxiety" },
-          { fr: "Accélération mentale", en: "Racing thoughts" },
-          { fr: "Ancrage corporel", en: "Body grounding" },
-          { fr: "Moment de pause", en: "Pause moment" },
-          { fr: "Retour au calme", en: "Return to calm" },
-          { fr: "Respiration consciente", en: "Conscious breathing" }
+          { value: "Anxiété", label: "Anxiety", example: "e.g.: Returning to breathing in moments of anxiety." },
+          { value: "Accélération mentale", label: "Mental acceleration", example: "e.g.: Slowing down when thoughts are spinning too fast." },
+          { value: "Ancrage corporel", label: "Body grounding", example: "e.g.: Coming back into the body after a heavy day." },
+          { value: "Moment de pause", label: "A pause moment", example: "e.g.: Offering oneself a short mindful break." },
+          { value: "Retour au calme", label: "Return to calm", example: "e.g.: Soothing after conflict or stress." },
+          { value: "Respiration consciente", label: "Conscious breathing", example: "e.g.: Guiding a few simple breaths." }
         ]
       },
       {
-        key: "LE GARDIEN DU BOIS",
-        label: "The Guardian of the Wood",
-        help: "An ancient, benevolent voice born from the spirit of the wood, carrying stories.",
+        id: "gardien_bois",
+        value: "Le Gardien du bois",
+        label: "🪵 The Guardian of the wood",
+        description: "An ancient, benevolent voice from the spirit of the wood – protective and natural.",
         subthemes: [
-          { fr: "Message protecteur", en: "Protective message" },
-          { fr: "Message ancestral", en: "Ancestral message" },
-          { fr: "Message de sagesse naturelle", en: "Natural wisdom message" },
-          { fr: "Message d’enracinement", en: "Rooting message" },
-          { fr: "Message d’un esprit du bois", en: "Message from the spirit of the wood" },
-          { fr: "Connexion à la nature", en: "Connection to nature" }
+          { value: "Message protecteur", label: "Protective message", example: "e.g.: A message that feels like a protection around someone." },
+          { value: "Message ancestral", label: "Ancestral message", example: "e.g.: A message that sounds like very old wisdom." },
+          { value: "Message de sagesse naturelle", label: "Natural wisdom", example: "e.g.: As if the forest itself were answering." },
+          { value: "Message d’enracinement", label: "Rooting message", example: "e.g.: Reminding the person of their deep inner roots." },
+          { value: "Message d’un esprit du bois", label: "Message from a wood spirit", example: "e.g.: Personifying the wood as an ally." },
+          { value: "Connexion à la nature", label: "Connection to nature", example: "e.g.: Evoking a special connection to a natural place." }
         ]
       },
       {
-        key: "CYCLES & RENOUVEAU",
-        label: "Cycles & Renewal",
-        help: "Messages that accompany endings, beginnings and natural transformations.",
+        id: "cycles",
+        value: "Cycles & renouveau",
+        label: "🌅 Cycles & renewal",
+        description: "Messages that accompany endings, beginnings and transformations.",
         subthemes: [
-          { fr: "Nouvelle étape", en: "New stage" },
-          { fr: "Renouveau après une épreuve", en: "Renewal after a trial" },
-          { fr: "Fin d’un cycle", en: "End of a cycle" },
-          { fr: "Transition de vie", en: "Life transition" },
-          { fr: "Recommencer différemment", en: "Starting again differently" },
-          { fr: "Se libérer du passé", en: "Letting go of the past" }
+          { value: "Nouvelle étape", label: "New step", example: "e.g.: Entering a new phase of life." },
+          { value: "Renouveau après une épreuve", label: "Renewal after hardship", example: "e.g.: Getting back up after a difficult event." },
+          { value: "Fin d’un cycle", label: "End of a cycle", example: "e.g.: Closing a period, a job or a relationship." },
+          { value: "Transition de vie", label: "Life transition", example: "e.g.: Moving, retirement, big changes." },
+          { value: "Recommencer différemment", label: "Starting again differently", example: "e.g.: Not repeating the same patterns." },
+          { value: "Se libérer du passé", label: "Letting go of the past", example: "e.g.: Leaving something heavy behind." }
         ]
       },
       {
-        key: "INTUITION & SYNCHRONICITÉS",
-        label: "Intuition & Synchronicities",
-        help: "Messages that strengthen subtle perception, signs and the inner voice.",
+        id: "intuition",
+        value: "Intuition & synchronicités",
+        label: "🔮 Intuition & synchronicities",
+        description: "Messages that strengthen the inner voice and the signs along the path.",
         subthemes: [
-          { fr: "Se reconnecter à son intuition", en: "Reconnecting to one’s intuition" },
-          { fr: "Comprendre un signe", en: "Understanding a sign" },
-          { fr: "S’ouvrir aux synchronicités", en: "Opening to synchronicities" },
-          { fr: "Décision au feeling", en: "Feeling-based decision" },
-          { fr: "Moments étranges ou significatifs", en: "Strange or meaningful moments" },
-          { fr: "Message symbolique", en: "Symbolic message" }
+          { value: "Se reconnecter à son intuition", label: "Reconnecting to intuition", example: "e.g.: Daring to listen deeply to what one feels." },
+          { value: "Comprendre un signe", label: "Understanding a sign", example: "e.g.: Giving meaning to a strange or symbolic event." },
+          { value: "S’ouvrir aux synchronicités", label: "Opening to synchronicities", example: "e.g.: Letting oneself be guided by meaningful coincidences." },
+          { value: "Décision au feeling", label: "Decision by feeling", example: "e.g.: Choosing with intuition rather than pure logic." },
+          { value: "Moments étranges ou significatifs", label: "Strange or meaningful moments", example: "e.g.: A moment that seems particularly charged with meaning." },
+          { value: "Message symbolique", label: "Symbolic message", example: "e.g.: Making an image, animal or dream speak." }
         ]
       },
       {
-        key: "PROJETS & OBJECTIFS",
-        label: "Projects & Goals",
-        help: "Messages that support momentum, vision and motivation.",
+        id: "projets",
+        value: "Projets & objectifs",
+        label: "🌄 Projects & goals",
+        description: "Messages that support momentum, vision and motivation.",
         subthemes: [
-          { fr: "Lancer un projet", en: "Starting a project" },
-          { fr: "Clarifier un objectif", en: "Clarifying a goal" },
-          { fr: "Fixer une intention", en: "Setting an intention" },
-          { fr: "Tenir le rythme", en: "Keeping the pace" },
-          { fr: "Dépasser un blocage", en: "Overcoming a block" },
-          { fr: "Devenir régulier", en: "Becoming consistent" }
+          { value: "Lancer un projet", label: "Launching a project", example: "e.g.: Starting a new personal or professional project." },
+          { value: "Clarifier un objectif", label: "Clarifying a goal", example: "e.g.: Putting words on what one truly wants." },
+          { value: "Fixer une intention", label: "Setting an intention", example: "e.g.: Setting an intention for the year ahead." },
+          { value: "Tenir le rythme", label: "Keeping the pace", example: "e.g.: Staying regular in learning or training." },
+          { value: "Dépasser un blocage", label: "Overcoming a block", example: "e.g.: When progress feels stuck." },
+          { value: "Devenir régulier", label: "Becoming consistent", example: "e.g.: Installing a daily or weekly practice." }
         ]
       },
       {
-        key: "CÉLÉBRATION & JOIE",
-        label: "Celebration & Joy",
-        help: "Messages that amplify pleasure, satisfaction and the brightness of good moments.",
+        id: "celebration",
+        value: "Célébration & joie",
+        label: "🎉 Celebration & joy",
+        description: "Messages that amplify pleasure, playfulness and good news.",
         subthemes: [
-          { fr: "Anniversaire", en: "Birthday" },
-          { fr: "Réussite personnelle", en: "Personal achievement" },
-          { fr: "Réussite professionnelle", en: "Professional achievement" },
-          { fr: "Bonne nouvelle", en: "Good news" },
-          { fr: "Victoire d’équipe", en: "Team victory" },
-          { fr: "Gratitude joyeuse", en: "Joyful gratitude" }
+          { value: "Anniversaire", label: "Birthday", example: "e.g.: Offering a jewel for a milestone birthday." },
+          { value: "Réussite personnelle", label: "Personal achievement", example: "e.g.: Celebrating a diploma, a big change." },
+          { value: "Réussite professionnelle", label: "Professional success", example: "e.g.: Celebrating a promotion or completed project." },
+          { value: "Bonne nouvelle", label: "Good news", example: "e.g.: Celebrating a birth or joyful announcement." },
+          { value: "Victoire d’équipe", label: "Team victory", example: "e.g.: Thanking a group for a shared success." },
+          { value: "Gratitude joyeuse", label: "Joyful gratitude", example: "e.g.: Mixing thank you with celebration and joy." }
         ]
       },
       {
-        key: "CALME & SÉRÉNITÉ",
-        label: "Calm & Serenity",
-        help: "Messages that soothe the mind and invite deep rest.",
+        id: "calme",
+        value: "Calme & sérénité",
+        label: "🧘‍♀️ Calm & serenity",
+        description: "Messages that soothe the mind and invite deep rest.",
         subthemes: [
-          { fr: "Stress du quotidien", en: "Everyday stress" },
-          { fr: "Surcharge mentale", en: "Mental overload" },
-          { fr: "Besoin de pause", en: "Need for a break" },
-          { fr: "Moment pour respirer", en: "Time to breathe" },
-          { fr: "Retrouver le calme", en: "Finding calm again" },
-          { fr: "Après une longue journée", en: "After a long day" }
+          { value: "Stress du quotidien", label: "Everyday stress", example: "e.g.: Calming someone caught in the swirl of daily life." },
+          { value: "Surcharge mentale", label: "Mental overload", example: "e.g.: When everything feels like too much." },
+          { value: "Besoin de pause", label: "Need for a break", example: "e.g.: Inviting someone to slow down." },
+          { value: "Moment pour respirer", label: "Moment to breathe", example: "e.g.: Creating a small breathing ritual." },
+          { value: "Retrouver le calme", label: "Finding calm again", example: "e.g.: After a very intense day." },
+          { value: "Après une longue journée", label: "After a long day", example: "e.g.: Closing the day gently." }
         ]
       },
       {
-        key: "CONNEXION & LIEN AUX AUTRES",
-        label: "Connection & Bond with Others",
-        help: "Messages that strengthen relationships, communication and belonging.",
+        id: "connexion",
+        value: "Connexion & lien aux autres",
+        label: "🌐 Connection & relationships",
+        description: "Messages that strengthen relationships and communication.",
         subthemes: [
-          { fr: "Mieux communiquer", en: "Communicating better" },
-          { fr: "Retrouver un lien", en: "Reconnecting" },
-          { fr: "Entretenir une relation", en: "Nurturing a relationship" },
-          { fr: "Améliorer une complicité", en: "Improving closeness" },
-          { fr: "Lien familial", en: "Family bond" },
-          { fr: "Lien amical", en: "Friendship bond" }
+          { value: "Mieux communiquer", label: "Better communication", example: "e.g.: Finding the right words before an important conversation." },
+          { value: "Retrouver un lien", label: "Rekindling a bond", example: "e.g.: Coming back to someone after a period of silence." },
+          { value: "Entretenir une relation", label: "Nurturing a relationship", example: "e.g.: Keeping a bond alive at a distance or day to day." },
+          { value: "Améliorer une complicité", label: "Deepening complicity", example: "e.g.: Making a relationship lighter and more joyful." },
+          { value: "Lien familial", label: "Family bond", example: "e.g.: Between siblings, parents, children…" },
+          { value: "Lien amical", label: "Friendship bond", example: "e.g.: Honouring an important friendship." }
         ]
       },
       {
-        key: "CONFIANCE EN SOI",
-        label: "Self–confidence",
-        help: "Messages that reinforce self-worth and the ability to act with assurance.",
+        id: "confiance",
+        value: "Confiance en soi",
+        label: "🌟 Self-confidence",
+        description: "Messages that reinforce self-worth and inner assurance.",
         subthemes: [
-          { fr: "Manque de confiance", en: "Lack of confidence" },
-          { fr: "Comparaison aux autres", en: "Comparing oneself to others" },
-          { fr: "Sentiment d’illégitimité", en: "Feeling illegitimate" },
-          { fr: "Avant un événement important", en: "Before an important event" },
-          { fr: "Reconstruire l’estime", en: "Rebuilding self-esteem" },
-          { fr: "Prendre sa place", en: "Taking one’s place" }
+          { value: "Manque de confiance", label: "Lack of confidence", example: "e.g.: For someone who constantly doubts themselves." },
+          { value: "Comparaison aux autres", label: "Comparing to others", example: "e.g.: When someone feels less than others." },
+          { value: "Sentiment d’illégitimité", label: "Feeling illegitimate", example: "e.g.: Impostor syndrome." },
+          { value: "Avant un événement important", label: "Before an important event", example: "e.g.: Before an oral exam, performance, presentation." },
+          { value: "Reconstruire l’estime", label: "Rebuilding self-esteem", example: "e.g.: After a period of criticism or failure." },
+          { value: "Prendre sa place", label: "Taking one’s place", example: "e.g.: Daring to fully exist and be visible." }
         ]
       },
       {
-        key: "TRAVERSER LES DIFFICULTÉS",
-        label: "Going through difficulties",
-        help: "Messages that support during trials, obstacles and uncertain periods.",
+        id: "difficultes",
+        value: "Traverser les difficultés",
+        label: "🔁 Facing difficulties",
+        description: "Messages that support someone during trials and obstacles.",
         subthemes: [
-          { fr: "Soucis financiers", en: "Financial worries" },
-          { fr: "Conflits relationnels", en: "Relationship conflicts" },
-          { fr: "Fatigue générale", en: "General fatigue" },
-          { fr: "Dépression légère / baisse d’énergie", en: "Low mood / low energy" },
-          { fr: "Étape instable", en: "Unstable phase" },
-          { fr: "Sensation de perte de contrôle", en: "Feeling out of control" }
+          { value: "Soucis financiers", label: "Financial worries", example: "e.g.: Helping someone in financial difficulty." },
+          { value: "Conflits relationnels", label: "Relational conflicts", example: "e.g.: When relationships are tense." },
+          { value: "Fatigue générale", label: "General fatigue", example: "e.g.: Supporting someone who feels exhausted." },
+          { value: "Baisse d’énergie / humeur", label: "Low energy / mood", example: "e.g.: A period of low spirits or mild depression." },
+          { value: "Étape instable", label: "Unstable stage", example: "e.g.: A time when everything seems to be changing." },
+          { value: "Sensation de perte de contrôle", label: "Feeling out of control", example: "e.g.: When the person feels they’ve lost control of events." }
         ]
       },
       {
-        key: "ALIGNEMENT & AUTHENTICITÉ",
-        label: "Alignment & Authenticity",
-        help: "Messages that encourage being oneself and aligning life with true values.",
+        id: "alignement",
+        value: "Alignement & authenticité",
+        label: "🧭 Alignment & authenticity",
+        description: "Messages that encourage being oneself and adjusting life accordingly.",
         subthemes: [
-          { fr: "Se réaligner", en: "Realigning oneself" },
-          { fr: "Vivre selon ses valeurs", en: "Living according to one’s values" },
-          { fr: "Quitter une situation fausse", en: "Leaving a false situation" },
-          { fr: "Retrouver sa vérité", en: "Finding one’s truth again" },
-          { fr: "Dire non", en: "Saying no" },
-          { fr: "Se révéler", en: "Revealing oneself" }
+          { value: "Se réaligner", label: "Realigning oneself", example: "e.g.: Coming back to what really matters." },
+          { value: "Vivre selon ses valeurs", label: "Living by one’s values", example: "e.g.: When there is a gap between what one does and what one believes." },
+          { value: "Quitter une situation fausse", label: "Leaving a false situation", example: "e.g.: Leaving a job or relationship that feels wrong." },
+          { value: "Retrouver sa vérité", label: "Finding one’s truth again", example: "e.g.: Coming back to oneself after being lost in others." },
+          { value: "Dire non", label: "Saying no", example: "e.g.: Learning to set boundaries." },
+          { value: "Se révéler", label: "Revealing oneself", example: "e.g.: Daring to show who one really is." }
         ]
       },
       {
-        key: "RACINES & ORIGINES",
-        label: "Roots & Origins",
-        help: "Messages that honor roots, personal history and belonging.",
+        id: "racines",
+        value: "Racines & origines",
+        label: "🌾 Roots & origins",
+        description: "Messages that honour personal history and belonging.",
         subthemes: [
-          { fr: "Famille", en: "Family" },
-          { fr: "Héritage", en: "Heritage" },
-          { fr: "Histoire personnelle", en: "Personal history" },
-          { fr: "Souvenir d’enfance", en: "Childhood memory" },
-          { fr: "Lien au pays / à la terre", en: "Link to homeland / land" },
-          { fr: "Transmission", en: "Transmission" }
+          { value: "Famille", label: "Family", example: "e.g.: Honouring a family lineage." },
+          { value: "Héritage", label: "Heritage", example: "e.g.: Speaking about what was passed down." },
+          { value: "Histoire personnelle", label: "Personal story", example: "e.g.: Returning to a founding life moment." },
+          { value: "Souvenir d’enfance", label: "Childhood memory", example: "e.g.: Bringing back a gentle childhood memory." },
+          { value: "Lien au pays / à la terre", label: "Link to country / land", example: "e.g.: Evoking an important place of origin." },
+          { value: "Transmission", label: "Transmission", example: "e.g.: Passing a message to the next generation." }
         ]
       },
       {
-        key: "ÉNERGIE & VITALITÉ",
-        label: "Energy & Vitality",
-        help: "Messages that stimulate inner momentum and joy of living.",
+        id: "energie",
+        value: "Énergie & vitalité",
+        label: "🔥 Energy & vitality",
+        description: "Messages that stimulate joy of living and momentum.",
         subthemes: [
-          { fr: "Fatigue physique", en: "Physical fatigue" },
-          { fr: "Baisse d’énergie", en: "Lack of energy" },
-          { fr: "Manque d’enthousiasme", en: "Lack of enthusiasm" },
-          { fr: "Relancer la motivation", en: "Boosting motivation" },
-          { fr: "Retrouver du tonus", en: "Regaining vitality" },
-          { fr: "Besoin d’élan", en: "Need for momentum" }
+          { value: "Fatigue physique", label: "Physical fatigue", example: "e.g.: Bringing a bit of symbolic sunshine back to the body." },
+          { value: "Baisse d’énergie", label: "Drop in energy", example: "e.g.: When the person feels flat and empty." },
+          { value: "Manque d’enthousiasme", label: "Lack of enthusiasm", example: "e.g.: Finding joy in things again." },
+          { value: "Relancer la motivation", label: "Boosting motivation", example: "e.g.: Restarting a project that is falling asleep." },
+          { value: "Retrouver du tonus", label: "Regaining tone", example: "e.g.: Getting energy flowing again after illness." },
+          { value: "Besoin d’élan", label: "Need for a push", example: "e.g.: A symbolic gentle ‘boost’ of energy." }
         ]
       }
     ];
 
+    // 2) DOM elements
+
     const idInput = document.getElementById("idBijou");
-    const langueSelect = document.getElementById("langue");
     const prenomInput = document.getElementById("prenom");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
     const voixSelect = document.getElementById("voix");
     const themeSelect = document.getElementById("theme");
     const sousThemeSelect = document.getElementById("sousTheme");
-    const themeHelp = document.getElementById("themeHelp");
-    const intentionInput = document.getElementById("intention");
-    const detailInput = document.getElementById("detail");
-    const btnSave = document.getElementById("btnSave");
-    const btnTest = document.getElementById("btnTest");
-    const statusEl = document.getElementById("status");
-    const previewEl = document.getElementById("preview");
-    const audioPreview = document.getElementById("audioPreview");
-    const urlExampleEn = document.getElementById("urlExampleEn");
-    const urlExampleFr = document.getElementById("urlExampleFr");
+    const btnTester = document.getElementById("btnTester");
+    const btnSave = document.getElementById("saveBtn");
+    const etat = document.getElementById("etat");
+    const preview = document.getElementById("preview");
+    const urlExemple = document.getElementById("urlExemple");
 
-    // ─────────────────────────────────────
-    // Query param id (pre-fill)
-    // ─────────────────────────────────────
-    function getQueryParam(name) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
-    }
-    const idFromUrl = getQueryParam("id");
-    if (idFromUrl) {
-      idInput.value = idFromUrl;
-    }
+    const helperCard = document.getElementById("helperCard");
+    const helperTitle = document.getElementById("helperTitle");
+    const helperDesc = document.getElementById("helperDesc");
+    const helperExample = document.getElementById("helperExample");
 
-    function updateUrls() {
-      const id = idInput.value.trim() || "BIJOU001";
-      const base = window.location.origin || "https://invisible-app-atelier.vercel.app";
-      urlExampleEn.textContent = `${base}/bijou-en.html?id=${encodeURIComponent(id)}`;
-      urlExampleFr.textContent = `${base}/bijou.html?id=${encodeURIComponent(id)}`;
-    }
+    // 3) Fill theme list
 
-    idInput.addEventListener("input", updateUrls);
-    updateUrls();
-
-    // ─────────────────────────────────────
-    // Init themes + sub-themes
-    // ─────────────────────────────────────
     function initThemes() {
       themeSelect.innerHTML = "";
-      const firstOption = document.createElement("option");
-      firstOption.value = "";
-      firstOption.textContent = "Choose a theme…";
-      themeSelect.appendChild(firstOption);
+      const optionDefault = document.createElement("option");
+      optionDefault.value = "";
+      optionDefault.textContent = "Choose a theme…";
+      themeSelect.appendChild(optionDefault);
 
       THEMES.forEach((t) => {
         const opt = document.createElement("option");
-        opt.value = t.key; // key FR for backend
-        opt.textContent = t.label; // EN label on screen
+        opt.value = t.value; // FR canon stored in DB
+        opt.textContent = t.label;
+        opt.dataset.id = t.id;
         themeSelect.appendChild(opt);
       });
     }
 
-    function updateSubthemes() {
-      const selectedKey = themeSelect.value;
-      const found = THEMES.find((t) => t.key === selectedKey);
+    function onThemeChange() {
+      const selectedValue = themeSelect.value;
+      const themeObj = THEMES.find((t) => t.value === selectedValue);
 
       sousThemeSelect.innerHTML = "";
-      if (!found) {
+
+      if (!themeObj) {
         const opt = document.createElement("option");
         opt.value = "";
-        opt.textContent = "Choose a main theme first…";
+        opt.textContent = "Please choose a theme first…";
         sousThemeSelect.appendChild(opt);
-        themeHelp.textContent = "Choose a theme to see a short description here.";
+        helperCard.style.display = "none";
         return;
       }
 
-      themeHelp.textContent = found.help;
+      const optDefault = document.createElement("option");
+      optDefault.value = "";
+      optDefault.textContent = "Choose a sub-theme…";
+      sousThemeSelect.appendChild(optDefault);
 
-      found.subthemes.forEach((sub) => {
+      themeObj.subthemes.forEach((st) => {
         const opt = document.createElement("option");
-        opt.value = sub.fr;        // FR value stored in Supabase
-        opt.textContent = sub.en;  // EN text shown in the UI
+        opt.value = st.value; // FR canon
+        opt.textContent = st.label;
+        opt.dataset.example = st.example;
         sousThemeSelect.appendChild(opt);
       });
+
+      helperCard.style.display = "block";
+      helperTitle.textContent = themeObj.label;
+      helperDesc.textContent = themeObj.description;
+      helperExample.textContent = themeObj.subthemes[0]?.example || "";
     }
 
-    themeSelect.addEventListener("change", updateSubthemes);
+    function onSousThemeChange() {
+      const selectedTheme = themeSelect.value;
+      const selectedSous = sousThemeSelect.value;
+      const themeObj = THEMES.find((t) => t.value === selectedTheme);
 
-    initThemes();
-    updateSubthemes();
+      if (!themeObj) {
+        helperCard.style.display = "none";
+        return;
+      }
 
-    // ─────────────────────────────────────
-    // Save jewel (/api/saveBijou)
-    // ─────────────────────────────────────
+      const subObj = themeObj.subthemes.find((st) => st.value === selectedSous);
+
+      helperCard.style.display = "block";
+      helperTitle.textContent = themeObj.label;
+      helperDesc.textContent = themeObj.description;
+      helperExample.textContent = subObj?.example || themeObj.subthemes[0]?.example || "";
+    }
+
+    // 4) Example URL for NFC chip
+
+    function majUrlExemple() {
+      const id = idInput.value.trim() || "BIJOU001";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
+
+    // 5) Prefill ID from URL if present
+
+    function initFromUrl() {
+      const url = new URL(window.location.href);
+      const idParam = url.searchParams.get("id");
+      if (idParam) {
+        idInput.value = idParam;
+      }
+      majUrlExemple();
+    }
+
+    // 6) Whisper preview (calls /api/message)
+
+    btnTester.addEventListener("click", async () => {
+      const id = idInput.value.trim() || "BIJOU001";
+      const prenom = prenomInput.value.trim();
+      const intention = intentionInput.value.trim();
+      const detail = detailInput.value.trim();
+      const voix = voixSelect.value;
+
+      etat.textContent = "The AI is composing the whisper…";
+      btnTester.disabled = true;
+      preview.textContent = "";
+
+      const params = new URLSearchParams({
+        id,
+        prenom,
+        intention,
+        detail,
+        voix,
+        lang: "en"
+      });
+
+      try {
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+        preview.textContent = data.text || "I am here, silent, but still by your side.";
+        etat.textContent = "Whisper generated (preview).";
+      } catch (e) {
+        console.error(e);
+        preview.textContent = "Error: unable to reach the jewel’s voice.";
+        etat.textContent = "Connection error with the AI.";
+      } finally {
+        btnTester.disabled = false;
+      }
+    });
+
+    // 7) Save jewel to Supabase via /api/saveBijou
+
     btnSave.addEventListener("click", async () => {
       const id = idInput.value.trim();
       if (!id) {
@@ -691,97 +790,45 @@
       const body = {
         id,
         prenom: prenomInput.value.trim(),
-        theme: themeSelect.value || null,
-        sous_theme: sousThemeSelect.value || null, // FR value
         intention: intentionInput.value.trim(),
         detail: detailInput.value.trim(),
-        voix: voixSelect.value.trim() || "neutre",
-        langue: langueSelect.value || "en"
+        voix: voixSelect.value.trim(),
+        theme: themeSelect.value || null,
+        sous_theme: sousThemeSelect.value || null,
+        langue: "en"
       };
-
-      btnSave.disabled = true;
-      statusEl.textContent = "Saving the jewel settings…";
 
       try {
         const r = await fetch("/api/saveBijou", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(body)
         });
 
         const result = await r.json();
+
         if (result.ok) {
-          statusEl.textContent = "Jewel saved successfully. You can now test the whisper.";
           alert("Jewel saved successfully!");
+          etat.textContent = "Settings saved in the workshop.";
         } else {
-          console.error(result);
-          alert("Error: " + (result.error || "Unknown error while saving."));
-          statusEl.textContent = "An error occurred while saving the jewel.";
+          alert("Error: " + (result.error || "Unable to save the jewel."));
         }
       } catch (e) {
         console.error(e);
-        alert("Network error while saving the jewel.");
-        statusEl.textContent = "Network error while saving the jewel.";
-      } finally {
-        btnSave.disabled = false;
+        alert("Network error: unable to save the jewel.");
       }
     });
 
-    // ─────────────────────────────────────
-    // Test whisper (/api/message)
-    // ─────────────────────────────────────
-    let currentAudio = null;
+    // 8) Init
 
-    btnTest.addEventListener("click", async () => {
-      const id = idInput.value.trim();
-      if (!id) {
-        alert("Please enter a jewel ID first.");
-        return;
-      }
+    idInput.addEventListener("input", majUrlExemple);
+    themeSelect.addEventListener("change", onThemeChange);
+    sousThemeSelect.addEventListener("change", onSousThemeChange);
 
-      const lang = langueSelect.value || "en";
-
-      btnTest.disabled = true;
-      statusEl.textContent = "The AI is composing the whisper…";
-      previewEl.textContent = "";
-      audioPreview.innerHTML = "";
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio = null;
-      }
-
-      try {
-        const params = new URLSearchParams({
-          id,
-          lang
-        });
-        const r = await fetch(`/api/message?${params.toString()}`);
-        const data = await r.json();
-
-        const text = data.text || "The jewel remains silent for now.";
-        previewEl.textContent = text;
-        statusEl.textContent = "Whisper generated (preview).";
-
-        if (data.audio) {
-          const audio = new Audio(data.audio);
-          currentAudio = audio;
-          const controls = document.createElement("audio");
-          controls.controls = true;
-          controls.src = data.audio;
-          audioPreview.innerHTML = "";
-          audioPreview.appendChild(controls);
-          audio.play().catch(() => {});
-        } else {
-          audioPreview.innerHTML = "";
-        }
-      } catch (e) {
-        console.error(e);
-        previewEl.textContent = "Error: unable to reach the jewel’s voice.";
-        statusEl.textContent = "Error while connecting to the AI.";
-      } finally {
-        btnTest.disabled = false;
-      }
-    });
+    initThemes();
+    initFromUrl();
   </script>
 </body>
 </html>
