@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -263,9 +263,7 @@
     </div>
 
     <label for="theme">Main theme</label>
-    <select id="theme">
-      <!-- options filled by JS -->
-    </select>
+    <select id="theme"></select>
     <div class="theme-help" id="themeHelp">
       Choose a theme to see a short description here.
     </div>
@@ -325,50 +323,50 @@
   </div>
 
   <script>
-    // --- Theme definitions ---
-    // IMPORTANT: The "key" values are in French to stay compatible
-    // with your existing backend logic that checks theme names in FR.
+    // ─────────────────────────────────────
+    // THEMES : FR = valeur canon / EN = affichage
+    // ─────────────────────────────────────
     const THEMES = [
       {
         key: "AMOUR",
         label: "Love",
         help: "Messages that nourish tenderness, connection and the depth of bonds.",
         subthemes: [
-          "Pour ma femme",
-          "Pour mon mari",
-          "Pour ma fiancée",
-          "Pour mon fiancé",
-          "Pour un amour secret",
-          "Pour un amour ancien",
-          "Pour une relation naissante",
-          "Pour un amour à distance",
-          "Pour une occasion spéciale"
+          { fr: "Pour ma femme", en: "For my wife" },
+          { fr: "Pour mon mari", en: "For my husband" },
+          { fr: "Pour ma fiancée", en: "For my fiancée" },
+          { fr: "Pour mon fiancé", en: "For my fiancé" },
+          { fr: "Pour un amour secret", en: "For a secret love" },
+          { fr: "Pour un amour ancien", en: "For an old love" },
+          { fr: "Pour une relation naissante", en: "For a budding relationship" },
+          { fr: "Pour un amour à distance", en: "For a long-distance love" },
+          { fr: "Pour une occasion spéciale", en: "For a special occasion" }
         ]
       },
       {
         key: "GRATITUDE",
         label: "Gratitude",
-        help: "Messages that honor recognition, invisible gestures and the presences that support us.",
+        help: "Messages that honor recognition, invisible gestures and supportive presences.",
         subthemes: [
-          "Gratitude envers un proche",
-          "Gratitude envers un parent",
-          "Gratitude envers un ami",
-          "Gratitude envers un mentor",
-          "Gratitude envers un collègue",
-          "Gratitude envers la vie"
+          { fr: "Gratitude envers un proche", en: "Gratitude toward a loved one" },
+          { fr: "Gratitude envers un parent", en: "Gratitude toward a parent" },
+          { fr: "Gratitude envers un ami", en: "Gratitude toward a friend" },
+          { fr: "Gratitude envers un mentor", en: "Gratitude toward a mentor" },
+          { fr: "Gratitude envers un collègue", en: "Gratitude toward a colleague" },
+          { fr: "Gratitude envers la vie", en: "Gratitude toward life" }
         ]
       },
       {
         key: "GUÉRISON & APAISEMENT",
         label: "Healing & Soothing",
-        help: "Messages that offer refuge and softness in sensitive, fragile or intense moments.",
+        help: "Messages that offer refuge and softness in fragile or intense moments.",
         subthemes: [
-          "Apaisement après un conflit",
-          "Guérison émotionnelle",
-          "Accompagnement d’un deuil",
-          "Soutien dans le stress ou l’angoisse",
-          "Après une séparation",
-          "Reprendre confiance"
+          { fr: "Apaisement après un conflit", en: "Soothing after a conflict" },
+          { fr: "Guérison émotionnelle", en: "Emotional healing" },
+          { fr: "Accompagnement d’un deuil", en: "Support through grief" },
+          { fr: "Soutien dans le stress ou l’angoisse", en: "Support during stress or anxiety" },
+          { fr: "Après une séparation", en: "After a breakup" },
+          { fr: "Reprendre confiance", en: "Regaining confidence" }
         ]
       },
       {
@@ -376,12 +374,12 @@
         label: "Life path & Guidance",
         help: "Messages that shed light on choices, transitions and inner crossroads.",
         subthemes: [
-          "Prendre une décision",
-          "Changer de voie",
-          "Trouver sa direction",
-          "Doute existentiel",
-          "Début d’un projet",
-          "Recherche de clarté"
+          { fr: "Prendre une décision", en: "Taking a decision" },
+          { fr: "Changer de voie", en: "Changing path" },
+          { fr: "Trouver sa direction", en: "Finding one’s direction" },
+          { fr: "Doute existentiel", en: "Existential doubt" },
+          { fr: "Début d’un projet", en: "Beginning a project" },
+          { fr: "Recherche de clarté", en: "Seeking clarity" }
         ]
       },
       {
@@ -389,12 +387,12 @@
         label: "Courage & Overcoming",
         help: "Messages that activate inner strength, determination and the impulse to act.",
         subthemes: [
-          "Défi personnel",
-          "Défi professionnel",
-          "Surmonter une peur",
-          "Se lancer dans l’inconnu",
-          "Reprendre confiance",
-          "Maintenir l’effort"
+          { fr: "Défi personnel", en: "Personal challenge" },
+          { fr: "Défi professionnel", en: "Professional challenge" },
+          { fr: "Surmonter une peur", en: "Overcoming a fear" },
+          { fr: "Se lancer dans l’inconnu", en: "Leaping into the unknown" },
+          { fr: "Reprendre confiance", en: "Regaining confidence" },
+          { fr: "Maintenir l’effort", en: "Maintaining effort" }
         ]
       },
       {
@@ -402,12 +400,12 @@
         label: "Creativity & Inspiration",
         help: "Messages that open imagination, unblock thoughts and awaken the inner muse.",
         subthemes: [
-          "Blocage créatif",
-          "Début d’un projet artistique",
-          "Inspiration quotidienne",
-          "Recherche d’idées nouvelles",
-          "Fatigue créative",
-          "Explorations imaginaires"
+          { fr: "Blocage créatif", en: "Creative block" },
+          { fr: "Début d’un projet artistique", en: "Beginning an artistic project" },
+          { fr: "Inspiration quotidienne", en: "Everyday inspiration" },
+          { fr: "Recherche d’idées nouvelles", en: "Searching for new ideas" },
+          { fr: "Fatigue créative", en: "Creative fatigue" },
+          { fr: "Explorations imaginaires", en: "Imaginary explorations" }
         ]
       },
       {
@@ -415,12 +413,12 @@
         label: "Dreams & Night",
         help: "Messages that accompany falling asleep and nourish the dream world.",
         subthemes: [
-          "Aide à l’endormissement",
-          "Rituels du soir",
-          "Accompagner les peurs nocturnes",
-          "Rêves lucides",
-          "Symbolique du rêve",
-          "Préparer la nuit"
+          { fr: "Aide à l’endormissement", en: "Help with falling asleep" },
+          { fr: "Rituels du soir", en: "Evening rituals" },
+          { fr: "Accompagner les peurs nocturnes", en: "Supporting night fears" },
+          { fr: "Rêves lucides", en: "Lucid dreams" },
+          { fr: "Symbolique du rêve", en: "Dream symbolism" },
+          { fr: "Préparer la nuit", en: "Preparing for the night" }
         ]
       },
       {
@@ -428,12 +426,12 @@
         label: "Presence & Mindfulness",
         help: "Messages that bring you back to the breath, the present moment and the quality of being.",
         subthemes: [
-          "Anxiété",
-          "Accélération mentale",
-          "Ancrage corporel",
-          "Moment de pause",
-          "Retour au calme",
-          "Respiration consciente"
+          { fr: "Anxiété", en: "Anxiety" },
+          { fr: "Accélération mentale", en: "Racing thoughts" },
+          { fr: "Ancrage corporel", en: "Body grounding" },
+          { fr: "Moment de pause", en: "Pause moment" },
+          { fr: "Retour au calme", en: "Return to calm" },
+          { fr: "Respiration consciente", en: "Conscious breathing" }
         ]
       },
       {
@@ -441,12 +439,12 @@
         label: "The Guardian of the Wood",
         help: "An ancient, benevolent voice born from the spirit of the wood, carrying stories.",
         subthemes: [
-          "Message protecteur",
-          "Message ancestral",
-          "Message de sagesse naturelle",
-          "Message d’enracinement",
-          "Message d’un esprit du bois",
-          "Connexion à la nature"
+          { fr: "Message protecteur", en: "Protective message" },
+          { fr: "Message ancestral", en: "Ancestral message" },
+          { fr: "Message de sagesse naturelle", en: "Natural wisdom message" },
+          { fr: "Message d’enracinement", en: "Rooting message" },
+          { fr: "Message d’un esprit du bois", en: "Message from the spirit of the wood" },
+          { fr: "Connexion à la nature", en: "Connection to nature" }
         ]
       },
       {
@@ -454,12 +452,12 @@
         label: "Cycles & Renewal",
         help: "Messages that accompany endings, beginnings and natural transformations.",
         subthemes: [
-          "Nouvelle étape",
-          "Renouveau après une épreuve",
-          "Fin d’un cycle",
-          "Transition de vie",
-          "Recommencer différemment",
-          "Se libérer du passé"
+          { fr: "Nouvelle étape", en: "New stage" },
+          { fr: "Renouveau après une épreuve", en: "Renewal after a trial" },
+          { fr: "Fin d’un cycle", en: "End of a cycle" },
+          { fr: "Transition de vie", en: "Life transition" },
+          { fr: "Recommencer différemment", en: "Starting again differently" },
+          { fr: "Se libérer du passé", en: "Letting go of the past" }
         ]
       },
       {
@@ -467,12 +465,12 @@
         label: "Intuition & Synchronicities",
         help: "Messages that strengthen subtle perception, signs and the inner voice.",
         subthemes: [
-          "Se reconnecter à son intuition",
-          "Comprendre un signe",
-          "S’ouvrir aux synchronicités",
-          "Décision au feeling",
-          "Moments étranges ou significatifs",
-          "Message symbolique"
+          { fr: "Se reconnecter à son intuition", en: "Reconnecting to one’s intuition" },
+          { fr: "Comprendre un signe", en: "Understanding a sign" },
+          { fr: "S’ouvrir aux synchronicités", en: "Opening to synchronicities" },
+          { fr: "Décision au feeling", en: "Feeling-based decision" },
+          { fr: "Moments étranges ou significatifs", en: "Strange or meaningful moments" },
+          { fr: "Message symbolique", en: "Symbolic message" }
         ]
       },
       {
@@ -480,12 +478,12 @@
         label: "Projects & Goals",
         help: "Messages that support momentum, vision and motivation.",
         subthemes: [
-          "Lancer un projet",
-          "Clarifier un objectif",
-          "Fixer une intention",
-          "Tenir le rythme",
-          "Dépasser un blocage",
-          "Devenir régulier"
+          { fr: "Lancer un projet", en: "Starting a project" },
+          { fr: "Clarifier un objectif", en: "Clarifying a goal" },
+          { fr: "Fixer une intention", en: "Setting an intention" },
+          { fr: "Tenir le rythme", en: "Keeping the pace" },
+          { fr: "Dépasser un blocage", en: "Overcoming a block" },
+          { fr: "Devenir régulier", en: "Becoming consistent" }
         ]
       },
       {
@@ -493,12 +491,12 @@
         label: "Celebration & Joy",
         help: "Messages that amplify pleasure, satisfaction and the brightness of good moments.",
         subthemes: [
-          "Anniversaire",
-          "Réussite personnelle",
-          "Réussite professionnelle",
-          "Bonne nouvelle",
-          "Victoire d’équipe",
-          "Gratitude joyeuse"
+          { fr: "Anniversaire", en: "Birthday" },
+          { fr: "Réussite personnelle", en: "Personal achievement" },
+          { fr: "Réussite professionnelle", en: "Professional achievement" },
+          { fr: "Bonne nouvelle", en: "Good news" },
+          { fr: "Victoire d’équipe", en: "Team victory" },
+          { fr: "Gratitude joyeuse", en: "Joyful gratitude" }
         ]
       },
       {
@@ -506,12 +504,12 @@
         label: "Calm & Serenity",
         help: "Messages that soothe the mind and invite deep rest.",
         subthemes: [
-          "Stress du quotidien",
-          "Surcharge mentale",
-          "Besoin de pause",
-          "Moment pour respirer",
-          "Retrouver le calme",
-          "Après une longue journée"
+          { fr: "Stress du quotidien", en: "Everyday stress" },
+          { fr: "Surcharge mentale", en: "Mental overload" },
+          { fr: "Besoin de pause", en: "Need for a break" },
+          { fr: "Moment pour respirer", en: "Time to breathe" },
+          { fr: "Retrouver le calme", en: "Finding calm again" },
+          { fr: "Après une longue journée", en: "After a long day" }
         ]
       },
       {
@@ -519,12 +517,12 @@
         label: "Connection & Bond with Others",
         help: "Messages that strengthen relationships, communication and belonging.",
         subthemes: [
-          "Mieux communiquer",
-          "Retrouver un lien",
-          "Entretenir une relation",
-          "Améliorer une complicité",
-          "Lien familial",
-          "Lien amical"
+          { fr: "Mieux communiquer", en: "Communicating better" },
+          { fr: "Retrouver un lien", en: "Reconnecting" },
+          { fr: "Entretenir une relation", en: "Nurturing a relationship" },
+          { fr: "Améliorer une complicité", en: "Improving closeness" },
+          { fr: "Lien familial", en: "Family bond" },
+          { fr: "Lien amical", en: "Friendship bond" }
         ]
       },
       {
@@ -532,12 +530,12 @@
         label: "Self–confidence",
         help: "Messages that reinforce self-worth and the ability to act with assurance.",
         subthemes: [
-          "Manque de confiance",
-          "Comparaison aux autres",
-          "Sentiment d’illégitimité",
-          "Avant un événement important",
-          "Reconstruire l’estime",
-          "Prendre sa place"
+          { fr: "Manque de confiance", en: "Lack of confidence" },
+          { fr: "Comparaison aux autres", en: "Comparing oneself to others" },
+          { fr: "Sentiment d’illégitimité", en: "Feeling illegitimate" },
+          { fr: "Avant un événement important", en: "Before an important event" },
+          { fr: "Reconstruire l’estime", en: "Rebuilding self-esteem" },
+          { fr: "Prendre sa place", en: "Taking one’s place" }
         ]
       },
       {
@@ -545,25 +543,25 @@
         label: "Going through difficulties",
         help: "Messages that support during trials, obstacles and uncertain periods.",
         subthemes: [
-          "Soucis financiers",
-          "Conflits relationnels",
-          "Fatigue générale",
-          "Baisse d’énergie",
-          "Étape instable",
-          "Sensation de perte de contrôle"
+          { fr: "Soucis financiers", en: "Financial worries" },
+          { fr: "Conflits relationnels", en: "Relationship conflicts" },
+          { fr: "Fatigue générale", en: "General fatigue" },
+          { fr: "Dépression légère / baisse d’énergie", en: "Low mood / low energy" },
+          { fr: "Étape instable", en: "Unstable phase" },
+          { fr: "Sensation de perte de contrôle", en: "Feeling out of control" }
         ]
       },
       {
         key: "ALIGNEMENT & AUTHENTICITÉ",
         label: "Alignment & Authenticity",
-        help: "Messages that encourage being oneself and adjusting life to true values.",
+        help: "Messages that encourage being oneself and aligning life with true values.",
         subthemes: [
-          "Se réaligner",
-          "Vivre selon ses valeurs",
-          "Quitter une situation fausse",
-          "Retrouver sa vérité",
-          "Dire non",
-          "Se révéler"
+          { fr: "Se réaligner", en: "Realigning oneself" },
+          { fr: "Vivre selon ses valeurs", en: "Living according to one’s values" },
+          { fr: "Quitter une situation fausse", en: "Leaving a false situation" },
+          { fr: "Retrouver sa vérité", en: "Finding one’s truth again" },
+          { fr: "Dire non", en: "Saying no" },
+          { fr: "Se révéler", en: "Revealing oneself" }
         ]
       },
       {
@@ -571,12 +569,12 @@
         label: "Roots & Origins",
         help: "Messages that honor roots, personal history and belonging.",
         subthemes: [
-          "Famille",
-          "Héritage",
-          "Histoire personnelle",
-          "Souvenir d’enfance",
-          "Lien au pays ou à la terre",
-          "Transmission"
+          { fr: "Famille", en: "Family" },
+          { fr: "Héritage", en: "Heritage" },
+          { fr: "Histoire personnelle", en: "Personal history" },
+          { fr: "Souvenir d’enfance", en: "Childhood memory" },
+          { fr: "Lien au pays / à la terre", en: "Link to homeland / land" },
+          { fr: "Transmission", en: "Transmission" }
         ]
       },
       {
@@ -584,12 +582,12 @@
         label: "Energy & Vitality",
         help: "Messages that stimulate inner momentum and joy of living.",
         subthemes: [
-          "Fatigue physique",
-          "Baisse d’énergie",
-          "Manque d’enthousiasme",
-          "Relancer la motivation",
-          "Retrouver du tonus",
-          "Besoin d’élan"
+          { fr: "Fatigue physique", en: "Physical fatigue" },
+          { fr: "Baisse d’énergie", en: "Lack of energy" },
+          { fr: "Manque d’enthousiasme", en: "Lack of enthusiasm" },
+          { fr: "Relancer la motivation", en: "Boosting motivation" },
+          { fr: "Retrouver du tonus", en: "Regaining vitality" },
+          { fr: "Besoin d’élan", en: "Need for momentum" }
         ]
       }
     ];
@@ -601,7 +599,6 @@
     const themeSelect = document.getElementById("theme");
     const sousThemeSelect = document.getElementById("sousTheme");
     const themeHelp = document.getElementById("themeHelp");
-    const sousThemeHint = document.getElementById("sousThemeHint");
     const intentionInput = document.getElementById("intention");
     const detailInput = document.getElementById("detail");
     const btnSave = document.getElementById("btnSave");
@@ -612,7 +609,9 @@
     const urlExampleEn = document.getElementById("urlExampleEn");
     const urlExampleFr = document.getElementById("urlExampleFr");
 
-    // Pre-fill ID from ?id= if present
+    // ─────────────────────────────────────
+    // Query param id (pre-fill)
+    // ─────────────────────────────────────
     function getQueryParam(name) {
       const url = new URL(window.location.href);
       return url.searchParams.get(name);
@@ -632,7 +631,9 @@
     idInput.addEventListener("input", updateUrls);
     updateUrls();
 
-    // Populate theme select
+    // ─────────────────────────────────────
+    // Init themes + sub-themes
+    // ─────────────────────────────────────
     function initThemes() {
       themeSelect.innerHTML = "";
       const firstOption = document.createElement("option");
@@ -642,8 +643,8 @@
 
       THEMES.forEach((t) => {
         const opt = document.createElement("option");
-        opt.value = t.key; // FR key for backend
-        opt.textContent = t.label;
+        opt.value = t.key; // key FR for backend
+        opt.textContent = t.label; // EN label on screen
         themeSelect.appendChild(opt);
       });
     }
@@ -666,20 +667,20 @@
 
       found.subthemes.forEach((sub) => {
         const opt = document.createElement("option");
-        opt.value = sub; // FR label kept as canonical
-        opt.textContent = sub;
+        opt.value = sub.fr;        // FR value stored in Supabase
+        opt.textContent = sub.en;  // EN text shown in the UI
         sousThemeSelect.appendChild(opt);
       });
     }
 
-    themeSelect.addEventListener("change", () => {
-      updateSubthemes();
-    });
+    themeSelect.addEventListener("change", updateSubthemes);
 
     initThemes();
     updateSubthemes();
 
-    // Save jewel in Supabase via /api/saveBijou
+    // ─────────────────────────────────────
+    // Save jewel (/api/saveBijou)
+    // ─────────────────────────────────────
     btnSave.addEventListener("click", async () => {
       const id = idInput.value.trim();
       if (!id) {
@@ -691,7 +692,7 @@
         id,
         prenom: prenomInput.value.trim(),
         theme: themeSelect.value || null,
-        sous_theme: sousThemeSelect.value || null,
+        sous_theme: sousThemeSelect.value || null, // FR value
         intention: intentionInput.value.trim(),
         detail: detailInput.value.trim(),
         voix: voixSelect.value.trim() || "neutre",
@@ -726,7 +727,9 @@
       }
     });
 
-    // Test whisper by calling /api/message
+    // ─────────────────────────────────────
+    // Test whisper (/api/message)
+    // ─────────────────────────────────────
     let currentAudio = null;
 
     btnTest.addEventListener("click", async () => {
@@ -767,7 +770,6 @@
           controls.src = data.audio;
           audioPreview.innerHTML = "";
           audioPreview.appendChild(controls);
-          // auto play softly
           audio.play().catch(() => {});
         } else {
           audioPreview.innerHTML = "";
