@@ -5,7 +5,7 @@
   <title>L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Switch FR / EN global */
+    /* Switch FR / EN global (sans JS) */
     .lang-switch {
       display: inline-flex;
       background: #f7ecdd;
@@ -14,6 +14,7 @@
       border: 1px solid rgba(170, 140, 90, 0.45);
       gap: 3px;
       align-items: center;
+      margin-left: 8px;
     }
 
     .lang-btn {
@@ -24,12 +25,15 @@
       cursor: pointer;
       background: transparent;
       color: #5a4335;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .lang-btn.active {
       background: #b8833a;
       color: #fff;
       font-weight: 600;
+      cursor: default;
     }
 
     :root {
@@ -111,7 +115,15 @@
       color: var(--text-soft);
     }
 
-    nav { display: flex; gap: 10px; font-size: 0.86rem; align-items: center; }
+    nav { 
+      display: flex; 
+      gap: 10px; 
+      font-size: 0.86rem; 
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     nav a {
       text-decoration: none;
       color: var(--text-main);
@@ -162,7 +174,6 @@
 
     @media (max-width: 760px) {
       header { flex-direction: column; align-items: flex-start; }
-      nav { flex-wrap: wrap; }
       .page { grid-template-columns: 1fr; border-radius: 18px; }
     }
 
@@ -345,17 +356,16 @@
       <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
       <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
     </div>
-
     <nav>
       <a href="#concept">Concept</a>
       <a href="#fonctionnement">Comment ça marche ?</a>
       <a href="/client.html">J’ai déjà un bijou</a>
       <a href="/login.html" class="nav-artisan">Espace artisan</a>
 
-      <!-- Switch FR / EN dans le header -->
+      <!-- Switch FR / EN sans JS -->
       <div class="lang-switch">
-        <button type="button" class="lang-btn" data-lang="fr">FR</button>
-        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <span class="lang-btn active">FR</span>
+        <a class="lang-btn" href="/index-en.html">EN</a>
       </div>
     </nav>
   </header>
@@ -434,8 +444,5 @@
       <a href="/personnalisation.html">Personnalisation interne</a>
     </div>
   </footer>
-
-  <!-- script du switch -->
-  <script src="/lang-switch.js"></script>
 </body>
 </html>
