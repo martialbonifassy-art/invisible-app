@@ -1,11 +1,10 @@
 // api/publicMessage.js
 //
-// Point d’entrée PUBLIC par `public_id`.
-// - Résout public_id -> id interne dans la table "bijous"
-// - Réutilise tout le handler de /api/message (génération texte + audio, quotas, locked, etc.)
+// Endpoint public : à partir d'un public_id, on retrouve le bijou
+// dans Supabase puis on appelle /api/message pour générer le murmure.
+// Réponse JSON : { ok, text, audio, lang, id, public_id }
 
 import { createClient } from "@supabase/supabase-js";
-import messageHandler from "./message";
 
 const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
 const SUPABASE_ANON_KEY =
@@ -20,42 +19,75 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Compatibilité : ?public_id=XXX (nouveau), ou ?code= / ?c= (ancien)
     const { public_id, code, c } = req.query || {};
-    const effectivePublicId = public_id || code || c;
+    const publicId = (public_id || code || c || "").trim();
 
-    if (!effectivePublicId) {
+    if (!publicId) {
       return res.status(400).json({ error: "Paramètre public_id manquant." });
     }
 
-    // 1) retrouver le bijou via son public_id
+    // 1) On retrouve le bijou via son public_id
     const { data: bijou, error } = await supabase
-      .from("bijous")
-      .select("id")
-      .eq("public_id", effectivePublicId)
+      .from("bijous") // même table que dans message.js
+      .select(
+        `
+        id,
+        public_id,
+        langue
+      `
+      )
+      .eq("public_id", publicId)
       .maybeSingle();
 
     if (error) {
-      console.error("[publicMessage] Erreur Supabase:", error);
+      console.error("Erreur Supabase /publicMessage :", error);
       return res
         .status(500)
-        .json({ error: "Erreur lors de la lecture du bijou." });
+        .json({ error: "Erreur de connexion à la base de données." });
     }
 
     if (!bijou) {
-      return res.status(404).json({ error: "Bijou inconnu pour ce public_id." });
+      return res
+        .status(404)
+        .json({ error: "Aucun bijou ne correspond à cette référence publique." });
     }
 
-    // 2) Injecter l'id interne dans la query et déléguer à /api/message
-    req.query = {
-      ...req.query,
-      id: bijou.id
-    };
+    const lang = (bijou.langue || "fr").toLowerCase();
 
-    // On laisse message.js gérer toute la logique (quotas, locked, TTS, etc.)
-    return messageHandler(req, res);
+    // 2) On appelle /api/message avec l'ID interne du bijou
+    const params = new URLSearchParams({
+      id: bijou.id,
+      lang
+    });
+
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    const host = req.headers.host || "invisible-app-atelier.vercel.app";
+    const baseUrl = `${proto}://${host}`;
+
+    const r = await fetch(`${baseUrl}/api/message?${params.toString()}`);
+
+    if (!r.ok) {
+      const txt = await r.text().catch(() => "");
+      console.error("Erreur HTTP /api/message :", r.status, txt.slice(0, 200));
+      return res
+        .status(500)
+        .json({ error: "Erreur de génération du murmure pour ce bijou." });
+    }
+
+    const data = await r.json();
+
+    return res.status(200).json({
+      ok: true,
+      id: bijou.id,
+      public_id: bijou.public_id,
+      lang,
+      text: data.text || null,
+      audio: data.audio || null
+    });
   } catch (e) {
-    console.error("[publicMessage] Erreur interne:", e);
-    return res.status(500).json({ error: "Erreur interne serveur." });
+    console.error("Erreur interne /api/publicMessage :", e);
+    return res
+      .status(500)
+      .json({ error: "Erreur interne, impossible de joindre la voix du bijou." });
   }
 }
