@@ -1,38 +1,87 @@
 // lang-switch.js
-// Switch global FR / EN basé sur le nom du fichier :
-// - page.html  <-> page-en.html
+// Switch FR/EN simple et global pour les pages statiques
 
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
   const buttons = document.querySelectorAll(".lang-btn");
   if (!buttons.length) return;
 
-  const loc = window.location;
-  const path = loc.pathname;
+  const path = window.location.pathname || "/";
 
-  // Exemple : /index.html, /index-en.html, /client.html…
-  const isEnglish = path.includes("-en.");
+  // Normalisation de l'URL d'accueil (" / " ou "/index.html ")
+  const normalized =
+    path === "/" ? "/index.html" : path;
 
-  // Met à jour l'état visuel des boutons
+  // Cartographie des pages FR/EN
+  const MAP = {
+    // Accueil
+    "/index.html": {
+      fr: "/index.html",
+      en: "/index-en.html",
+    },
+    "/index-en.html": {
+      fr: "/index.html",
+      en: "/index-en.html",
+    },
+
+    // Client
+    "/client.html": {
+      fr: "/client.html",
+      en: "/client-en.html",
+    },
+    "/client-en.html": {
+      fr: "/client.html",
+      en: "/client-en.html",
+    },
+
+    // Personnalisation artisan
+    "/personnalisation.html": {
+      fr: "/personnalisation.html",
+      en: "/personnalisation-en.html",
+    },
+    "/personnalisation-en.html": {
+      fr: "/personnalisation.html",
+      en: "/personnalisation-en.html",
+    },
+
+    // Page murmure
+    "/bijou.html": {
+      fr: "/bijou.html",
+      en: "/bijou-en.html",
+    },
+    "/bijou-en.html": {
+      fr: "/bijou.html",
+      en: "/bijou-en.html",
+    },
+
+    // Dashboard (si tu fais une version EN plus tard)
+    "/dashboard.html": {
+      fr: "/dashboard.html",
+      en: "/dashboard-en.html",
+    },
+    "/dashboard-en.html": {
+      fr: "/dashboard.html",
+      en: "/dashboard-en.html",
+    },
+  };
+
+  const current = MAP[normalized];
+  if (!current) return;
+
+  // Met le bon bouton en "actif"
   buttons.forEach((btn) => {
-    const lang = btn.dataset.lang; // "fr" ou "en"
+    const lang = btn.dataset.lang;
+    if (!lang) return;
 
-    if ((lang === "en" && isEnglish) || (lang === "fr" && !isEnglish)) {
+    const targetUrl = current[lang];
+
+    // Active le bouton correspondant à la page courante
+    if (targetUrl === normalized) {
       btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
     }
 
     btn.addEventListener("click", () => {
-      if (lang === "fr" && isEnglish) {
-        // ex : /index-en.html -> /index.html
-        const newPath = path.replace("-en.", ".");
-        loc.href = newPath + loc.search;
-      } else if (lang === "en" && !isEnglish) {
-        // ex : /index.html -> /index-en.html
-        const newPath = path.replace(/(\.html?)$/, "-en$1");
-        loc.href = newPath + loc.search;
-      }
-      // Si on clique sur la langue déjà active : ne rien faire
+      if (!targetUrl || targetUrl === normalized) return;
+      window.location.href = targetUrl;
     });
   });
-});
+})();
