@@ -36,27 +36,28 @@
       overflow: hidden;
     }
 
-    /* voile forêt comme bijou.html */
+    /* voile léger sur la forêt pour la lisibilité */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), transparent 55%),
-                  radial-gradient(circle at 10% 80%, rgba(255,230,200,0.25), transparent 50%),
-                  radial-gradient(circle at 90% 70%, rgba(210,190,160,0.25), transparent 50%),
-                  rgba(0,0,0,0.30);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), transparent 55%),
+        radial-gradient(circle at 10% 80%, rgba(255,230,200,0.25), transparent 50%),
+        radial-gradient(circle at 90% 70%, rgba(210,190,160,0.25), transparent 50%),
+        rgba(0,0,0,0.30);
       pointer-events: none;
       z-index: -1;
     }
 
     .carte {
-      max-width: 720px;
+      max-width: 880px;
       width: 100%;
       background: var(--card-bg);
       border-radius: 28px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 22px 22px 26px;
+      padding: 26px 22px 26px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -64,7 +65,7 @@
     }
 
     h1 {
-      font-size: 0.95rem;
+      font-size: 1rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
@@ -77,28 +78,26 @@
       margin-bottom: 4px;
     }
 
-    .ref-public {
-      font-size: 0.78rem;
-      color: #9a7a58;
-      margin-bottom: 12px;
-      opacity: 0.9;
+    .ref-publique {
+      font-size: 0.8rem;
+      color: #8f7459;
+      margin-bottom: 16px;
     }
 
-    .badge-id {
+    .badge-connexion {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       border-radius: 999px;
-      padding: 6px 14px;
+      padding: 8px 14px;
       background: #f5ebdd;
       border: 1px solid var(--border-soft);
-      font-size: 0.82rem;
+      font-size: 0.86rem;
       margin-bottom: 10px;
     }
-
     .pastille {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 999px;
       background: #4caf50;
       box-shadow: 0 0 8px rgba(76,175,80,0.8);
@@ -107,9 +106,10 @@
     .etat {
       font-size: 0.86rem;
       color: #82644a;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
+    /* Zone du murmure – machine à écrire + lueur */
     .murmure-wrapper {
       position: relative;
       margin: 16px 0 14px;
@@ -123,8 +123,8 @@
       letter-spacing: 0.02em;
       color: var(--text-main);
       background: rgba(255,250,243,0.9);
-      border-radius: 10px;
-      padding: 14px 16px;
+      border-radius: 16px;
+      padding: 16px 18px;
       border: 1px solid rgba(0,0,0,0.12);
       box-shadow:
         inset 0 0 6px rgba(0,0,0,0.06),
@@ -134,11 +134,12 @@
       white-space: pre-wrap;
     }
 
+    /* lueur dorée douce */
     .murmure::before {
       content: "";
       position: absolute;
       inset: 0;
-      border-radius: 10px;
+      border-radius: 16px;
       background: radial-gradient(circle at 20% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
       mix-blend-mode: soft-light;
       opacity: 0.85;
@@ -146,6 +147,7 @@
       z-index: -1;
     }
 
+    /* Curseur qui clignote façon machine à écrire */
     .murmure::after {
       content: "▌";
       margin-left: 4px;
@@ -159,6 +161,7 @@
       100% { opacity: 1; }
     }
 
+    /* Petits points lumineux flottants */
     .spark {
       position: absolute;
       width: 6px;
@@ -171,10 +174,10 @@
       pointer-events: none;
     }
 
-    .spark:nth-child(1) { top: 12%; left: 16%; animation-delay: 0s; }
-    .spark:nth-child(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
-    .spark:nth-child(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
-    .spark:nth-child(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
+    .spark:nth-of-type(1) { top: 12%; left: 16%; animation-delay: 0s; }
+    .spark:nth-of-type(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
+    .spark:nth-of-type(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
+    .spark:nth-of-type(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
 
     @keyframes floatSpark {
       0%   { transform: translateY(6px); opacity: 0; }
@@ -192,7 +195,7 @@
     .note {
       font-size: 0.78rem;
       color: #a1896a;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .note a {
@@ -200,29 +203,31 @@
       text-decoration: none;
     }
 
-    .note a:hover { text-decoration: underline; }
+    .note a:hover {
+      text-decoration: underline;
+    }
 
     audio {
-      margin-top: 10px;
+      margin-top: 12px;
+      width: 100%;
     }
   </style>
 </head>
 <body>
   <div class="carte">
-    <h1 id="titleMain">L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="sous-titre" id="subtitle">
-      Murmure du bijou relié au bois et à l’IA.
-    </div>
-    <div class="ref-public" id="refPublic"></div>
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
+    <div class="ref-publique" id="refPublique">Référence publique : inconnue</div>
 
-    <div class="badge-id">
+    <div class="badge-connexion">
       <span class="pastille"></span>
-      <span id="badgeState">Connexion au bijou…</span>
+      <span id="etatConnexion">Connexion au bijou…</span>
     </div>
 
-    <div class="etat" id="etat">Le bijou se réveille…</div>
+    <div class="etat" id="etatTexte">Le bijou se réveille…</div>
 
     <div class="murmure-wrapper">
+      <!-- petits points lumineux -->
       <div class="spark"></div>
       <div class="spark"></div>
       <div class="spark"></div>
@@ -233,13 +238,14 @@
       </div>
     </div>
 
-    <audio id="murmureAudio" controls style="margin-top:12px; width:100%; display:none;">
+    <!-- Audio du murmure (caché tant qu’il n’y a pas de son) -->
+    <audio id="murmureAudio" controls style="display:none;">
       Votre navigateur ne supporte pas la lecture audio.
     </audio>
 
     <div class="compteur" id="compteur"></div>
 
-    <div class="note" id="noteText">
+    <div class="note">
       Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
       <br />
       Si quelque chose vous semble anormal, contactez l’atelier.
@@ -248,67 +254,13 @@
 
   <script>
     const murEl = document.getElementById("murmure");
-    const etatEl = document.getElementById("etat");
-    const badgeStateEl = document.getElementById("badgeState");
+    const etatTexteEl = document.getElementById("etatTexte");
+    const etatConnexionEl = document.getElementById("etatConnexion");
+    const refPubliqueEl = document.getElementById("refPublique");
     const compteurEl = document.getElementById("compteur");
     const audioEl = document.getElementById("murmureAudio");
-    const refPublicEl = document.getElementById("refPublic");
-    const titleMainEl = document.getElementById("titleMain");
-    const subtitleEl = document.getElementById("subtitle");
-    const noteTextEl = document.getElementById("noteText");
 
-    const UI_FR = {
-      title: "L’ATELIER DES LIENS INVISIBLES",
-      subtitle: "Murmure du bijou relié au bois et à l’IA.",
-      refPrefix: "Référence publique : ",
-      badgeConnecting: "Connexion au bijou…",
-      waking: "Le bijou se réveille…",
-      listening: "Le bijou écoute votre présence…",
-      generated: "Murmure du jour généré.",
-      errorState: "Erreur : impossible de joindre la voix du bijou.",
-      fallbackText: "Je suis là, silencieux, mais présent pour toi.",
-      note: "Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.\nSi quelque chose vous semble anormal, contactez l’atelier."
-    };
-
-    const UI_EN = {
-      title: "L’ATELIER DES LIENS INVISIBLES",
-      subtitle: "Whisper from the jewel, linked to wood and AI.",
-      refPrefix: "Public reference: ",
-      badgeConnecting: "Connecting to the jewel…",
-      waking: "The jewel is waking up…",
-      listening: "The jewel is listening to your presence…",
-      generated: "Whisper of the day generated.",
-      errorState: "Error: unable to reach the jewel’s voice.",
-      fallbackText: "I am here, silent, but still by your side.",
-      note: "This whisper is unique, generated from the parameters chosen when the jewel was created.\nIf something seems wrong, please contact the workshop."
-    };
-
-    function pickUI(lang) {
-      const isFR = (lang || "fr").toLowerCase().startsWith("fr");
-      return isFR ? UI_FR : UI_EN;
-    }
-
-    function applyUIStrings(lang, publicId) {
-      const ui = pickUI(lang);
-      titleMainEl.textContent = ui.title;
-      subtitleEl.textContent = ui.subtitle;
-      refPublicEl.textContent = ui.refPrefix + (publicId || "—");
-      badgeStateEl.textContent = ui.badgeConnecting;
-      etatEl.textContent = ui.waking;
-      noteTextEl.innerHTML = ui.note.replace(/\n/g, "<br />");
-    }
-
-    function setStateText(type, lang) {
-      const ui = pickUI(lang);
-      if (type === "listening") etatEl.textContent = ui.listening;
-      if (type === "generated") etatEl.textContent = ui.generated;
-      if (type === "error") etatEl.textContent = ui.errorState;
-    }
-
-    function getFallbackText(lang) {
-      return pickUI(lang).fallbackText;
-    }
-
+    // Effet machine à écrire
     function typeWriterEffect(text, speed = 28) {
       murEl.innerHTML = "";
       let i = 0;
@@ -331,16 +283,14 @@
 
     function getPublicIdFromUrl() {
       const url = new URL(window.location.href);
+      // ?public_id=XXX ou ?code=XXX ou ?c=XXX
+      const fromQuery = url.searchParams.get("public_id")
+        || url.searchParams.get("code")
+        || url.searchParams.get("c");
 
-      // 1) ?public_id=XXX (nouveau format)
-      const fromPublic = url.searchParams.get("public_id");
-      if (fromPublic) return fromPublic;
+      if (fromQuery) return fromQuery;
 
-      // 2) Compatibilité avec tes anciens liens : ?code=XXX ou ?c=XXX
-      const fromLegacy = url.searchParams.get("code") || url.searchParams.get("c");
-      if (fromLegacy) return fromLegacy;
-
-      // 3) Mode /b/ABC123 (via vercel.json)
+      // Éventuel mode /b/ABC123
       const parts = window.location.pathname.split("/").filter(Boolean);
       if (parts.length >= 2 && parts[0] === "b") {
         return parts[1];
@@ -352,36 +302,38 @@
     async function chargerMurmurePublic() {
       const publicId = getPublicIdFromUrl();
 
-      // Avant la réponse API on part sur FR par défaut
-      applyUIStrings("fr", publicId || "—");
-
       if (!publicId) {
-        setStateText("error", "fr");
-        typeWriterEffect("Impossible d’identifier ce bijou. Le lien est peut-être incomplet.");
-        audioEl.style.display = "none";
-        audioEl.src = "";
+        refPubliqueEl.textContent = "Référence publique : inconnue";
+        etatConnexionEl.textContent = "Aucun code de bijou détecté.";
+        etatTexteEl.textContent =
+          "Ce lien ne contient pas de référence de bijou. Vérifiez la puce NFC ou contactez l’atelier.";
+        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
         return;
       }
 
-      setStateText("listening", "fr");
+      refPubliqueEl.textContent = "Référence publique : " + publicId;
+      etatConnexionEl.textContent = "Connexion au bijou…";
+      etatTexteEl.textContent = "Le bijou écoute votre présence…";
+      compteurEl.textContent = "";
 
       try {
-        const params = new URLSearchParams({ public_id: publicId });
-        const r = await fetch(`/api/publicMessage?${params.toString()}`);
+        const url = `/api/publicMessage?public_id=${encodeURIComponent(publicId)}`;
+        const r = await fetch(url);
+        const data = await r.json();
 
-        if (!r.ok) {
-          throw new Error("HTTP " + r.status);
+        if (!r.ok || data.error) {
+          throw new Error(data.error || "Erreur HTTP " + r.status);
         }
 
-        const data = await r.json();
-        const lang = data.lang || "fr";
+        const texte =
+          data.text ||
+          "Je suis là, silencieux, mais présent pour toi.";
 
-        applyUIStrings(lang, publicId);
-
-        const texte = data.text || getFallbackText(lang);
         typeWriterEffect(texte);
-        setStateText("generated", lang);
+        etatConnexionEl.textContent = "Connexion au bijou réussie.";
+        etatTexteEl.textContent = "Murmure généré à partir de ce bijou.";
 
+        // Audio
         if (data.audio) {
           audioEl.style.display = "block";
           audioEl.src = data.audio;
@@ -390,19 +342,14 @@
           audioEl.src = "";
         }
 
-        if (typeof data.messages_restants === "number" && typeof data.messages_max === "number") {
-          const isFR = (lang || "fr").toLowerCase().startsWith("fr");
-          compteurEl.textContent = isFR
-            ? `${data.messages_restants}/${data.messages_max} murmures restants`
-            : `${data.messages_restants}/${data.messages_max} whispers remaining`;
-        } else {
-          compteurEl.textContent = "";
-        }
-
+        // Si tu veux afficher plus tard messages restants, tu pourras
+        // adapter l’API /publicMessage pour les renvoyer.
+        compteurEl.textContent = "";
       } catch (e) {
         console.error(e);
-        setStateText("error", "fr");
-        typeWriterEffect(getFallbackText("fr"));
+        etatConnexionEl.textContent = "Connexion interrompue.";
+        etatTexteEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
         audioEl.style.display = "none";
         audioEl.src = "";
       }
