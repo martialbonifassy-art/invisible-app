@@ -51,13 +51,13 @@
     }
 
     .carte {
-      max-width: 880px;
+      max-width: 980px;
       width: 100%;
       background: var(--card-bg);
       border-radius: 28px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 26px 22px 26px;
+      padding: 24px 22px 28px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -65,66 +65,82 @@
     }
 
     h1 {
-      font-size: 1rem;
+      font-size: 1.05rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
-      margin: 0 0 6px;
+      margin: 0 0 8px;
     }
 
     .sous-titre {
       font-size: 0.9rem;
       color: var(--text-soft);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .ref-publique {
-      font-size: 0.8rem;
-      color: #8f7459;
+      font-size: 0.86rem;
+      color: var(--text-soft);
       margin-bottom: 16px;
     }
 
-    .badge-connexion {
+    .ref-publique strong {
+      letter-spacing: 0.08em;
+    }
+
+    .bouton-connexion {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 10px 20px;
       background: #f5ebdd;
       border: 1px solid var(--border-soft);
-      font-size: 0.86rem;
-      margin-bottom: 10px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 12px;
     }
-    .pastille {
+
+    .bouton-connexion-dot {
       width: 10px;
       height: 10px;
       border-radius: 999px;
-      background: #4caf50;
-      box-shadow: 0 0 8px rgba(76,175,80,0.8);
+      background: #82c25b;
+      box-shadow: 0 0 8px rgba(130,194,91,0.9);
     }
 
-    .etat {
+    .etat-connexion {
       font-size: 0.86rem;
-      color: #82644a;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .etat-texte {
+      font-size: 0.86rem;
+      color: #a15a4a;
       margin-bottom: 12px;
+    }
+
+    .etat-texte.error {
+      color: #b03a3a;
     }
 
     /* Zone du murmure – machine à écrire + lueur */
     .murmure-wrapper {
       position: relative;
-      margin: 16px 0 14px;
+      margin: 18px 0 12px;
     }
 
     .murmure {
       position: relative;
       font-family: "Special Elite", "Courier New", Courier, ui-monospace, monospace;
-      font-size: 1.08rem;
+      font-size: 1.1rem;
       line-height: 1.6;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
       color: var(--text-main);
       background: rgba(255,250,243,0.9);
-      border-radius: 16px;
-      padding: 16px 18px;
+      border-radius: 12px;
+      padding: 16px 20px;
       border: 1px solid rgba(0,0,0,0.12);
       box-shadow:
         inset 0 0 6px rgba(0,0,0,0.06),
@@ -134,20 +150,19 @@
       white-space: pre-wrap;
     }
 
-    /* lueur dorée douce */
     .murmure::before {
       content: "";
       position: absolute;
       inset: 0;
-      border-radius: 16px;
-      background: radial-gradient(circle at 20% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
       mix-blend-mode: soft-light;
-      opacity: 0.85;
+      opacity: 0.9;
       pointer-events: none;
       z-index: -1;
     }
 
-    /* Curseur qui clignote façon machine à écrire */
     .murmure::after {
       content: "▌";
       margin-left: 4px;
@@ -174,10 +189,10 @@
       pointer-events: none;
     }
 
-    .spark:nth-of-type(1) { top: 12%; left: 16%; animation-delay: 0s; }
-    .spark:nth-of-type(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
-    .spark:nth-of-type(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
-    .spark:nth-of-type(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
+    .spark:nth-child(1) { top: 8%; left: 12%; animation-delay: 0s; }
+    .spark:nth-child(2) { top: 12%; right: 10%; animation-delay: 1.5s; }
+    .spark:nth-child(3) { bottom: 16%; left: 22%; animation-delay: 3s; }
+    .spark:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 4.5s; }
 
     @keyframes floatSpark {
       0%   { transform: translateY(6px); opacity: 0; }
@@ -186,30 +201,27 @@
       100% { transform: translateY(-10px); opacity: 0; }
     }
 
-    .compteur {
-      font-size: 0.82rem;
-      color: #7a6450;
-      margin-top: 6px;
-    }
-
-    .note {
-      font-size: 0.78rem;
-      color: #a1896a;
-      margin-top: 12px;
-    }
-
-    .note a {
-      color: #8b6425;
-      text-decoration: none;
-    }
-
-    .note a:hover {
-      text-decoration: underline;
-    }
-
     audio {
       margin-top: 12px;
       width: 100%;
+      display: none;
+    }
+
+    .compteur {
+      font-size: 0.82rem;
+      color: #7a6450;
+      margin-top: 8px;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: #a18967;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    .note strong {
+      font-weight: 600;
     }
   </style>
 </head>
@@ -217,17 +229,18 @@
   <div class="carte">
     <h1>L’ATELIER DES LIENS INVISIBLES</h1>
     <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
-    <div class="ref-publique" id="refPublique">Référence publique : inconnue</div>
+    <div class="ref-publique">
+      Référence publique : <strong id="refPublique">—</strong>
+    </div>
 
-    <div class="badge-connexion">
-      <span class="pastille"></span>
+    <div class="bouton-connexion">
+      <span class="bouton-connexion-dot"></span>
       <span id="etatConnexion">Connexion au bijou…</span>
     </div>
 
-    <div class="etat" id="etatTexte">Le bijou se réveille…</div>
+    <div class="etat-texte" id="etatTexte"></div>
 
     <div class="murmure-wrapper">
-      <!-- petits points lumineux -->
       <div class="spark"></div>
       <div class="spark"></div>
       <div class="spark"></div>
@@ -238,8 +251,7 @@
       </div>
     </div>
 
-    <!-- Audio du murmure (caché tant qu’il n’y a pas de son) -->
-    <audio id="murmureAudio" controls style="display:none;">
+    <audio id="murmureAudio" controls>
       Votre navigateur ne supporte pas la lecture audio.
     </audio>
 
@@ -253,12 +265,12 @@
   </div>
 
   <script>
-    const murEl = document.getElementById("murmure");
-    const etatTexteEl = document.getElementById("etatTexte");
-    const etatConnexionEl = document.getElementById("etatConnexion");
     const refPubliqueEl = document.getElementById("refPublique");
-    const compteurEl = document.getElementById("compteur");
+    const etatConnexionEl = document.getElementById("etatConnexion");
+    const etatTexteEl = document.getElementById("etatTexte");
+    const murEl = document.getElementById("murmure");
     const audioEl = document.getElementById("murmureAudio");
+    const compteurEl = document.getElementById("compteur");
 
     // Effet machine à écrire
     function typeWriterEffect(text, speed = 28) {
@@ -283,14 +295,15 @@
 
     function getPublicIdFromUrl() {
       const url = new URL(window.location.href);
-      // ?public_id=XXX ou ?code=XXX ou ?c=XXX
-      const fromQuery = url.searchParams.get("public_id")
-        || url.searchParams.get("code")
-        || url.searchParams.get("c");
 
+      // 1) ?public_id=... (principal)
+      const fromQuery =
+        url.searchParams.get("public_id") ||
+        url.searchParams.get("code") ||
+        url.searchParams.get("c");
       if (fromQuery) return fromQuery;
 
-      // Éventuel mode /b/ABC123
+      // 2) Mode /b/ABC123
       const parts = window.location.pathname.split("/").filter(Boolean);
       if (parts.length >= 2 && parts[0] === "b") {
         return parts[1];
@@ -303,33 +316,36 @@
       const publicId = getPublicIdFromUrl();
 
       if (!publicId) {
-        refPubliqueEl.textContent = "Référence publique : inconnue";
-        etatConnexionEl.textContent = "Aucun code de bijou détecté.";
+        refPubliqueEl.textContent = "—";
+        etatConnexionEl.textContent = "Aucune référence de bijou trouvée.";
+        etatTexteEl.classList.add("error");
         etatTexteEl.textContent =
-          "Ce lien ne contient pas de référence de bijou. Vérifiez la puce NFC ou contactez l’atelier.";
+          "Le lien ne contient pas de code de bijou valide.";
         typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
         return;
       }
 
-      refPubliqueEl.textContent = "Référence publique : " + publicId;
+      refPubliqueEl.textContent = publicId;
       etatConnexionEl.textContent = "Connexion au bijou…";
-      etatTexteEl.textContent = "Le bijou écoute votre présence…";
-      compteurEl.textContent = "";
+      etatTexteEl.classList.remove("error");
+      etatTexteEl.textContent = "";
 
       try {
-        const url = `/api/publicMessage?public_id=${encodeURIComponent(publicId)}`;
-        const r = await fetch(url);
-        const data = await r.json();
+        const params = new URLSearchParams({ public_id: publicId });
+        const r = await fetch(`/api/publicMessage?${params.toString()}`);
 
-        if (!r.ok || data.error) {
-          throw new Error(data.error || "Erreur HTTP " + r.status);
+        if (!r.ok) {
+          throw new Error("HTTP " + r.status);
         }
+
+        const data = await r.json();
 
         const texte =
           data.text ||
           "Je suis là, silencieux, mais présent pour toi.";
 
         typeWriterEffect(texte);
+
         etatConnexionEl.textContent = "Connexion au bijou réussie.";
         etatTexteEl.textContent = "Murmure généré à partir de ce bijou.";
 
@@ -342,16 +358,23 @@
           audioEl.src = "";
         }
 
-        // Si tu veux afficher plus tard messages restants, tu pourras
-        // adapter l’API /publicMessage pour les renvoyer.
-        compteurEl.textContent = "";
+        // Compteur de murmures
+        if (typeof data.messages_restants === "number" && data.messages_max != null) {
+          compteurEl.textContent =
+            `Il reste ${data.messages_restants} murmure(s) sur ${data.messages_max}.`;
+        } else {
+          compteurEl.textContent = "";
+        }
       } catch (e) {
         console.error(e);
-        etatConnexionEl.textContent = "Connexion interrompue.";
-        etatTexteEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
-        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
+        etatConnexionEl.textContent = "Connexion au bijou…";
+        etatTexteEl.classList.add("error");
+        etatTexteEl.textContent =
+          "Erreur : impossible de joindre la voix du bijou.";
         audioEl.style.display = "none";
         audioEl.src = "";
+        typeWriterEffect("Je suis là, silencieux, mais présent pour toi.");
+        compteurEl.textContent = "";
       }
     }
 
