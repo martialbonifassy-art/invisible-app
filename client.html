@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Personnalisation du bijou – Atelier des Liens Invisibles</title>
+  <title>J’ai déjà un bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -63,8 +63,8 @@
       border: 1px solid var(--border-soft);
       padding: 22px 20px 26px;
       backdrop-filter: blur(10px);
-      animation: fadeIn 0.5s ease;
       position: relative;
+      animation: fadeIn 0.5s ease;
     }
 
     @keyframes fadeIn {
@@ -77,20 +77,22 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
+      text-align: center;
       margin-bottom: 4px;
     }
 
     .subtitle {
       font-size: 0.83rem;
       color: var(--text-soft);
-      margin-bottom: 18px;
+      text-align: center;
+      margin-bottom: 16px;
     }
 
     /* Switch langue */
     .lang-switch {
       position: absolute;
-      top: 16px;
-      right: 18px;
+      top: 12px;
+      right: 14px;
       display: inline-flex;
       background: #f7ecdd;
       border-radius: 999px;
@@ -115,21 +117,6 @@
       font-weight: 600;
     }
 
-    .id-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--accent-soft);
-      background: rgba(250, 240, 225, 0.95);
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin: 0 auto 18px;
-      display: block;
-      width: fit-content;
-    }
-
     label {
       display: block;
       margin-top: 14px;
@@ -138,24 +125,19 @@
       font-weight: 600;
     }
 
-    input, select, textarea {
+    input {
       width: 100%;
       padding: 10px 12px;
       border-radius: 14px;
       border: 1px solid var(--accent-soft);
       background: rgba(255,255,255,0.9);
       margin-top: 6px;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-main);
       outline: none;
     }
 
-    textarea {
-      resize: none;
-      height: 70px;
-    }
-
-    input:focus, select:focus, textarea:focus {
+    input:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
@@ -180,99 +162,146 @@
       transform: translateY(-2px);
     }
 
-    #result {
-      margin-top: 14px;
-      text-align: center;
-      font-size: 0.9rem;
+    .hint {
+      margin-top: 10px;
+      font-size: 0.83rem;
       color: var(--text-soft);
+    }
+
+    .small {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      opacity: 0.9;
+    }
+
+    .error {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #b03a3a;
     }
   </style>
 </head>
 
 <body>
   <div class="card">
-
     <div class="lang-switch">
-      <button class="lang-btn active" type="button">FR</button>
-      <button class="lang-btn" type="button" id="btnToEn">EN</button>
+      <button type="button" class="lang-btn" id="langFr">FR</button>
+      <button type="button" class="lang-btn" id="langEn">EN</button>
     </div>
 
     <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
-    <div class="subtitle">Personnalisez la voix associée à votre bijou.</div>
+    <div class="subtitle" id="subtitle">
+      Indiquez le code de votre bijou pour le retrouver.
+    </div>
 
-    <div class="id-badge" id="idBadge">ID : inconnu</div>
+    <label for="codeInput" id="labelCode">Code du bijou :</label>
+    <input type="text" id="codeInput" placeholder="ex : 95QN27" />
 
-    <label for="prenom">Prénom :</label>
-    <input type="text" id="prenom" placeholder="Ex : Marie">
+    <button id="openBtn">Accéder à mon bijou</button>
 
-    <label for="souvenir">Souvenir / lieu / détail personnel :</label>
-    <textarea id="souvenir" placeholder="Ex : Le printemps à Toulouse…"></textarea>
+    <div class="hint" id="hint">
+      Le code se trouve sur la carte reçue avec le bijou, ou dans l’e-mail de confirmation.
+    </div>
 
-    <label for="voix">Choix de la voix :</label>
-    <select id="voix">
-      <option value="femme">Voix féminine</option>
-      <option value="homme">Voix masculine</option>
-    </select>
+    <div class="small" id="small">
+      Si vous scannez directement la puce NFC, vous n’avez normalement pas besoin de cette page.
+    </div>
 
-    <button id="saveBtn">Enregistrer les paramètres</button>
-
-    <div id="result"></div>
-
+    <div class="error" id="errorZone" style="display:none;"></div>
   </div>
 
   <script>
-    // Utilitaire pour récupérer l'id dans l'URL
-    function getIdFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("id") || params.get("public_id") || "INCONNU";
+    const subtitleEl = document.getElementById("subtitle");
+    const labelCodeEl = document.getElementById("labelCode");
+    const hintEl = document.getElementById("hint");
+    const smallEl = document.getElementById("small");
+    const errorEl = document.getElementById("errorZone");
+    const codeInput = document.getElementById("codeInput");
+    const openBtn = document.getElementById("openBtn");
+
+    const btnFr = document.getElementById("langFr");
+    const btnEn = document.getElementById("langEn");
+
+    let UI_LANG = "fr";
+
+    function detectUiLang() {
+      const url = new URL(window.location.href);
+      const paramLang = (url.searchParams.get("lang") || "").toLowerCase();
+      if (paramLang === "fr" || paramLang === "en") return paramLang;
+
+      const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
+      if (navLang.startsWith("en")) return "en";
+
+      return "fr";
     }
 
-    const id = getIdFromUrl();
-    document.getElementById("idBadge").textContent = "ID : " + id;
-
-    // Switch vers la version EN en conservant l'id
-    document.getElementById("btnToEn").addEventListener("click", () => {
-      const url = new URL(window.location.origin + "/client-en.html");
-      if (id && id !== "INCONNU") {
-        url.searchParams.set("id", id);
+    function updateLangSwitchUi() {
+      if (UI_LANG === "en") {
+        btnEn.classList.add("active");
+        btnFr.classList.remove("active");
+        document.documentElement.lang = "en";
+      } else {
+        btnFr.classList.add("active");
+        btnEn.classList.remove("active");
+        document.documentElement.lang = "fr";
       }
+    }
+
+    function updateStaticTexts() {
+      if (UI_LANG === "en") {
+        subtitleEl.textContent = "Enter the code of your jewel to find it.";
+        labelCodeEl.textContent = "Jewel code:";
+        codeInput.placeholder = "e.g.: 95QN27";
+        openBtn.textContent = "Access my jewel";
+        hintEl.textContent =
+          "The code is written on the card received with the jewel, or in the confirmation email.";
+        smallEl.textContent =
+          "If you scan the NFC tag directly, you normally don’t need this page.";
+      } else {
+        subtitleEl.textContent =
+          "Indiquez le code de votre bijou pour le retrouver.";
+        labelCodeEl.textContent = "Code du bijou :";
+        codeInput.placeholder = "ex : 95QN27";
+        openBtn.textContent = "Accéder à mon bijou";
+        hintEl.textContent =
+          "Le code se trouve sur la carte reçue avec le bijou, ou dans l’e-mail de confirmation.";
+        smallEl.textContent =
+          "Si vous scannez directement la puce NFC, vous n’avez normalement pas besoin de cette page.";
+      }
+    }
+
+    function setLangAndReload(lang) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", lang);
       window.location.href = url.toString();
-    });
+    }
 
-    // Enregistrement vers API (ancienne logique /api/save)
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      const result = document.getElementById("result");
+    btnFr.addEventListener("click", () => setLangAndReload("fr"));
+    btnEn.addEventListener("click", () => setLangAndReload("en"));
 
-      const data = {
-        id: id,
-        prenom: document.getElementById("prenom").value.trim(),
-        souvenir: document.getElementById("souvenir").value.trim(),
-        voix: document.getElementById("voix").value
-      };
-
-      result.textContent = "Enregistrement…";
-
-      try {
-        const r = await fetch("/api/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        const res = await r.json();
-
-        if (!r.ok || res.error) {
-          result.textContent = "❌ Erreur : " + (res.error || "Impossible d'enregistrer");
-          return;
-        }
-
-        result.textContent = "✔️ Paramètres enregistrés avec succès !";
-
-      } catch (e) {
-        console.error(e);
-        result.textContent = "❌ Erreur de connexion au serveur.";
+    openBtn.addEventListener("click", () => {
+      const code = (codeInput.value || "").trim();
+      if (!code) {
+        errorEl.style.display = "block";
+        errorEl.textContent =
+          UI_LANG === "en"
+            ? "Please enter the code of your jewel."
+            : "Veuillez entrer le code de votre bijou.";
+        return;
       }
+      errorEl.style.display = "none";
+
+      const target = new URL(window.location.origin + "/b.html");
+      target.searchParams.set("code", code);
+      target.searchParams.set("lang", UI_LANG);
+      window.location.href = target.toString();
     });
+
+    // Init
+    UI_LANG = detectUiLang();
+    updateLangSwitchUi();
+    updateStaticTexts();
   </script>
 </body>
 </html>
