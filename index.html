@@ -1,25 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <script>
-(function() {
-  // Ne pas rediriger si l'utilisateur a choisi explicitement
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("lang")) return;
-
-  // Détection langue navigateur
-  const userLang = navigator.language || navigator.userLanguage || "en";
-  const isFrench = userLang.toLowerCase().startsWith("fr");
-
-  // Si on est déjà sur la bonne version : sortir
-  if (isFrench && window.location.pathname.endsWith("index.html")) return;
-
-  // Rediriger si version EN nécessaire
-  if (!isFrench) {
-    window.location.href = "index-en.html";
-  }
-})();
-</script>
-
 <head>
   <meta charset="UTF-8" />
   <title>L’Atelier des Liens Invisibles</title>
@@ -34,6 +14,11 @@
       --border-soft: rgba(170, 140, 90, 0.55);
       --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
       --radius-xl: 26px;
+    }
+
+    /* ✅ Barre de scroll toujours présente → plus de micro-saut */
+    html {
+      overflow-y: scroll;
     }
 
     * { box-sizing: border-box; }
@@ -126,28 +111,6 @@
       color: #fff;
     }
 
-    /* SWITCH LANGUE */
-    .lang-switch {
-      display: flex;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-    .lang-switch button {
-      border-radius: 999px;
-      padding: 6px 11px;
-      border: 1px solid var(--accent-soft);
-      background: #fff;
-      color: var(--text-soft);
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .lang-switch button.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
     /* MAIN */
     main {
       flex: 1;
@@ -170,7 +133,8 @@
       backdrop-filter: blur(10px); /* renforce la lisibilité dessus la forêt */
     }
 
-    @media (max-width: 800px) {
+    /* ✅ Breakpoint un peu plus bas pour éviter les oscillations autour de 800px */
+    @media (max-width: 760px) {
       .page { grid-template-columns: 1fr; border-radius: 18px; }
       header { flex-direction: column; align-items: flex-start; }
       nav { flex-wrap: wrap; }
@@ -314,7 +278,7 @@
       gap: 12px;
       font-size: 0.88rem;
     }
-    @media (max-width: 800px) { .blocks { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .blocks { grid-template-columns: 1fr; } }
 
     .block {
       padding: 12px;
@@ -346,66 +310,8 @@
     }
     footer a:hover {
       text-decoration: underline;
-    }html {
-  overflow-y: scroll; /* force la barre de scroll → plus de saut à l’ouverture */
-}
-
-  </style>
-
-  <!-- Redirection automatique selon la langue du navigateur -->
-  <script>
-    (function () {
-      const preferred = localStorage.getItem("preferred_lang");
-      if (preferred === "en") {
-        const file = window.location.pathname.split("/").pop() || "index.html";
-        if (!file.includes("-en")) {
-          window.location.href = "/index-en.html";
-        }
-        return;
-      }
-      if (preferred === "fr") return;
-
-      const lang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
-      if (lang.startsWith("en")) {
-        window.location.href = "/index-en.html";
-      }
-    })();
-  </script>
-
-  <!-- Switch langue commun -->
-  <script>
-    function switchLanguage(lang) {
-      const file = window.location.pathname.split("/").pop() || "index.html";
-
-      const mapping = {
-        "index.html": { fr: "index.html", en: "index-en.html" },
-        "index-en.html": { fr: "index.html", en: "index-en.html" },
-        "client.html": { fr: "client.html", en: "client-en.html" },
-        "client-en.html": { fr: "client.html", en: "client-en.html" },
-        "personnalisation.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
-        "personnalisation-en.html": { fr: "personnalisation.html", en: "personnalisation-en.html" },
-        "bijou.html": { fr: "bijou.html", en: "bijou-en.html" },
-        "bijou-en.html": { fr: "bijou.html", en: "bijou-en.html" },
-        "dashboard.html": { fr: "dashboard.html", en: "dashboard-en.html" },
-        "dashboard-en.html": { fr: "dashboard.html", en: "dashboard-en.html" }
-      };
-
-      localStorage.setItem("preferred_lang", lang);
-
-      const target =
-        (mapping[file] && mapping[file][lang]) ||
-        (lang === "fr" ? "index.html" : "index-en.html");
-
-      window.location.href = "/" + target + window.location.search;
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const file = window.location.pathname.split("/").pop() || "index.html";
-      const currentLang = file.includes("-en") ? "en" : "fr";
-      const btn = document.querySelector(".lang-" + currentLang);
-      if (btn) btn.classList.add("active");
-    });
-  </script>
+  </style>
 </head>
 <body>
   <header>
@@ -419,10 +325,6 @@
       <a href="/client.html">J’ai déjà un bijou</a>
       <a href="/login.html" class="nav-artisan">Espace artisan</a>
     </nav>
-    <div class="lang-switch">
-      <button type="button" class="lang-fr" onclick="switchLanguage('fr')">FR</button>
-      <button type="button" class="lang-en" onclick="switchLanguage('en')">EN</button>
-    </div>
   </header>
 
   <main>
