@@ -1,66 +1,38 @@
 // lang-switch.js
-(function () {
-  // Détecte la langue UI (URL ?lang=..., sinon navigateur, FR par défaut)
-  function detectUiLang() {
-    try {
-      const url = new URL(window.location.href);
-      const paramLang = (url.searchParams.get("lang") || "").toLowerCase();
-      if (paramLang === "fr" || paramLang === "en") return paramLang;
-    } catch (e) {}
+// Switch global FR / EN basé sur le nom du fichier :
+// - page.html  <-> page-en.html
 
-    const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
-    if (navLang.startsWith("en")) return "en";
-    return "fr";
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".lang-btn");
+  if (!buttons.length) return;
 
-  function setLangAndReload(lang) {
-    const url = new URL(window.location.href);
-    url.searchParams.set("lang", lang);
-    window.location.href = url.toString();
-  }
+  const loc = window.location;
+  const path = loc.pathname;
 
-  // Applique la langue courante aux liens internes (pour garder ?lang=… partout)
-  function propagateLangToLinks(currentLang) {
-    const origin = window.location.origin;
-    document.querySelectorAll('a[href^="/"]').forEach((a) => {
-      try {
-        const link = new URL(a.getAttribute("href"), origin);
-        // Ne pas écraser si le lien force déjà une langue
-        const existingLang = (link.searchParams.get("lang") || "").toLowerCase();
-        if (existingLang !== "fr" && existingLang !== "en") {
-          link.searchParams.set("lang", currentLang);
-          a.setAttribute("href", link.pathname + link.search + link.hash);
-        }
-      } catch (e) {
-        // on ignore les erreurs
-      }
-    });
-  }
+  // Exemple : /index.html, /index-en.html, /client.html…
+  const isEnglish = path.includes("-en.");
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const currentLang = detectUiLang();
+  // Met à jour l'état visuel des boutons
+  buttons.forEach((btn) => {
+    const lang = btn.dataset.lang; // "fr" ou "en"
 
-    // Met à jour l’attribut lang de la page
-    document.documentElement.lang = currentLang;
-
-    // Active le bon bouton si présent
-    const btnFr = document.querySelector(".lang-switch .lang-btn[data-lang='fr']");
-    const btnEn = document.querySelector(".lang-switch .lang-btn[data-lang='en']");
-
-    if (btnFr && btnEn) {
-      if (currentLang === "en") {
-        btnEn.classList.add("active");
-        btnFr.classList.remove("active");
-      } else {
-        btnFr.classList.add("active");
-        btnEn.classList.remove("active");
-      }
-
-      btnFr.addEventListener("click", () => setLangAndReload("fr"));
-      btnEn.addEventListener("click", () => setLangAndReload("en"));
+    if ((lang === "en" && isEnglish) || (lang === "fr" && !isEnglish)) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
     }
 
-    // Propage la langue dans les liens
-    propagateLangToLinks(currentLang);
+    btn.addEventListener("click", () => {
+      if (lang === "fr" && isEnglish) {
+        // ex : /index-en.html -> /index.html
+        const newPath = path.replace("-en.", ".");
+        loc.href = newPath + loc.search;
+      } else if (lang === "en" && !isEnglish) {
+        // ex : /index.html -> /index-en.html
+        const newPath = path.replace(/(\.html?)$/, "-en$1");
+        loc.href = newPath + loc.search;
+      }
+      // Si on clique sur la langue déjà active : ne rien faire
+    });
   });
-})();
+});
