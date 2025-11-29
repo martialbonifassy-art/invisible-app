@@ -253,10 +253,10 @@ export default async function handler(req, res) {
     return res.status(200).json({
       text: texte,
       audio: audioDataUrl,
-      lang: langue,
+      id,                          // ID interne du bijou
+      lang: langue,                // langue effective utilisée
       messages_restants: nouveauSolde,
-      messages_max:
-        typeof bijou.messages_max === "number" ? bijou.messages_max : null
+      messages_max: bijou.messages_max ?? null
     });
   } catch (e) {
     console.error("Erreur interne /api/message:", e);
