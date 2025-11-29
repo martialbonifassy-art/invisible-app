@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
+  <script>
+(function() {
+  // Ne pas rediriger si l'utilisateur a choisi explicitement
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("lang")) return;
+
+  // Détection langue navigateur
+  const userLang = navigator.language || navigator.userLanguage || "en";
+  const isFrench = userLang.toLowerCase().startsWith("fr");
+
+  // Si on est déjà sur la bonne version : sortir
+  if (isFrench && window.location.pathname.endsWith("index.html")) return;
+
+  // Rediriger si version EN nécessaire
+  if (!isFrench) {
+    window.location.href = "index-en.html";
+  }
+})();
+</script>
+
 <head>
   <meta charset="UTF-8" />
   <title>L’Atelier des Liens Invisibles</title>
