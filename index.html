@@ -6,31 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+    }
 
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335; /* tu peux ajuster */
-}
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335; /* tu peux ajuster */
+    }
 
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
 
     :root {
       --bg-card: rgba(255,250,243,0.98); /* carte plus opaque */
@@ -111,6 +111,13 @@
       color: var(--text-soft);
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     nav { display: flex; gap: 10px; font-size: 0.86rem; }
     nav a {
       text-decoration: none;
@@ -162,9 +169,10 @@
 
     /* ✅ Breakpoint un peu plus bas pour éviter les oscillations autour de 800px */
     @media (max-width: 760px) {
-      .page { grid-template-columns: 1fr; border-radius: 18px; }
       header { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; justify-content: flex-start; }
       nav { flex-wrap: wrap; }
+      .page { grid-template-columns: 1fr; border-radius: 18px; }
     }
 
     /* HERO */
@@ -339,33 +347,6 @@
       text-decoration: underline;
     }
   </style>
-  /* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
-
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335; /* tu peux ajuster */
-}
-
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
-
 </head>
 <body>
   <header>
@@ -373,12 +354,20 @@
       <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
       <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
     </div>
-    <nav>
-      <a href="#concept">Concept</a>
-      <a href="#fonctionnement">Comment ça marche ?</a>
-      <a href="/client.html">J’ai déjà un bijou</a>
-      <a href="/login.html" class="nav-artisan">Espace artisan</a>
-    </nav>
+
+    <div class="header-right">
+      <nav>
+        <a href="#concept">Concept</a>
+        <a href="#fonctionnement">Comment ça marche ?</a>
+        <a href="/client.html">J’ai déjà un bijou</a>
+        <a href="/login.html" class="nav-artisan">Espace artisan</a>
+      </nav>
+
+      <div class="lang-switch">
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -455,6 +444,7 @@
       <a href="/personnalisation.html">Personnalisation interne</a>
     </div>
   </footer>
+
   <script src="/lang-switch.js"></script>
 </body>
 </html>
