@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Personalize the whisper – The Atelier of Invisible Bonds</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-page: #f7efe2;
+      --bg-card: #fffaf3;
+      --accent: #b8833a;
+      --accent-soft: rgba(170, 140, 90, 0.35);
+      --text-main: #3c2f25;
+      --text-soft: #7f6248;
+      --border-soft: rgba(170, 140, 90, 0.35);
+      --shadow-soft: 0 14px 30px rgba(0,0,0,0.12);
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 40px;
+    }
+
+    .page {
+      max-width: 800px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      padding: 22px 18px 26px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 4px;
+    }
+
+    .slogan {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .lang-switch {
+      font-size: 0.82rem;
+      text-align: right;
+    }
+    .lang-switch a {
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+    .lang-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .intro {
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      color: var(--text-soft);
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+      margin-bottom: 4px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      background: #fffdf8;
+      outline: none;
+    }
+
+    textarea {
+      border-radius: 16px;
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(184, 134, 51, 0.25);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .row > div {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #8a735a;
+      margin: -4px 0 8px;
+    }
+
+    .theme-help {
+      font-size: 0.8rem;
+      color: #7a5c42;
+      background: #f6ebdc;
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #d6a85a;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+      flex: 1;
+      min-width: 140px;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.14);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: #a08967;
+      margin-top: 8px;
+    }
+
+    .preview {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #f3e3cc;
+      font-size: 0.94rem;
+      min-height: 3em;
+      white-space: pre-wrap;
+    }
+
+    .audio-preview {
+      margin-top: 8px;
+    }
+
+    .tech-note {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #8a735a;
+    }
+
+    .id-url {
+      font-family: monospace;
+      font-size: 0.78rem;
+      background: #f0e3cf;
+      padding: 6px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <h1>THE ATELIER OF INVISIBLE BONDS</h1>
+        <div class="slogan">Personalization of the jewel’s whisper.</div>
+      </div>
+      <div class="lang-switch">
+        <div>Language of this page: EN</div>
+        <a href="/personnalisation.html">Switch to French version</a>
+      </div>
+    </header>
+
+    <p class="intro">
+      These details allow the AI to compose a unique whisper for the person who will receive the object.
+      You can choose a main theme, a sub–theme, and a few personal elements that will guide the tone.
+    </p>
+
+    <div class="row">
+      <div>
+        <label for="idBijou">Jewel ID</label>
+        <input id="idBijou" type="text" placeholder="e.g. BIJOU001" />
+        <div class="hint">
+          This ID is engraved on the card or packaging (e.g. <strong>BIJOU001</strong>).
+        </div>
+      </div>
+      <div>
+        <label for="langue">Whisper language</label>
+        <select id="langue">
+          <option value="en" selected>English</option>
+          <option value="fr">French</option>
+        </select>
+        <div class="hint">
+          This defines the language used for the messages.
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="prenom">First name of the person</label>
+        <input id="prenom" type="text" placeholder="e.g. Marie" />
+      </div>
+      <div>
+        <label for="voix">Voice color</label>
+        <select id="voix">
+          <option value="neutre">Neutral</option>
+          <option value="feminine">Feminine</option>
+          <option value="masculine">Masculine</option>
+        </select>
+        <div class="hint">
+          The exact voice will be chosen depending on the theme and this preference.
+        </div>
+      </div>
+    </div>
+
+    <label for="theme">Main theme</label>
+    <select id="theme">
+      <!-- options filled by JS -->
+    </select>
+    <div class="theme-help" id="themeHelp">
+      Choose a theme to see a short description here.
+    </div>
+
+    <label for="sousTheme">Sub–theme</label>
+    <select id="sousTheme">
+      <option value="">Choose a main theme first…</option>
+    </select>
+    <div class="hint" id="sousThemeHint">
+      The sub–theme refines the tone of the whisper (e.g. “For my wife”, “After a separation”…).
+    </div>
+
+    <label for="intention">
+      Free text to guide the whisper
+    </label>
+    <textarea
+      id="intention"
+      placeholder="e.g. To support her while her father is ill; to remind her of our nights on the beach in Graissant."
+    ></textarea>
+    <div class="hint">
+      A sentence or two is enough: the AI will weave from there.
+    </div>
+
+    <label for="detail">
+      Detail or memory (place, date, object…)
+    </label>
+    <input
+      id="detail"
+      type="text"
+      placeholder="e.g. April 18 in Toulouse, the book she loves, the wooden bracelet…"
+    />
+    <div class="hint">
+      This can appear as a discrete image in the text.
+    </div>
+
+    <div class="buttons">
+      <button id="btnSave">💾 Save this jewel</button>
+      <button id="btnTest" class="btn-secondary">▶️ Test the whisper</button>
+    </div>
+
+    <div class="status" id="status">
+      Waiting for your settings…
+    </div>
+
+    <div class="preview" id="preview">
+      The whisper preview will appear here after the test.
+    </div>
+
+    <div class="audio-preview" id="audioPreview"></div>
+
+    <div class="tech-note">
+      NFC URL associated with this jewel (English page):
+      <div class="id-url" id="urlExampleEn"></div>
+      NFC URL associated with this jewel (French page):
+      <div class="id-url" id="urlExampleFr"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Theme definitions ---
+    // IMPORTANT: The "key" values are in French to stay compatible
+    // with your existing backend logic that checks theme names in FR.
+    const THEMES = [
+      {
+        key: "AMOUR",
+        label: "Love",
+        help: "Messages that nourish tenderness, connection and the depth of bonds.",
+        subthemes: [
+          "Pour ma femme",
+          "Pour mon mari",
+          "Pour ma fiancée",
+          "Pour mon fiancé",
+          "Pour un amour secret",
+          "Pour un amour ancien",
+          "Pour une relation naissante",
+          "Pour un amour à distance",
+          "Pour une occasion spéciale"
+        ]
+      },
+      {
+        key: "GRATITUDE",
+        label: "Gratitude",
+        help: "Messages that honor recognition, invisible gestures and the presences that support us.",
+        subthemes: [
+          "Gratitude envers un proche",
+          "Gratitude envers un parent",
+          "Gratitude envers un ami",
+          "Gratitude envers un mentor",
+          "Gratitude envers un collègue",
+          "Gratitude envers la vie"
+        ]
+      },
+      {
+        key: "GUÉRISON & APAISEMENT",
+        label: "Healing & Soothing",
+        help: "Messages that offer refuge and softness in sensitive, fragile or intense moments.",
+        subthemes: [
+          "Apaisement après un conflit",
+          "Guérison émotionnelle",
+          "Accompagnement d’un deuil",
+          "Soutien dans le stress ou l’angoisse",
+          "Après une séparation",
+          "Reprendre confiance"
+        ]
+      },
+      {
+        key: "CHEMIN DE VIE & ORIENTATION",
+        label: "Life path & Guidance",
+        help: "Messages that shed light on choices, transitions and inner crossroads.",
+        subthemes: [
+          "Prendre une décision",
+          "Changer de voie",
+          "Trouver sa direction",
+          "Doute existentiel",
+          "Début d’un projet",
+          "Recherche de clarté"
+        ]
+      },
+      {
+        key: "COURAGE & DÉPASSEMENT",
+        label: "Courage & Overcoming",
+        help: "Messages that activate inner strength, determination and the impulse to act.",
+        subthemes: [
+          "Défi personnel",
+          "Défi professionnel",
+          "Surmonter une peur",
+          "Se lancer dans l’inconnu",
+          "Reprendre confiance",
+          "Maintenir l’effort"
+        ]
+      },
+      {
+        key: "CRÉATIVITÉ & INSPIRATION",
+        label: "Creativity & Inspiration",
+        help: "Messages that open imagination, unblock thoughts and awaken the inner muse.",
+        subthemes: [
+          "Blocage créatif",
+          "Début d’un projet artistique",
+          "Inspiration quotidienne",
+          "Recherche d’idées nouvelles",
+          "Fatigue créative",
+          "Explorations imaginaires"
+        ]
+      },
+      {
+        key: "RÊVES & NUIT",
+        label: "Dreams & Night",
+        help: "Messages that accompany falling asleep and nourish the dream world.",
+        subthemes: [
+          "Aide à l’endormissement",
+          "Rituels du soir",
+          "Accompagner les peurs nocturnes",
+          "Rêves lucides",
+          "Symbolique du rêve",
+          "Préparer la nuit"
+        ]
+      },
+      {
+        key: "PRÉSENCE & PLEINE CONSCIENCE",
+        label: "Presence & Mindfulness",
+        help: "Messages that bring you back to the breath, the present moment and the quality of being.",
+        subthemes: [
+          "Anxiété",
+          "Accélération mentale",
+          "Ancrage corporel",
+          "Moment de pause",
+          "Retour au calme",
+          "Respiration consciente"
+        ]
+      },
+      {
+        key: "LE GARDIEN DU BOIS",
+        label: "The Guardian of the Wood",
+        help: "An ancient, benevolent voice born from the spirit of the wood, carrying stories.",
+        subthemes: [
+          "Message protecteur",
+          "Message ancestral",
+          "Message de sagesse naturelle",
+          "Message d’enracinement",
+          "Message d’un esprit du bois",
+          "Connexion à la nature"
+        ]
+      },
+      {
+        key: "CYCLES & RENOUVEAU",
+        label: "Cycles & Renewal",
+        help: "Messages that accompany endings, beginnings and natural transformations.",
+        subthemes: [
+          "Nouvelle étape",
+          "Renouveau après une épreuve",
+          "Fin d’un cycle",
+          "Transition de vie",
+          "Recommencer différemment",
+          "Se libérer du passé"
+        ]
+      },
+      {
+        key: "INTUITION & SYNCHRONICITÉS",
+        label: "Intuition & Synchronicities",
+        help: "Messages that strengthen subtle perception, signs and the inner voice.",
+        subthemes: [
+          "Se reconnecter à son intuition",
+          "Comprendre un signe",
+          "S’ouvrir aux synchronicités",
+          "Décision au feeling",
+          "Moments étranges ou significatifs",
+          "Message symbolique"
+        ]
+      },
+      {
+        key: "PROJETS & OBJECTIFS",
+        label: "Projects & Goals",
+        help: "Messages that support momentum, vision and motivation.",
+        subthemes: [
+          "Lancer un projet",
+          "Clarifier un objectif",
+          "Fixer une intention",
+          "Tenir le rythme",
+          "Dépasser un blocage",
+          "Devenir régulier"
+        ]
+      },
+      {
+        key: "CÉLÉBRATION & JOIE",
+        label: "Celebration & Joy",
+        help: "Messages that amplify pleasure, satisfaction and the brightness of good moments.",
+        subthemes: [
+          "Anniversaire",
+          "Réussite personnelle",
+          "Réussite professionnelle",
+          "Bonne nouvelle",
+          "Victoire d’équipe",
+          "Gratitude joyeuse"
+        ]
+      },
+      {
+        key: "CALME & SÉRÉNITÉ",
+        label: "Calm & Serenity",
+        help: "Messages that soothe the mind and invite deep rest.",
+        subthemes: [
+          "Stress du quotidien",
+          "Surcharge mentale",
+          "Besoin de pause",
+          "Moment pour respirer",
+          "Retrouver le calme",
+          "Après une longue journée"
+        ]
+      },
+      {
+        key: "CONNEXION & LIEN AUX AUTRES",
+        label: "Connection & Bond with Others",
+        help: "Messages that strengthen relationships, communication and belonging.",
+        subthemes: [
+          "Mieux communiquer",
+          "Retrouver un lien",
+          "Entretenir une relation",
+          "Améliorer une complicité",
+          "Lien familial",
+          "Lien amical"
+        ]
+      },
+      {
+        key: "CONFIANCE EN SOI",
+        label: "Self–confidence",
+        help: "Messages that reinforce self-worth and the ability to act with assurance.",
+        subthemes: [
+          "Manque de confiance",
+          "Comparaison aux autres",
+          "Sentiment d’illégitimité",
+          "Avant un événement important",
+          "Reconstruire l’estime",
+          "Prendre sa place"
+        ]
+      },
+      {
+        key: "TRAVERSER LES DIFFICULTÉS",
+        label: "Going through difficulties",
+        help: "Messages that support during trials, obstacles and uncertain periods.",
+        subthemes: [
+          "Soucis financiers",
+          "Conflits relationnels",
+          "Fatigue générale",
+          "Baisse d’énergie",
+          "Étape instable",
+          "Sensation de perte de contrôle"
+        ]
+      },
+      {
+        key: "ALIGNEMENT & AUTHENTICITÉ",
+        label: "Alignment & Authenticity",
+        help: "Messages that encourage being oneself and adjusting life to true values.",
+        subthemes: [
+          "Se réaligner",
+          "Vivre selon ses valeurs",
+          "Quitter une situation fausse",
+          "Retrouver sa vérité",
+          "Dire non",
+          "Se révéler"
+        ]
+      },
+      {
+        key: "RACINES & ORIGINES",
+        label: "Roots & Origins",
+        help: "Messages that honor roots, personal history and belonging.",
+        subthemes: [
+          "Famille",
+          "Héritage",
+          "Histoire personnelle",
+          "Souvenir d’enfance",
+          "Lien au pays ou à la terre",
+          "Transmission"
+        ]
+      },
+      {
+        key: "ÉNERGIE & VITALITÉ",
+        label: "Energy & Vitality",
+        help: "Messages that stimulate inner momentum and joy of living.",
+        subthemes: [
+          "Fatigue physique",
+          "Baisse d’énergie",
+          "Manque d’enthousiasme",
+          "Relancer la motivation",
+          "Retrouver du tonus",
+          "Besoin d’élan"
+        ]
+      }
+    ];
+
+    const idInput = document.getElementById("idBijou");
+    const langueSelect = document.getElementById("langue");
+    const prenomInput = document.getElementById("prenom");
+    const voixSelect = document.getElementById("voix");
+    const themeSelect = document.getElementById("theme");
+    const sousThemeSelect = document.getElementById("sousTheme");
+    const themeHelp = document.getElementById("themeHelp");
+    const sousThemeHint = document.getElementById("sousThemeHint");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
+    const btnSave = document.getElementById("btnSave");
+    const btnTest = document.getElementById("btnTest");
+    const statusEl = document.getElementById("status");
+    const previewEl = document.getElementById("preview");
+    const audioPreview = document.getElementById("audioPreview");
+    const urlExampleEn = document.getElementById("urlExampleEn");
+    const urlExampleFr = document.getElementById("urlExampleFr");
+
+    // Pre-fill ID from ?id= if present
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+    const idFromUrl = getQueryParam("id");
+    if (idFromUrl) {
+      idInput.value = idFromUrl;
+    }
+
+    function updateUrls() {
+      const id = idInput.value.trim() || "BIJOU001";
+      const base = window.location.origin || "https://invisible-app-atelier.vercel.app";
+      urlExampleEn.textContent = `${base}/bijou-en.html?id=${encodeURIComponent(id)}`;
+      urlExampleFr.textContent = `${base}/bijou.html?id=${encodeURIComponent(id)}`;
+    }
+
+    idInput.addEventListener("input", updateUrls);
+    updateUrls();
+
+    // Populate theme select
+    function initThemes() {
+      themeSelect.innerHTML = "";
+      const firstOption = document.createElement("option");
+      firstOption.value = "";
+      firstOption.textContent = "Choose a theme…";
+      themeSelect.appendChild(firstOption);
+
+      THEMES.forEach((t) => {
+        const opt = document.createElement("option");
+        opt.value = t.key; // FR key for backend
+        opt.textContent = t.label;
+        themeSelect.appendChild(opt);
+      });
+    }
+
+    function updateSubthemes() {
+      const selectedKey = themeSelect.value;
+      const found = THEMES.find((t) => t.key === selectedKey);
+
+      sousThemeSelect.innerHTML = "";
+      if (!found) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Choose a main theme first…";
+        sousThemeSelect.appendChild(opt);
+        themeHelp.textContent = "Choose a theme to see a short description here.";
+        return;
+      }
+
+      themeHelp.textContent = found.help;
+
+      found.subthemes.forEach((sub) => {
+        const opt = document.createElement("option");
+        opt.value = sub; // FR label kept as canonical
+        opt.textContent = sub;
+        sousThemeSelect.appendChild(opt);
+      });
+    }
+
+    themeSelect.addEventListener("change", () => {
+      updateSubthemes();
+    });
+
+    initThemes();
+    updateSubthemes();
+
+    // Save jewel in Supabase via /api/saveBijou
+    btnSave.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      if (!id) {
+        alert("Please enter a jewel ID.");
+        return;
+      }
+
+      const body = {
+        id,
+        prenom: prenomInput.value.trim(),
+        theme: themeSelect.value || null,
+        sous_theme: sousThemeSelect.value || null,
+        intention: intentionInput.value.trim(),
+        detail: detailInput.value.trim(),
+        voix: voixSelect.value.trim() || "neutre",
+        langue: langueSelect.value || "en"
+      };
+
+      btnSave.disabled = true;
+      statusEl.textContent = "Saving the jewel settings…";
+
+      try {
+        const r = await fetch("/api/saveBijou", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const result = await r.json();
+        if (result.ok) {
+          statusEl.textContent = "Jewel saved successfully. You can now test the whisper.";
+          alert("Jewel saved successfully!");
+        } else {
+          console.error(result);
+          alert("Error: " + (result.error || "Unknown error while saving."));
+          statusEl.textContent = "An error occurred while saving the jewel.";
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Network error while saving the jewel.");
+        statusEl.textContent = "Network error while saving the jewel.";
+      } finally {
+        btnSave.disabled = false;
+      }
+    });
+
+    // Test whisper by calling /api/message
+    let currentAudio = null;
+
+    btnTest.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      if (!id) {
+        alert("Please enter a jewel ID first.");
+        return;
+      }
+
+      const lang = langueSelect.value || "en";
+
+      btnTest.disabled = true;
+      statusEl.textContent = "The AI is composing the whisper…";
+      previewEl.textContent = "";
+      audioPreview.innerHTML = "";
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          id,
+          lang
+        });
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+
+        const text = data.text || "The jewel remains silent for now.";
+        previewEl.textContent = text;
+        statusEl.textContent = "Whisper generated (preview).";
+
+        if (data.audio) {
+          const audio = new Audio(data.audio);
+          currentAudio = audio;
+          const controls = document.createElement("audio");
+          controls.controls = true;
+          controls.src = data.audio;
+          audioPreview.innerHTML = "";
+          audioPreview.appendChild(controls);
+          // auto play softly
+          audio.play().catch(() => {});
+        } else {
+          audioPreview.innerHTML = "";
+        }
+      } catch (e) {
+        console.error(e);
+        previewEl.textContent = "Error: unable to reach the jewel’s voice.";
+        statusEl.textContent = "Error while connecting to the AI.";
+      } finally {
+        btnTest.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
