@@ -5,44 +5,6 @@
   <title>Personnaliser le murmure – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Switch FR / EN global (sans JS) */
-    .lang-switch-wrapper {
-      max-width: 720px;
-      margin: 14px auto 0;
-      padding: 0 8px;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .lang-switch {
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-    }
-
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
-      cursor: default;
-    }
-
     :root {
       --bg-page: #f7efe2;
       --bg-card: #fffaf3;
@@ -55,7 +17,6 @@
       --radius-xl: 24px;
     }
 
-    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
@@ -66,8 +27,51 @@
       color: var(--text-main);
       display: flex;
       justify-content: center;
-      padding: 10px 12px 40px;
+      padding: 24px 12px 40px;
+      position: relative;
     }
+
+    /* ---------- SWITCH FR / EN SPÉCIFIQUE À CETTE PAGE ---------- */
+    .ps-lang-switch-wrapper {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      z-index: 50;
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      pointer-events: none; /* pour ne pas gêner les clics en dessous */
+    }
+
+    .ps-lang-switch {
+      pointer-events: auto;
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+    }
+
+    .ps-lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .ps-lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* ------------------------------------------------------------- */
 
     .page {
       max-width: 720px;
@@ -77,7 +81,6 @@
       padding: 22px 18px 26px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      margin-top: 8px;
     }
 
     h1 {
@@ -242,11 +245,12 @@
   </style>
 </head>
 <body>
-  <!-- Switch FR/EN en haut -->
-  <div class="lang-switch-wrapper">
-    <div class="lang-switch">
-      <span class="lang-btn active">FR</span>
-      <a class="lang-btn" href="/personnalisation-en.html">EN</a>
+
+  <!-- SWITCH FR / EN EN HAUT À DROITE -->
+  <div class="ps-lang-switch-wrapper">
+    <div class="ps-lang-switch">
+      <a href="personnalisation.html" class="ps-lang-btn active">FR</a>
+      <a href="personnalisation-en.html" class="ps-lang-btn">EN</a>
     </div>
   </div>
 
@@ -320,7 +324,7 @@
 
   <script>
     // ─────────────────────────────────────
-    // 1) Données des thèmes / sous-thèmes
+    // 1) Données des 20 thèmes + sous-thèmes + exemples
     // ─────────────────────────────────────
 
     const THEMES = [
@@ -610,7 +614,7 @@
     ];
 
     // ─────────────────────────────────────
-    // 2) DOM
+    // 2) Récupération des éléments du DOM
     // ─────────────────────────────────────
 
     const idInput = document.getElementById("idBijou");
@@ -704,17 +708,17 @@
     }
 
     // ─────────────────────────────────────
-    // 4) URL NFC d’exemple
+    // 4) URL d’exemple pour la puce NFC
     // ─────────────────────────────────────
 
     function majUrlExemple() {
       const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      const url = `https://invisible-app-atelier.vercel.app/b.html?code=${encodeURIComponent(id)}`;
       urlExemple.textContent = url;
     }
 
     // ─────────────────────────────────────
-    // 5) Pré-remplir l’ID depuis ?id=
+    // 5) Pré-remplir l’ID si présent dans l’URL
     // ─────────────────────────────────────
 
     function initFromUrl() {
@@ -727,7 +731,7 @@
     }
 
     // ─────────────────────────────────────
-    // 6) Tester le murmure : /api/message
+    // 6) Prévisualisation du murmure (appel /api/message)
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
@@ -765,7 +769,7 @@
     });
 
     // ─────────────────────────────────────
-    // 7) Enregistrer le bijou : /api/saveBijou
+    // 7) Enregistrement du bijou dans Supabase via /api/saveBijou
     // ─────────────────────────────────────
 
     btnSave.addEventListener("click", async () => {
