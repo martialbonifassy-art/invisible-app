@@ -5,32 +5,43 @@
   <title>Personnaliser le murmure – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
+    /* Switch FR / EN global (sans JS) */
+    .lang-switch-wrapper {
+      max-width: 720px;
+      margin: 14px auto 0;
+      padding: 0 8px;
+      display: flex;
+      justify-content: flex-end;
+    }
 
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335; /* tu peux ajuster */
-}
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+    }
 
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+      cursor: default;
+    }
 
     :root {
       --bg-page: #f7efe2;
@@ -44,6 +55,7 @@
       --radius-xl: 24px;
     }
 
+    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
@@ -54,7 +66,7 @@
       color: var(--text-main);
       display: flex;
       justify-content: center;
-      padding: 24px 12px 40px;
+      padding: 10px 12px 40px;
     }
 
     .page {
@@ -65,36 +77,7 @@
       padding: 22px 18px 26px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      position: relative;
-    }
-
-    /* Switch langue */
-    .lang-switch {
-      position: absolute;
-      top: 16px;
-      right: 18px;
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-    }
-
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-soft);
-    }
-
-    .lang-btn.active {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
+      margin-top: 8px;
     }
 
     h1 {
@@ -259,16 +242,19 @@
   </style>
 </head>
 <body>
-  <div class="page">
+  <!-- Switch FR/EN en haut -->
+  <div class="lang-switch-wrapper">
     <div class="lang-switch">
-      <button type="button" class="lang-btn" id="langFr">FR</button>
-      <button type="button" class="lang-btn" id="langEn">EN</button>
+      <span class="lang-btn active">FR</span>
+      <a class="lang-btn" href="/personnalisation-en.html">EN</a>
     </div>
+  </div>
 
-    <h1 id="title">L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="slogan" id="slogan">Personnalisation du murmure du bijou.</div>
+  <div class="page">
+    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
+    <div class="slogan">Personnalisation du murmure du bijou.</div>
 
-    <p class="intro" id="intro">
+    <p class="intro">
       Ces informations permettent à l’IA de composer un murmure unique pour la personne
       qui recevra l’objet. Choisissez un thème, un sous-thème, puis donnez quelques détails
       simples : l’IA se charge du reste.
@@ -276,11 +262,11 @@
 
     <div class="ligne">
       <div>
-        <label for="idBijou" id="labelIdBijou">ID du bijou</label>
+        <label for="idBijou">ID du bijou</label>
         <input id="idBijou" type="text" placeholder="ex : BIJOU001" />
       </div>
       <div>
-        <label for="voix" id="labelVoix">Voix</label>
+        <label for="voix">Voix</label>
         <select id="voix">
           <option value="neutre">Neutre</option>
           <option value="feminine">Féminine</option>
@@ -289,7 +275,7 @@
       </div>
     </div>
 
-    <label for="theme" id="labelTheme">Thème principal</label>
+    <label for="theme">Thème principal</label>
     <select id="theme">
       <!-- rempli en JS -->
     </select>
@@ -297,22 +283,22 @@
     <div class="helper-card" id="helperCard" style="display:none; margin-bottom: 10px;">
       <div class="helper-title" id="helperTitle"></div>
       <div class="helper-desc" id="helperDesc"></div>
-      <div class="helper-example-label" id="helperExampleLabel">Exemple de façon de l’utiliser :</div>
+      <div class="helper-example-label">Exemple de façon de l’utiliser :</div>
       <div class="helper-example" id="helperExample"></div>
     </div>
 
-    <label for="sousTheme" id="labelSousTheme">Sous-thème</label>
+    <label for="sousTheme">Sous-thème</label>
     <select id="sousTheme">
       <option value="">Choisissez d’abord un thème…</option>
     </select>
 
-    <label for="prenom" id="labelPrenom">Prénom de la personne</label>
+    <label for="prenom">Prénom de la personne</label>
     <input id="prenom" type="text" placeholder="ex : Marie" />
 
-    <label for="intention" id="labelIntention">Texte libre pour l’IA</label>
+    <label for="intention">Texte libre pour l’IA</label>
     <textarea id="intention" placeholder="ex : Un message pour l’encourager dans un nouveau départ à Toulouse."></textarea>
 
-    <label for="detail" id="labelDetail">Un détail ou un souvenir à intégrer</label>
+    <label for="detail">Un détail ou un souvenir à intégrer</label>
     <input id="detail" type="text" placeholder="ex : Nuit sur la plage de Graissant, notre première danse, le vieux chêne du jardin" />
 
     <div class="buttons-row">
@@ -326,7 +312,7 @@
       Le murmure apparaîtra ici après le test.
     </div>
 
-    <div class="note-tech" id="noteTech">
+    <div class="note-tech">
       URL NFC associée à ce bijou :
       <div class="id-url" id="urlExemple"></div>
     </div>
@@ -334,97 +320,7 @@
 
   <script>
     // ─────────────────────────────────────
-    // 1) Gestion langue UI
-    // ─────────────────────────────────────
-    const btnFr = document.getElementById("langFr");
-    const btnEn = document.getElementById("langEn");
-
-    const titleEl = document.getElementById("title");
-    const sloganEl = document.getElementById("slogan");
-    const introEl = document.getElementById("intro");
-    const labelIdBijouEl = document.getElementById("labelIdBijou");
-    const labelVoixEl = document.getElementById("labelVoix");
-    const labelThemeEl = document.getElementById("labelTheme");
-    const labelSousThemeEl = document.getElementById("labelSousTheme");
-    const labelPrenomEl = document.getElementById("labelPrenom");
-    const labelIntentionEl = document.getElementById("labelIntention");
-    const labelDetailEl = document.getElementById("labelDetail");
-    const helperExampleLabelEl = document.getElementById("helperExampleLabel");
-    const etatEl = document.getElementById("etat");
-    const previewEl = document.getElementById("preview");
-    const noteTechEl = document.getElementById("noteTech");
-
-    let UI_LANG = "fr";
-
-    function detectUiLang() {
-      const url = new URL(window.location.href);
-      const paramLang = (url.searchParams.get("lang") || "").toLowerCase();
-      if (paramLang === "fr" || paramLang === "en") return paramLang;
-
-      const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
-      if (navLang.startsWith("en")) return "en";
-      return "fr";
-    }
-
-    function updateLangSwitchUi() {
-      if (UI_LANG === "en") {
-        btnEn.classList.add("active");
-        btnFr.classList.remove("active");
-        document.documentElement.lang = "en";
-      } else {
-        btnFr.classList.add("active");
-        btnEn.classList.remove("active");
-        document.documentElement.lang = "fr";
-      }
-    }
-
-    function setLangAndReload(lang) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", lang);
-      window.location.href = url.toString();
-    }
-
-    btnFr.addEventListener("click", () => setLangAndReload("fr"));
-    btnEn.addEventListener("click", () => setLangAndReload("en"));
-
-    function updateUiTexts() {
-      if (UI_LANG === "en") {
-        titleEl.textContent = "L’ATELIER DES LIENS INVISIBLES";
-        sloganEl.textContent = "Personalisation of the jewel’s whisper.";
-        introEl.textContent =
-          "These details allow the AI to compose a unique whisper for the person who will receive the object. Choose a theme, a sub-theme, then add a few simple elements: the AI takes care of the rest.";
-        labelIdBijouEl.textContent = "Jewel ID";
-        labelVoixEl.textContent = "Voice";
-        labelThemeEl.textContent = "Main theme";
-        labelSousThemeEl.textContent = "Sub-theme";
-        labelPrenomEl.textContent = "Person’s first name";
-        labelIntentionEl.textContent = "Free text for the AI";
-        labelDetailEl.textContent = "A detail or memory to weave in";
-        helperExampleLabelEl.textContent = "Example of how to use it:";
-        etatEl.textContent = "Waiting for your information…";
-        previewEl.textContent = "The whisper will appear here after the test.";
-        noteTechEl.childNodes[0].nodeValue = "NFC URL associated with this jewel : ";
-      } else {
-        titleEl.textContent = "L’ATELIER DES LIENS INVISIBLES";
-        sloganEl.textContent = "Personnalisation du murmure du bijou.";
-        introEl.textContent =
-          "Ces informations permettent à l’IA de composer un murmure unique pour la personne qui recevra l’objet. Choisissez un thème, un sous-thème, puis donnez quelques détails simples : l’IA se charge du reste.";
-        labelIdBijouEl.textContent = "ID du bijou";
-        labelVoixEl.textContent = "Voix";
-        labelThemeEl.textContent = "Thème principal";
-        labelSousThemeEl.textContent = "Sous-thème";
-        labelPrenomEl.textContent = "Prénom de la personne";
-        labelIntentionEl.textContent = "Texte libre pour l’IA";
-        labelDetailEl.textContent = "Un détail ou un souvenir à intégrer";
-        helperExampleLabelEl.textContent = "Exemple de façon de l’utiliser :";
-        etatEl.textContent = "En attente de vos informations…";
-        previewEl.textContent = "Le murmure apparaîtra ici après le test.";
-        noteTechEl.childNodes[0].nodeValue = "URL NFC associée à ce bijou : ";
-      }
-    }
-
-    // ─────────────────────────────────────
-    // 2) Données des 20 thèmes + sous-thèmes (FR)
+    // 1) Données des thèmes / sous-thèmes
     // ─────────────────────────────────────
 
     const THEMES = [
@@ -714,7 +610,7 @@
     ];
 
     // ─────────────────────────────────────
-    // 3) Récupération des éléments du DOM
+    // 2) DOM
     // ─────────────────────────────────────
 
     const idInput = document.getElementById("idBijou");
@@ -726,6 +622,8 @@
     const sousThemeSelect = document.getElementById("sousTheme");
     const btnTester = document.getElementById("btnTester");
     const btnSave = document.getElementById("saveBtn");
+    const etat = document.getElementById("etat");
+    const preview = document.getElementById("preview");
     const urlExemple = document.getElementById("urlExemple");
 
     const helperCard = document.getElementById("helperCard");
@@ -734,20 +632,19 @@
     const helperExample = document.getElementById("helperExample");
 
     // ─────────────────────────────────────
-    // 4) Remplir la liste des thèmes
+    // 3) Remplir la liste des thèmes
     // ─────────────────────────────────────
 
     function initThemes() {
       themeSelect.innerHTML = "";
       const optionDefault = document.createElement("option");
       optionDefault.value = "";
-      optionDefault.textContent =
-        UI_LANG === "en" ? "Choose a theme…" : "Choisissez un thème…";
+      optionDefault.textContent = "Choisissez un thème…";
       themeSelect.appendChild(optionDefault);
 
       THEMES.forEach((t) => {
         const opt = document.createElement("option");
-        opt.value = t.value; // ce qui sera enregistré en base
+        opt.value = t.value;
         opt.textContent = t.label;
         opt.dataset.id = t.id;
         themeSelect.appendChild(opt);
@@ -763,10 +660,7 @@
       if (!themeObj) {
         const opt = document.createElement("option");
         opt.value = "";
-        opt.textContent =
-          UI_LANG === "en"
-            ? "Choose a theme first…"
-            : "Choisissez d’abord un thème…";
+        opt.textContent = "Choisissez d’abord un thème…";
         sousThemeSelect.appendChild(opt);
         helperCard.style.display = "none";
         return;
@@ -774,10 +668,7 @@
 
       const optDefault = document.createElement("option");
       optDefault.value = "";
-      optDefault.textContent =
-        UI_LANG === "en"
-          ? "Choose a sub-theme…"
-          : "Choisissez un sous-thème…";
+      optDefault.textContent = "Choisissez un sous-thème…";
       sousThemeSelect.appendChild(optDefault);
 
       themeObj.subthemes.forEach((st) => {
@@ -813,17 +704,17 @@
     }
 
     // ─────────────────────────────────────
-    // 5) URL d’exemple pour la puce NFC
+    // 4) URL NFC d’exemple
     // ─────────────────────────────────────
 
     function majUrlExemple() {
       const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/b.html?code=${encodeURIComponent(id)}`;
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
       urlExemple.textContent = url;
     }
 
     // ─────────────────────────────────────
-    // 6) Pré-remplir l’ID si présent dans l’URL
+    // 5) Pré-remplir l’ID depuis ?id=
     // ─────────────────────────────────────
 
     function initFromUrl() {
@@ -836,7 +727,7 @@
     }
 
     // ─────────────────────────────────────
-    // 7) Prévisualisation du murmure (appel /api/message)
+    // 6) Tester le murmure : /api/message
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
@@ -846,13 +737,9 @@
       const detail = detailInput.value.trim();
       const voix = voixSelect.value;
 
-      etatEl.textContent =
-        UI_LANG === "en"
-          ? "The AI is composing the whisper…"
-          : "L’IA compose le murmure…";
-
+      etat.textContent = "L’IA compose le murmure…";
       btnTester.disabled = true;
-      previewEl.textContent = "";
+      preview.textContent = "";
 
       const params = new URLSearchParams({
         id,
@@ -860,48 +747,31 @@
         intention,
         detail,
         voix,
-        lang: UI_LANG
+        lang: "fr"
       });
 
       try {
         const r = await fetch(`/api/message?${params.toString()}`);
         const data = await r.json();
-        const fallbackText =
-          UI_LANG === "en"
-            ? "I am here, silently, but present for you."
-            : "Je suis là, silencieux, mais présent pour toi.";
-        previewEl.textContent = data.text || fallbackText;
-        etatEl.textContent =
-          UI_LANG === "en"
-            ? "Whisper generated (preview)."
-            : "Murmure généré (prévisualisation).";
+        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        etat.textContent = "Murmure généré (prévisualisation).";
       } catch (e) {
         console.error(e);
-        previewEl.textContent =
-          UI_LANG === "en"
-            ? "Error: unable to reach the jewel’s voice."
-            : "Erreur : impossible de joindre la voix du bijou.";
-        etatEl.textContent =
-          UI_LANG === "en"
-            ? "Connection error with the AI."
-            : "Erreur de connexion à l’IA.";
+        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        etat.textContent = "Erreur de connexion à l’IA.";
       } finally {
         btnTester.disabled = false;
       }
     });
 
     // ─────────────────────────────────────
-    // 8) Enregistrement du bijou dans Supabase via /api/saveBijou
+    // 7) Enregistrer le bijou : /api/saveBijou
     // ─────────────────────────────────────
 
     btnSave.addEventListener("click", async () => {
       const id = idInput.value.trim();
       if (!id) {
-        alert(
-          UI_LANG === "en"
-            ? "Please enter a jewel ID."
-            : "Veuillez entrer un ID de bijou."
-        );
+        alert("Veuillez entrer un ID de bijou.");
         return;
       }
 
@@ -913,7 +783,7 @@
         voix: voixSelect.value.trim(),
         theme: themeSelect.value || null,
         sous_theme: sousThemeSelect.value || null,
-        langue: UI_LANG
+        langue: "fr"
       };
 
       try {
@@ -928,49 +798,27 @@
         const result = await r.json();
 
         if (result.ok) {
-          alert(
-            UI_LANG === "en"
-              ? "Jewel successfully saved!"
-              : "Bijou enregistré avec succès !"
-          );
-          etatEl.textContent =
-            UI_LANG === "en"
-              ? "Parameters saved in the Atelier."
-              : "Paramètres sauvegardés dans l’atelier.";
+          alert("Bijou enregistré avec succès !");
+          etat.textContent = "Paramètres sauvegardés dans l’atelier.";
         } else {
-          alert(
-            (UI_LANG === "en" ? "Error: " : "Erreur : ") +
-              (result.error || (UI_LANG === "en"
-                ? "Unable to save the jewel."
-                : "Impossible d’enregistrer le bijou."))
-          );
+          alert("Erreur : " + (result.error || "Impossible d’enregistrer le bijou."));
         }
       } catch (e) {
         console.error(e);
-        alert(
-          UI_LANG === "en"
-            ? "Network error: unable to save the jewel."
-            : "Erreur réseau : impossible d’enregistrer le bijou."
-        );
+        alert("Erreur réseau : impossible d’enregistrer le bijou.");
       }
     });
 
     // ─────────────────────────────────────
-    // 9) Initialisation globale
+    // 8) Initialisation
     // ─────────────────────────────────────
 
     idInput.addEventListener("input", majUrlExemple);
     themeSelect.addEventListener("change", onThemeChange);
     sousThemeSelect.addEventListener("change", onSousThemeChange);
 
-    (function init() {
-      UI_LANG = detectUiLang();
-      updateLangSwitchUi();
-      updateUiTexts();
-      initThemes();
-      initFromUrl();
-    })();
+    initThemes();
+    initFromUrl();
   </script>
-  <script src="/lang-switch.js"></script>
 </body>
 </html>
