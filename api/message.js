@@ -1,84 +1,88 @@
 import { supabase } from "../../utils/supabaseClient";
+import OpenAI from "openai";
 
-// --- Fonction interne : génération du murmure via IA (OpenAI ou autre) ---
+// --- Client OpenAI ---
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// --- Génération du texte du murmure via GPT ---
 async function generateWhisperIA({ langue, prenom, theme, sous_theme, intention, detail }) {
-  // MESSAGE de construction du prompt
   const prompt =
     langue === "en"
       ? `
-You are an AI that writes intimate, poetic whispers linked to wooden objects.
-Write 1 short message (3–5 lines), gentle, warm, emotional.
+You are an AI writing intimate poetic whispers linked to wooden objects.
+Write a short message (3–5 lines), warm, sensory and elegant.
 
 Recipient: ${prenom}
-Main theme: ${theme}
+Theme: ${theme}
 Sub-theme: ${sous_theme}
 User intention: ${intention || "None"}
-Detail to integrate: ${detail || "None"}
+Detail to weave in: ${detail || "None"}
 
-Style rules:
+Tone rules:
 • poetic but never cliché
-• emotional but not needy
-• warm, subtle, sensory
-• for theme "Sensualité complice": sensual, elegant, suggestive, *never vulgar*
-• no emojis
+• emotional but never needy
+• sensory, warm, subtle
+• for "Sensualité complice": sensual, elegant, suggestive, never vulgar
+• never use emojis
 `
       : `
-Tu es une IA qui écrit des murmures intimes, poétiques, liés à un bijou en bois.
-Rédige 1 message court (3–5 lignes), doux, subtil et émotionnel.
+Tu es une IA qui écrit des murmures intimes et poétiques liés à un bijou en bois.
+Rédige un court murmure (3–5 lignes), doux, sensoriel et élégant.
 
 Destinataire : ${prenom}
-Thème principal : ${theme}
+Thème : ${theme}
 Sous-thème : ${sous_theme}
 Intention : ${intention || "Aucune"}
 Détail à intégrer : ${detail || "Aucun"}
 
-Règles de style :
+Règles de ton :
 • poétique mais jamais cliché
-• émotionnel mais pas plaintif
-• chaleureux, sensoriel, intime
-• pour "Sensualité complice" : sensuel, élégant, suggestif, *jamais vulgaire*
+• émotionnel mais jamais plaintif
+• sensoriel, subtil, chaleureux
+• pour "Sensualité complice" : sensuel, élégant, suggestif, jamais vulgaire
 • pas d’emojis
 `;
 
-  // --------------- IA ACTIVE ? ---------------
-  // ❗ Remplace ici par ton modèle réel (OpenAI, Groq, DeepSeek…)
-  // ❗ Pour le moment FAKE = IA OFF
-  const IA_ACTIVE = false;
-
-  if (!IA_ACTIVE) {
-    return langue === "en"
-      ? `A soft and intimate whisper for ${prenom}, inspired by the theme of ${theme}. (Demo mode)`
-      : `Un murmure doux et intime pour ${prenom}, inspiré du thème ${theme}. (Mode démo)`;
-  }
-
-  // --- Exemple futur quand IA réelle activée ---
-  /*
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
   const response = await openai.chat.completions.create({
     model: "gpt-4.1",
     messages: [{ role: "user", content: prompt }],
+    temperature: 0.85,
   });
+
   return response.choices[0].message.content.trim();
-  */
 }
 
-// --- Fonction interne : générer audio du murmure ---
+// --- Générer l'audio TTS ---
 async function generateAudioIA(text, langue, voix) {
-  // IA TTS désactivée → RETURN NULL
-  const TTS_ACTIVE = false;
+  // correspondances simples de voix OpenAI
+  const VOICE_MAP = {
+    fr: {
+      feminine: "sophie",
+      masculine: "antoine",
+      neutre: "marie",
+    },
+    en: {
+      feminine: "alloy",
+      masculine: "verse",
+      neutre: "alloy",
+    },
+  };
 
-  if (!TTS_ACTIVE) return null;
+  const chosenVoice =
+    VOICE_MAP[langue]?.[voix] || VOICE_MAP[langue]?.neutre || "alloy";
 
-  /*
-  const voiceResponse = await openai.audio.create({
-    model: "something",
-    voice: voix,
-    text,
+  const response = await openai.audio.speech.create({
+    model: "gpt-4o-mini-tts",
+    voice: chosenVoice,
+    input: text,
     format: "mp3",
   });
 
-  return voiceResponse.base64_mp3;
-  */
+  // retourne un MP3 base64 directement utilisable dans <audio>
+  const buffer = Buffer.from(await response.arrayBuffer());
+  return buffer.toString("base64");
 }
 
 // ------------------------------------------------------
@@ -97,7 +101,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Paramètres manquants" });
     }
 
-    // Vérifier que le bijou existe bien
+    // Vérifier bijou
     const { data: rows, error: fetchErr } = await supabase
       .from("bijoux")
       .select("*")
@@ -110,7 +114,7 @@ export default async function handler(req, res) {
 
     const bijou = rows[0];
 
-    // --- Générer le texte IA ---
+    // --- Génération texte IA ---
     const texte = await generateWhisperIA({
       langue,
       prenom,
@@ -120,10 +124,10 @@ export default async function handler(req, res) {
       detail,
     });
 
-    // --- Générer l'audio ---
-    const audio = await generateAudioIA(texte, langue, voix);
+    // --- Génération audio IA ---
+    const audioBase64 = await generateAudioIA(texte, langue, voix);
 
-    // Mettre à jour le bijou (configuration complète)
+    // --- Mise à jour bijou ---
     const { error: updateErr } = await supabase
       .from("bijoux")
       .update({
@@ -143,12 +147,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Erreur mise à jour bijou", details: updateErr });
     }
 
-    // Réponse API
+    // OK
     return res.json({
       ok: true,
       id,
       texte,
-      audio,
+      audio_base64: audioBase64,
     });
   } catch (err) {
     console.error("Erreur API /message :", err);
