@@ -1,374 +1,458 @@
-/* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Atelier of Invisible Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335;
-}
+  <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
+      --radius-xl: 26px;
+    }
 
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
+    html { overflow-y: scroll; }
+    * { box-sizing: border-box; }
 
-:root {
-  --bg-card: rgba(255,250,243,0.98);
-  --accent: #b8833a;
-  --accent-soft: #eadcc8;
-  --text-main: #2e241b;
-  --text-soft: #5a4335;
-  --border-soft: rgba(170, 140, 90, 0.55);
-  --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
-  --radius-xl: 26px;
-}
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-html { overflow-y: scroll; }
+    /* Forest background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
 
-* { box-sizing: border-box; }
+    /* Cream overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
 
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Helvetica Neue", Arial, sans-serif;
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
-}
+    /* Language switch */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+    }
 
-/* Forest background */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
-  filter: blur(3px) brightness(0.7);
-  transform: scale(1.03);
-  z-index: -2;
-}
+    .lang-btn {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+    }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(246, 236, 220, 0.6);
-  z-index: -1;
-}
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
 
-/* Header */
-header {
-  max-width: 980px;
-  width: 100%;
-  margin: 16px auto 0;
-  padding: 10px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  backdrop-filter: blur(8px);
-  background: rgba(255, 248, 236, 0.9);
-  border-radius: 999px;
-  border: 1px solid rgba(200, 176, 130, 0.7);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-}
+    /* Header */
+    header {
+      max-width: 980px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 248, 236, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(200, 176, 130, 0.7);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
 
-.logo-zone { display: flex; flex-direction: column; }
+    .logo-zone { display: flex; flex-direction: column; }
+    .logo-title {
+      font-size: 1rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .logo-sub {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
 
-.logo-title {
-  font-size: 1rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
+    nav {
+      display: flex;
+      gap: 10px;
+      font-size: 0.86rem;
+      align-items: center;
+    }
 
-.logo-sub {
-  font-size: 0.82rem;
-  color: var(--text-soft);
-}
+    nav a.nav-link {
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--accent-soft);
+      font-weight: 500;
+      white-space: nowrap;
+    }
 
-nav { display: flex; gap: 10px; font-size: 0.86rem; }
+    nav a.nav-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
-nav a {
-  text-decoration: none;
-  color: var(--text-main);
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--accent-soft);
-  font-weight: 500;
-  white-space: nowrap;
-}
+    .nav-artisan {
+      background: #f5e3cc;
+      border-color: rgba(170, 140, 90, 0.8);
+      font-size: 0.8rem;
+    }
+    .nav-artisan:hover {
+      background: var(--accent);
+      color: #fff;
+    }
 
-nav a:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
+    /* Main layout */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 18px 12px 32px;
+    }
 
-.nav-artisan {
-  background: #f5e3cc;
-  border-color: rgba(170, 140, 90, 0.8);
-  font-size: 0.8rem;
-}
+    .page {
+      max-width: 980px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 24px 20px 26px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 24px;
+      backdrop-filter: blur(10px);
+    }
 
-.nav-artisan:hover {
-  background: var(--accent);
-  color: #fff;
-}
+    @media (max-width: 760px) {
+      .page { grid-template-columns: 1fr; border-radius: 18px; }
+      header { flex-direction: column; align-items: flex-start; }
+      nav { flex-wrap: wrap; }
+    }
 
-/* Main */
-main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  padding: 18px 12px 32px;
-}
+    /* Badges and hero */
+    .hero-badge {
+      display: inline-flex;
+      gap: 8px;
+      background: rgba(234,220,200,0.98);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
 
-.page {
-  max-width: 980px;
-  width: 100%;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-soft);
-  padding: 24px 20px 26px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 24px;
-  backdrop-filter: blur(10px);
-}
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 999px; background: #82a738;
+    }
 
-/* Responsive */
-@media (max-width: 760px) {
-  .page { grid-template-columns: 1fr; border-radius: 18px; }
-  header { flex-direction: column; align-items: flex-start; }
-  nav { flex-wrap: wrap; }
-}
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 10px;
+      color: #231a13;
+    }
 
-/* Hero */
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(234, 220, 200, 0.98);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-soft);
-  margin-bottom: 8px;
-}
+    .hero-slogan {
+      font-size: 1rem;
+      color: var(--text-soft);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
 
-.hero-badge-dot {
-  width: 6px; height: 6px; border-radius: 999px; background: #82a738;
-}
+    .hero-text {
+      font-size: 0.96rem;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
 
-h1 {
-  font-size: 2rem;
-  margin: 0 0 10px;
-  color: #231a13;
-}
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
 
-.hero-slogan {
-  font-size: 1rem;
-  color: var(--text-soft);
-  margin-bottom: 18px;
-  font-weight: 500;
-}
+    .btn-main, .btn-ghost, .btn-outline {
+      border-radius: 999px;
+      padding: 11px 20px;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
 
-.hero-text {
-  font-size: 0.96rem;
-  color: var(--text-soft);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
+    .btn-main {
+      background: #d39633;
+      color: #fff;
+      border: 1px solid #a86b1e;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    }
+    .btn-main:hover { background: #b67622; }
 
-.cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-}
+    .btn-ghost {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+    }
+    .btn-ghost:hover { background: var(--accent-soft); }
 
-.btn-main, .btn-ghost, .btn-outline {
-  border-radius: 999px;
-  padding: 11px 20px;
-  font-size: 0.95rem;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  white-space: nowrap;
-}
+    .btn-outline {
+      background: transparent;
+      color: var(--text-soft);
+      border: 1px dashed var(--accent-soft);
+      font-size: 0.88rem;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.8); }
 
-.btn-main {
-  background: #d39633;
-  color: white;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-  border: 1px solid #a86b1e;
-}
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      opacity: 0.95;
+      margin-bottom: 6px;
+    }
 
-.btn-main:hover {
-  background: #b67622;
-}
+    /* Side example */
+    .side-card {
+      border-radius: 22px;
+      background: rgba(250,240,225,0.98);
+      padding: 16px 14px 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      border: 1px solid rgba(180,145,98,0.6);
+      position: relative;
+    }
 
-.btn-ghost {
-  background: #fff;
-  color: var(--accent);
-  border: 1px solid var(--accent-soft);
-}
+    .side-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
 
-.btn-ghost:hover {
-  background: var(--accent-soft);
-  color: #4a321e;
-}
+    .side-quote {
+      font-size: 0.92rem;
+      font-style: italic;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
 
-.btn-outline {
-  background: transparent;
-  color: var(--text-soft);
-  border: 1px dashed var(--accent-soft);
-  font-size: 0.88rem;
-}
+    .side-meta {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
 
-.btn-outline:hover {
-  background: rgba(255,255,255,0.8);
-}
+    .side-orbit {
+      position: absolute;
+      width: 140px; height: 140px;
+      right: -40px; bottom: -40px;
+      border-radius: 999px;
+      border: 1px dashed rgba(133,101,73,0.35);
+    }
 
-.hero-note {
-  font-size: 0.8rem;
-  color: var(--text-soft);
-  opacity: 0.95;
-  margin-bottom: 6px;
-}
+    /* Process blocks */
+    .blocks {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+      font-size: 0.88rem;
+    }
 
-.hero-note a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-}
+    @media (max-width: 760px) {
+      .blocks { grid-template-columns: 1fr; }
+    }
 
-.hero-note a:hover {
-  text-decoration: underline;
-}
+    .block {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(244,230,211,0.98);
+      border: 1px solid rgba(179,144,97,0.6);
+    }
 
-/* Sidebar sample */
-.side-card {
-  border-radius: 22px;
-  background: rgba(250,240,225,0.98);
-  padding: 16px 14px 18px;
-  position: relative;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-  border: 1px solid rgba(180,145,98,0.6);
-}
+    .block-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
 
-.side-title {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--text-soft);
-  margin-bottom: 10px;
-}
+    /* Footer */
+    footer {
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto 18px;
+      padding: 0 16px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      color: #f5eee4;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    }
 
-.side-quote {
-  font-size: 0.92rem;
-  font-style: italic;
-  margin-bottom: 12px;
-  color: var(--text-main);
-}
+    @media (max-width: 700px) {
+      footer { flex-direction: column; gap: 4px; }
+    }
 
-.side-meta { font-size: 0.8rem; color: var(--text-soft); }
+    footer a {
+      color: #f5eee4;
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
 
-.side-orbit {
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  border: 1px dashed rgba(133,101,73,0.35);
-  right: -40px;
-  bottom: -40px;
-}
+<body>
+  <header>
+    <div class="logo-zone">
+      <div class="logo-title">THE ATELIER OF INVISIBLE LINKS</div>
+      <div class="logo-sub">Wooden objects augmented with an intimate voice.</div>
+    </div>
 
-/* Blocks */
-.blocks {
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 12px;
-  font-size: 0.88rem;
-}
+    <nav>
+      <a href="#concept" class="nav-link">Concept</a>
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="/client-en.html" class="nav-link">I already have a jewel</a>
+      <a href="/login.html" class="nav-link nav-artisan">Artisan space</a>
 
-@media (max-width: 760px) {
-  .blocks { grid-template-columns: 1fr; }
-}
+      <div class="lang-switch">
+        <a href="/index.html" class="lang-btn" data-lang="fr">FR</a>
+        <a href="/index-en.html" class="lang-btn active" data-lang="en">EN</a>
+      </div>
+    </nav>
+  </header>
 
-/* --- Corrected title (fixing overflow) --- */
-.block-title {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.10em;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  font-weight: 600;
-  line-height: 1.3;
-  word-break: break-word;
-}
+  <main>
+    <div class="page" id="concept">
+      <section>
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          <div>Wood objects & digital whispers</div>
+        </div>
 
-@media (max-width: 760px) {
-  .block-title {
-    font-size: 0.74rem;
-    letter-spacing: 0.08em;
-  }
-}
+        <h1>The programmed emotion of matter.</h1>
 
-.block {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(244,230,211,0.98);
-  border: 1px solid rgba(179,144,97,0.6);
-}
+        <div class="hero-slogan">
+          Wooden jewels and objects equipped with NFC that whisper unique messages
+          written and spoken by a poetic AI.
+        </div>
 
-/* Footer */
-footer {
-  max-width: 980px;
-  width: 100%;
-  margin: 0 auto 18px;
-  padding: 0 16px;
-  font-size: 0.78rem;
-  display: flex;
-  justify-content: space-between;
-  color: #f5eee4;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
+        <div class="hero-text">
+          Each piece is crafted in the workshop, then connected to an artificial
+          intelligence that composes intimate messages from just a few details:
+          a first name, a memory, a date, a place, an intention.
+          Every time the jewel is scanned, it breathes a new whisper —
+          until its messages are exhausted, and can be recharged at the workshop.
+        </div>
 
-@media (max-width: 700px) {
-  footer { flex-direction: column; gap: 4px; }
-}
+        <div class="cta-row">
+          <a class="btn-main" href="/personnalisation-en.html">
+            🌿 Create a whisper for someone
+          </a>
+          <a class="btn-ghost" href="/bijou.html?id=TEST001&lang=en">
+            ✨ Listen to a demo whisper
+          </a>
+          <a class="btn-outline" href="/client-en.html">
+            I already have a jewel
+          </a>
+        </div>
 
-footer a {
-  color: #f5eee4;
-  text-decoration: none;
-}
+        <div class="hero-note">
+          Simply scan the NFC chip with a compatible smartphone to hear the voice of the wood.
+        </div>
 
-footer a:hover {
-  text-decoration: underline;
-}
+        <div class="blocks" id="how">
+          <div class="block">
+            <div class="block-title">1. The object</div>
+            <p>
+              A jewel or wooden object, crafted by hand with an NFC chip discreetly embedded.
+            </p>
+          </div>
+
+          <div class="block">
+            <div class="block-title">2. Personalization</div>
+            <p>
+              You choose who it is for, what you wish it to whisper, and a few personal details.
+            </p>
+          </div>
+
+          <div class="block">
+            <div class="block-title">3. The living whisper</div>
+            <p>
+              The AI composes and speaks a unique message each time the jewel is opened,
+              like a secret entrusted to the wood.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <div class="side-title">Whisper example</div>
+        <div class="side-quote">
+          “Marie, as in the spring in Toulouse, know that every step on this new path
+          is accompanied by a soft light you don't see yet, but which the wood has already recognized.”
+        </div>
+        <div class="side-meta">Demo jewel · ID TEST001 · AI voice</div>
+        <div class="side-orbit"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <div>© The Atelier of Invisible Links</div>
+    <div>
+      <a href="/login.html">Workshop access</a> ·
+      <a href="/personnalisation-en.html">Internal personalization</a>
+    </div>
+  </footer>
+
+  <script src="/lang-switch.js"></script>
+</body>
+</html>
