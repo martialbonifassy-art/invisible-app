@@ -28,50 +28,7 @@
       display: flex;
       justify-content: center;
       padding: 24px 12px 40px;
-      position: relative;
     }
-
-    /* ---------- SWITCH FR / EN SPÉCIFIQUE À CETTE PAGE ---------- */
-    .ps-lang-switch-wrapper {
-      position: fixed;
-      top: 10px;
-      right: 14px;
-      z-index: 50;
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      pointer-events: none; /* pour ne pas gêner les clics en dessous */
-    }
-
-    .ps-lang-switch {
-      pointer-events: auto;
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-    }
-
-    .ps-lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .ps-lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
-    }
-    /* ------------------------------------------------------------- */
 
     .page {
       max-width: 720px;
@@ -245,15 +202,6 @@
   </style>
 </head>
 <body>
-
-  <!-- SWITCH FR / EN EN HAUT À DROITE -->
-  <div class="ps-lang-switch-wrapper">
-    <div class="ps-lang-switch">
-      <a href="personnalisation.html" class="ps-lang-btn active">FR</a>
-      <a href="personnalisation-en.html" class="ps-lang-btn">EN</a>
-    </div>
-  </div>
-
   <div class="page">
     <h1>L’ATELIER DES LIENS INVISIBLES</h1>
     <div class="slogan">Personnalisation du murmure du bijou.</div>
@@ -342,7 +290,13 @@
           { value: "Pour un amour ancien", label: "Pour un amour ancien", example: "ex : Un message pour un amour de jeunesse retrouvé." },
           { value: "Pour une relation naissante", label: "Pour une relation naissante", example: "ex : Un message pour accompagner les premiers pas d’une relation." },
           { value: "Pour un amour à distance", label: "Pour un amour à distance", example: "ex : Un message pour tenir le lien malgré les kilomètres." },
-          { value: "Pour une occasion spéciale", label: "Pour une occasion spéciale", example: "ex : Un message pour notre anniversaire de mariage." }
+          { value: "Pour une occasion spéciale", label: "Pour une occasion spéciale", example: "ex : Un message pour notre anniversaire de mariage." },
+          {
+            value: "Sensualité complice",
+            label: "Sensualité complice",
+            example:
+              "ex : Un message sensuel mais délicat, pour nourrir le désir et la complicité dans un couple déjà très proche, sans vulgarité ni détails explicites."
+          }
         ]
       },
       {
@@ -648,7 +602,7 @@
 
       THEMES.forEach((t) => {
         const opt = document.createElement("option");
-        opt.value = t.value;
+        opt.value = t.value; // ce qui sera enregistré en base
         opt.textContent = t.label;
         opt.dataset.id = t.id;
         themeSelect.appendChild(opt);
@@ -683,6 +637,7 @@
         sousThemeSelect.appendChild(opt);
       });
 
+      // Mettre à jour la fiche d’aide de base (sans sous-thème)
       helperCard.style.display = "block";
       helperTitle.textContent = themeObj.label;
       helperDesc.textContent = themeObj.description;
@@ -713,7 +668,7 @@
 
     function majUrlExemple() {
       const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/b.html?code=${encodeURIComponent(id)}`;
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
       urlExemple.textContent = url;
     }
 
@@ -735,42 +690,39 @@
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
-  const prenom = prenomInput.value.trim();
-  const intention = intentionInput.value.trim();
-  const detail = detailInput.value.trim();
-  const voix = voixSelect.value;
-  const theme = themeSelect.value || "";
-  const sousTheme = sousThemeSelect.value || "";
+      const id = idInput.value.trim() || "BIJOU001";
+      const prenom = prenomInput.value.trim();
+      const intention = intentionInput.value.trim();
+      const detail = detailInput.value.trim();
+      const voix = voixSelect.value;
 
-  etat.textContent = "L’IA compose le murmure…";
-  btnTester.disabled = true;
-  preview.textContent = "";
+      etat.textContent = "L’IA compose le murmure…";
+      btnTester.disabled = true;
+      preview.textContent = "";
 
-  const params = new URLSearchParams({
-    prenom,
-    intention,
-    detail,
-    voix,
-    theme,
-    sous_theme: sousTheme,
-    lang: "fr"
-  });
+      const params = new URLSearchParams({
+        id,
+        prenom,
+        intention,
+        detail,
+        voix,
+        lang: "fr"
+      });
 
-  try {
-    const r = await fetch(`/api/previewMessage?${params.toString()}`);
-    const data = await r.json();
-    preview.textContent =
-      data.text || "Je suis là, silencieux, mais présent pour toi.";
-    etat.textContent = "Murmure généré (prévisualisation).";
-  } catch (e) {
-    console.error(e);
-    preview.textContent =
-      "Erreur : impossible de joindre la voix du bijou (prévisualisation).";
-    etat.textContent = "Erreur de connexion à l’IA.";
-  } finally {
-    btnTester.disabled = false;
-  }
-});
+      try {
+        const r = await fetch(`/api/message?${params.toString()}`);
+        const data = await r.json();
+        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+        etat.textContent = "Murmure généré (prévisualisation).";
+      } catch (e) {
+        console.error(e);
+        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
+        etat.textContent = "Erreur de connexion à l’IA.";
+      } finally {
+        btnTester.disabled = false;
+      }
+    });
+
     // ─────────────────────────────────────
     // 7) Enregistrement du bijou dans Supabase via /api/saveBijou
     // ─────────────────────────────────────
