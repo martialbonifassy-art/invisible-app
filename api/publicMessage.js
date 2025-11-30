@@ -1,12 +1,20 @@
 // api/publicMessage.js
 //
-// Endpoint public appelé par b.html
-// Entrée : ?public_id=XXXXXX
-// - retrouve le bijou via public_id
-// - appelle /api/message?id=... (qui génère le murmure + décrémente)
-// - relit le bijou pour récupérer le compteur
-// - renvoie toujours 200 avec :
-//   { ok, id, public_id, lang, text, audio, messages_restants, messages_max, error? }
+// Endpoint "public" appelé par b.html avec un code de bijou (public_id).
+// - Ne dévoile jamais l'ID interne dans l'URL.
+// - Cherche le bijou par public_id dans Supabase.
+// - Applique une petite protection de fréquence (anti spam).
+// - Délègue la génération du murmure à /api/message (IA ou fallback).
+//
+// Réponse JSON typique :
+// {
+//   ok: true,
+//   id: "BIJOU0002",         // ID interne (utile côté front, mais jamais dans l'URL publique)
+//   public_id: "95QN27",     // code public utilisé sur la carte / NFC
+//   lang: "fr",
+//   text: "...",
+//   audio: "data:audio/mp3;base64,..."
+// }
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -16,137 +24,174 @@ const SUPABASE_ANON_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// délai minimum entre deux murmures pour un même bijou (en ms)
+const MIN_DELAY_MS = 15_000;
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
-    // on renvoie quand même 200 pour que le front ne tombe pas dans le catch
-    return res.status(200).json({
-      ok: false,
-      error: "Méthode non autorisée."
-    });
+    return res
+      .status(405)
+      .json({ ok: false, error: "Méthode non autorisée / Method not allowed." });
   }
 
   try {
-    const { public_id: publicIdParam, lang: langParam } = req.query || {};
-    const public_id = (publicIdParam || "").trim();
+    const { public_id: publicIdParam, c, lang: langParam } = req.query || {};
+    const publicId = (publicIdParam || c || "").trim();
 
-    if (!public_id) {
-      return res.status(200).json({
+    if (!publicId) {
+      return res.status(400).json({
         ok: false,
         error: "Paramètre public_id manquant.",
-        text: "Ce bijou n’a pas pu être identifié. Le code public est manquant.",
-        audio: null
+        text:
+          "Ce lien ne contient pas de code de bijou valide. Vérifiez le QR code ou la puce NFC, ou contactez l’atelier.",
+        audio: null,
       });
     }
 
-    // 1) Retrouver le bijou via public_id
-    const { data: bijou, error: fetchError } = await supabase
-      .from("bijous") // même table que dans api/message.js
-      .select("id, public_id, langue")
-      .eq("public_id", public_id)
+    // ─────────────────────────────────────
+    // 1) Récupération du bijou par public_id
+    // ─────────────────────────────────────
+    const { data: bijou, error } = await supabase
+      .from("bijous")
+      .select(
+        `
+        id,
+        public_id,
+        langue,
+        etat,
+        locked,
+        messages_restants,
+        messages_max,
+        date_dernier_murmure,
+        prenom,
+        theme,
+        sous_theme
+      `
+      )
+      .eq("public_id", publicId)
       .maybeSingle();
 
-    if (fetchError) {
-      console.error("Erreur Supabase publicMessage (fetch bijou):", fetchError);
+    if (error) {
+      console.error("Erreur Supabase /publicMessage:", error);
       return res.status(200).json({
         ok: false,
-        error: "Erreur de lecture des informations du bijou.",
+        error: "DB_ERROR",
         text:
-          "Ce bijou semble silencieux pour le moment. Une erreur s’est produite en le rejoignant.",
-        audio: null
+          "Je suis là, silencieux, mais présent pour toi. (Erreur de connexion à l’atelier.)",
+        audio: null,
       });
     }
 
     if (!bijou) {
       return res.status(200).json({
         ok: false,
-        error: "Aucun bijou trouvé pour ce code public.",
+        error: "NOT_FOUND",
         text:
-          "Ce code ne correspond à aucun bijou enregistré dans l’atelier. Vérifiez le lien ou contactez l’atelier.",
-        audio: null
+          "Ce bijou n’est pas reconnu dans l’atelier. Vérifiez le code ou contactez l’Atelier des Liens Invisibles.",
+        audio: null,
       });
     }
 
-    const langDb = (bijou.langue || "fr").toLowerCase();
-    const lang = (langParam || langDb || "fr").toLowerCase();
+    // ─────────────────────────────────────
+    // 2) Langue effective (FR / EN)
+    // ─────────────────────────────────────
+    const langueFromDb = (bijou.langue || "").toLowerCase();
+    const langFromReq = (langParam || "").toLowerCase();
+    const langue = langFromReq || langueFromDb || "fr";
+    const isEn = langue === "en";
 
-    // 2) Appeler l’endpoint interne /api/message?id=... pour générer texte + audio
-    //    /api/message s’occupe déjà de décrémenter messages_restants.
-    const protocol = req.headers["x-forwarded-proto"] || "https";
-    const host = req.headers.host;
-    const baseUrl = `${protocol}://${host}`;
+    // ─────────────────────────────────────
+    // 3) Petite protection de fréquence
+    //    (évite qu’un script appelle le bijou 20 fois / seconde)
+    // ─────────────────────────────────────
+    if (bijou.date_dernier_murmure) {
+      const last = new Date(bijou.date_dernier_murmure).getTime();
+      const now = Date.now();
+      if (Number.isFinite(last) && now - last < MIN_DELAY_MS) {
+        const remaining = Math.ceil(
+          (MIN_DELAY_MS - (now - last)) / 1000
+        );
 
-    let texte = lang === "en"
-      ? "I am here, silently, but present for you."
-      : "Je suis là, silencieux, mais présent pour toi.";
-    let audio = null;
+        const text = isEn
+          ? `The jewel needs a short pause before whispering again. Try again in a few seconds (${remaining}s).`
+          : `Le bijou a besoin d’une petite pause avant de murmurer à nouveau. Réessaie dans quelques secondes (${remaining}s).`;
 
-    try {
-      const params = new URLSearchParams({
-        id: bijou.id,
-        lang
+        return res.status(200).json({
+          ok: false,
+          error: "RATE_LIMIT",
+          text,
+          audio: null,
+        });
+      }
+    }
+
+    // ─────────────────────────────────────
+    // 4) Déléguer la génération à /api/message
+    //    (c’est là que se trouvent toute la logique IA + TTS)
+    // ─────────────────────────────────────
+    const protocol =
+      req.headers["x-forwarded-proto"] ||
+      (req.headers.host && req.headers.host.startsWith("localhost")
+        ? "http"
+        : "https");
+    const baseUrl = `${protocol}://${req.headers.host}`;
+
+    const searchParams = new URLSearchParams({
+      id: String(bijou.id),
+      lang: langue,
+    });
+
+    const resp = await fetch(`${baseUrl}/api/message?${searchParams.toString()}`);
+
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => "");
+      console.error(
+        "Erreur appel interne /api/message:",
+        resp.status,
+        errText.slice(0, 200)
+      );
+      const fallbackText = isEn
+        ? "I am here, silently, but present for you. (Internal error.)"
+        : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
+
+      return res.status(200).json({
+        ok: false,
+        error: "INTERNAL_MESSAGE_ERROR",
+        text: fallbackText,
+        audio: null,
       });
-
-      const r = await fetch(`${baseUrl}/api/message?${params.toString()}`);
-      if (!r.ok) {
-        const txt = await r.text().catch(() => "");
-        console.error("Erreur HTTP /api/message:", r.status, txt);
-      } else {
-        const messageData = await r.json();
-        texte =
-          messageData.text ||
-          texte;
-        audio = messageData.audio || null;
-      }
-    } catch (err) {
-      console.error("Erreur d’appel à /api/message depuis publicMessage:", err);
-      // on garde le texte par défaut + audio null
     }
 
-    // 3) Relire le bijou pour récupérer le compteur après décrément
-    let messages_restants = null;
-    let messages_max = null;
+    const msgData = await resp.json().catch(() => null);
 
-    try {
-      const { data: bijouAfter, error: afterError } = await supabase
-        .from("bijous")
-        .select("messages_restants, messages_max")
-        .eq("id", bijou.id)
-        .maybeSingle();
+    const text =
+      msgData && typeof msgData.text === "string"
+        ? msgData.text
+        : isEn
+        ? "I am here, silently, but present for you."
+        : "Je suis là, silencieux, mais présent pour toi.";
+    const audio =
+      msgData && typeof msgData.audio === "string" ? msgData.audio : null;
 
-      if (afterError) {
-        console.error("Erreur Supabase publicMessage (compteur):", afterError);
-      } else if (bijouAfter) {
-        if (typeof bijouAfter.messages_restants === "number") {
-          messages_restants = bijouAfter.messages_restants;
-        }
-        if (typeof bijouAfter.messages_max === "number") {
-          messages_max = bijouAfter.messages_max;
-        }
-      }
-    } catch (err) {
-      console.error("Erreur inattendue récupération compteur:", err);
-    }
-
-    // 4) Réponse finale (toujours 200 pour que le front ne tombe pas dans le catch)
+    // ─────────────────────────────────────
+    // 5) Réponse finale "propre"
+    // ─────────────────────────────────────
     return res.status(200).json({
       ok: true,
       id: bijou.id,
       public_id: bijou.public_id,
-      lang,
-      text: texte,
+      lang: langue,
+      text,
       audio,
-      messages_restants,
-      messages_max
     });
   } catch (e) {
-    console.error("Erreur interne /api/publicMessage:", e);
+    console.error("Erreur inattendue /publicMessage:", e);
     return res.status(200).json({
       ok: false,
-      error: "Erreur interne pendant la génération du murmure.",
-      text:
-        "Je suis là, silencieux, mais présent pour toi. (Une erreur interne s’est produite.)",
-      audio: null
+      error: "UNCAUGHT_ERROR",
+      text: "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)",
+      audio: null,
     });
   }
 }
