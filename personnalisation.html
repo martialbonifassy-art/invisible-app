@@ -735,39 +735,42 @@
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
-      const id = idInput.value.trim() || "BIJOU001";
-      const prenom = prenomInput.value.trim();
-      const intention = intentionInput.value.trim();
-      const detail = detailInput.value.trim();
-      const voix = voixSelect.value;
+  const prenom = prenomInput.value.trim();
+  const intention = intentionInput.value.trim();
+  const detail = detailInput.value.trim();
+  const voix = voixSelect.value;
+  const theme = themeSelect.value || "";
+  const sousTheme = sousThemeSelect.value || "";
 
-      etat.textContent = "L’IA compose le murmure…";
-      btnTester.disabled = true;
-      preview.textContent = "";
+  etat.textContent = "L’IA compose le murmure…";
+  btnTester.disabled = true;
+  preview.textContent = "";
 
-      const params = new URLSearchParams({
-        id,
-        prenom,
-        intention,
-        detail,
-        voix,
-        lang: "fr"
-      });
+  const params = new URLSearchParams({
+    prenom,
+    intention,
+    detail,
+    voix,
+    theme,
+    sous_theme: sousTheme,
+    lang: "fr"
+  });
 
-      try {
-        const r = await fetch(`/api/message?${params.toString()}`);
-        const data = await r.json();
-        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
-        etat.textContent = "Murmure généré (prévisualisation).";
-      } catch (e) {
-        console.error(e);
-        preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
-        etat.textContent = "Erreur de connexion à l’IA.";
-      } finally {
-        btnTester.disabled = false;
-      }
-    });
-
+  try {
+    const r = await fetch(`/api/previewMessage?${params.toString()}`);
+    const data = await r.json();
+    preview.textContent =
+      data.text || "Je suis là, silencieux, mais présent pour toi.";
+    etat.textContent = "Murmure généré (prévisualisation).";
+  } catch (e) {
+    console.error(e);
+    preview.textContent =
+      "Erreur : impossible de joindre la voix du bijou (prévisualisation).";
+    etat.textContent = "Erreur de connexion à l’IA.";
+  } finally {
+    btnTester.disabled = false;
+  }
+});
     // ─────────────────────────────────────
     // 7) Enregistrement du bijou dans Supabase via /api/saveBijou
     // ─────────────────────────────────────
