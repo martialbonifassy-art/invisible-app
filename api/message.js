@@ -77,6 +77,12 @@ export default async function handler(req, res) {
       )
       .eq("id", id)
       .maybeSingle();
+// Bijou de démo (ex : TEST001) → on ne bloque jamais
+const isDemoBijou =
+  bijou &&
+  (bijou.id === "TEST001" ||
+   bijou.public_id === "TEST001" ||
+   bijou.id === "BIJOU_DEMO");
 
     if (fetchError) {
       console.error("Erreur récupération bijou:", fetchError);
@@ -107,14 +113,17 @@ export default async function handler(req, res) {
     // 3) Cas : bijou non configuré
     // ─────────────────────────────────────
     const etat = (bijou.etat || "").toLowerCase();
-    const estNonConfigure = etat.includes("non") && etat.includes("configur");
+const estNonConfigure =
+  etat === "non_configure" ||
+  etat === "non configuré" ||
+  (etat.includes("non") && etat.includes("configur"));
 
-    if (estNonConfigure) {
-      const text = isEn
-        ? "This jewel has been created, but its whisper has not yet been written. Ask the artisan to personalize it, or use the dedicated page to configure it."
-        : "Ce bijou a bien été créé, mais son murmure n’a pas encore été écrit. Demandez à l’atelier de le personnaliser, ou utilisez la page de personnalisation dédiée.";
-      return res.status(200).json({ text, audio: null });
-    }
+if (estNonConfigure && !isDemoBijou) {
+  const text = isEn
+    ? "This jewel has been created, but its whisper has not yet been written. Ask the artisan to personalize it, or use the dedicated page to configure it."
+    : "Ce bijou a bien été créé, mais son murmure n’a pas encore été écrit. Demandez à l’atelier de le personnaliser, ou utilisez la page de personnalisation dédiée.";
+  return res.status(200).json({ text, audio: null });
+}
 
     // ─────────────────────────────────────
     // 4) Cas : locked ou plus de murmures
@@ -132,12 +141,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ text, audio: null });
     }
 
-    if (messagesRestants !== null && messagesRestants <= 0) {
-      const text = isEn
-        ? "All whispers for this jewel have been used. Contact the Atelier des Liens Invisibles to recharge it."
-        : "Tous les murmures de ce bijou ont été utilisés. Contactez l’Atelier des Liens Invisibles pour le recharger.";
-      return res.status(200).json({ text, audio: null });
-    }
+    if (locked && !isDemoBijou) {
+  const text = isEn
+    ? "This jewel has completed its cycle of whispers. It now keeps silent, but remains close."
+    : "Ce bijou a terminé son cycle de murmures. Il reste silencieux désormais, mais tout près de vous.";
+  return res.status(200).json({ text, audio: null });
+}
 
     // ─────────────────────────────────────
     // 5) Contexte du message (fusion URL + base)
@@ -216,9 +225,13 @@ export default async function handler(req, res) {
     // ─────────────────────────────────────
     const now = new Date().toISOString();
     let nouveauSolde = messagesRestants;
-    if (messagesRestants !== null) {
-      nouveauSolde = Math.max(messagesRestants - 1, 0);
-    }
+    if (messagesRestants !== null && messagesRestants <= 0 && !isDemoBijou) {
+  const text = isEn
+    ? "All whispers for this jewel have been used. Contact the Atelier des Liens Invisibles to recharge it."
+    : "Tous les murmures de ce bijou ont été utilisés. Contactez l’Atelier des Liens Invisibles pour le recharger.";
+  return res.status(200).json({ text, audio: null });
+}
+
 
     const { error: updateError } = await supabase
       .from("bijous")
