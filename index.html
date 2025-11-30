@@ -369,13 +369,16 @@
     }
 
     .block-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-soft);
-      margin-bottom: 6px;
-      font-weight: 600;
-      line-height: 1.3;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: break-word;   /* permet à “PERSONNALISATION” de se couper */
+  word-break: break-word;      /* renfort pour certains navigateurs */
+};
     }
 
     footer {
@@ -477,7 +480,7 @@
           </div>
 
           <div class="block">
-            <div class="block-title">2. La personnalisation</div>
+            <div class="block-title">2. La<br>personnalisation</div>
             <p>
               Tu choisis pour qui il est, ce que tu souhaites lui murmurer, et
               quelques détails personnels.
