@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
     :root {
       --bg-card: rgba(255,250,243,0.98);
@@ -17,7 +16,6 @@
       --radius-xl: 26px;
     }
 
-    /* éviter les micro-sauts de scroll */
     html {
       overflow-y: scroll;
     }
@@ -38,7 +36,7 @@
       overflow-x: hidden;
     }
 
-    /* Fond forêt flou + assombri */
+    /* Fond forêt */
     body::before {
       content: "";
       position: fixed;
@@ -49,7 +47,6 @@
       z-index: -2;
     }
 
-    /* voile crème par-dessus */
     body::after {
       content: "";
       position: fixed;
@@ -58,7 +55,7 @@
       z-index: -1;
     }
 
-    /* Switch FR / EN global (simple, fonctionne même sans JS) */
+    /* Switch FR / EN global */
     .lang-switch {
       display: inline-flex;
       background: #f7ecdd;
@@ -77,7 +74,6 @@
       cursor: pointer;
       background: transparent;
       color: #5a4335;
-      text-decoration: none;
     }
 
     .lang-btn.active {
@@ -120,14 +116,19 @@
       color: var(--text-soft);
     }
 
+    header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     nav {
       display: flex;
       gap: 10px;
       font-size: 0.86rem;
-      align-items: center;
     }
 
-    nav a.nav-link {
+    nav a {
       text-decoration: none;
       color: var(--text-main);
       padding: 7px 12px;
@@ -138,7 +139,7 @@
       white-space: nowrap;
     }
 
-    nav a.nav-link:hover {
+    nav a:hover {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
@@ -153,6 +154,16 @@
     .nav-artisan:hover {
       background: var(--accent);
       color: #fff;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        flex-wrap: wrap;
+      }
     }
 
     /* MAIN */
@@ -181,13 +192,6 @@
       .page {
         grid-template-columns: 1fr;
         border-radius: 18px;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      nav {
-        flex-wrap: wrap;
       }
     }
 
@@ -350,7 +354,7 @@
     .blocks {
       margin-top: 22px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0,1fr));
       gap: 12px;
       font-size: 0.88rem;
     }
@@ -368,17 +372,26 @@
       border: 1px solid rgba(179,144,97,0.6);
     }
 
+    /* Titre élégant, plus lisible */
     .block-title {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  font-weight: 600;
-  line-height: 1.3;
-  overflow-wrap: break-word;   /* permet à “PERSONNALISATION” de se couper */
-  word-break: break-word;      /* renfort pour certains navigateurs */
-};
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .block-index {
+      flex: 0 0 auto;
+    }
+
+    .block-label {
+      flex: 1 1 auto;
+      letter-spacing: 0.06em;
     }
 
     footer {
@@ -410,7 +423,6 @@
     }
   </style>
 </head>
-
 <body>
   <header>
     <div class="logo-zone">
@@ -418,18 +430,19 @@
       <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
     </div>
 
-    <nav>
-      <a href="#concept" class="nav-link">Concept</a>
-      <a href="#fonctionnement" class="nav-link">Comment ça marche ?</a>
-      <a href="/client.html" class="nav-link">J’ai déjà un bijou</a>
-      <a href="/login.html" class="nav-link nav-artisan">Espace artisan</a>
+    <header-right>
+      <nav>
+        <a href="#concept" data-i18n="nav_concept">Concept</a>
+        <a href="#fonctionnement" data-i18n="nav_how">Comment ça marche&nbsp;?</a>
+        <a href="/client.html" data-i18n="nav_client">J’ai déjà un bijou</a>
+        <a href="/login.html" class="nav-artisan" data-i18n="nav_artisan">Espace artisan</a>
+      </nav>
 
-      <!-- switch FR/EN simple -->
       <div class="lang-switch">
-        <a href="/index.html" class="lang-btn active" data-lang="fr">FR</a>
-        <a href="/index-en.html" class="lang-btn" data-lang="en">EN</a>
+        <button class="lang-btn active" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
       </div>
-    </nav>
+    </header-right>
   </header>
 
   <main>
@@ -437,17 +450,21 @@
       <section>
         <div class="hero-badge">
           <div class="hero-badge-dot"></div>
-          <div>Objets en bois & murmures numériques</div>
+          <div data-i18n="badge">
+            Objets en bois & murmures numériques
+          </div>
         </div>
 
-        <h1>L’émotion programmée de la matière.</h1>
+        <h1 data-i18n="hero_title">
+          L’émotion programmée de la matière.
+        </h1>
 
-        <div class="hero-slogan">
+        <div class="hero-slogan" data-i18n="hero_slogan">
           Des bijoux et objets en bois, équipés d’une puce NFC, qui murmurent
           des messages uniques écrits et lus par une IA poétique.
         </div>
 
-        <div class="hero-text">
+        <div class="hero-text" data-i18n="hero_text">
           Chaque pièce est créée à l’atelier, puis reliée à une intelligence artificielle
           qui compose des messages intimes à partir de quelques détails&nbsp;:
           un prénom, un souvenir, une date, un lieu, une intention.
@@ -456,54 +473,64 @@
         </div>
 
         <div class="cta-row">
-          <a class="btn-main" href="/personnalisation.html">
+          <a class="btn-main" href="/personnalisation.html" data-i18n="cta_create">
             🌿 Créer un murmure pour quelqu’un
           </a>
-          <a class="btn-ghost" href="/bijou.html?id=TEST001&lang=fr">
+          <a class="btn-ghost" href="/bijou.html?id=TEST001" data-i18n="cta_demo">
             ✨ Écouter un murmure de démo
           </a>
-          <a class="btn-outline" href="/client.html">
+          <a class="btn-outline" href="/client.html" data-i18n="cta_already">
             Je possède déjà un bijou
           </a>
         </div>
 
-        <div class="hero-note">
+        <div class="hero-note" data-i18n="hero_note">
           Scanne simplement la puce NFC avec un smartphone compatible pour entendre la voix du bois.
         </div>
 
         <div class="blocks" id="fonctionnement">
           <div class="block">
-            <div class="block-title">1. L’objet</div>
-            <p>
-              Un bijou ou un objet en bois, façonné à la main, avec une puce NFC discrètement intégrée.
+            <div class="block-title">
+              <span class="block-index">1.</span>
+              <span class="block-label" data-i18n="block1_title">L’objet</span>
+            </div>
+            <p data-i18n="block1_text">
+              Un bijou ou un objet en bois, façonné à la main, avec une puce NFC
+              discrètement intégrée.
             </p>
           </div>
 
           <div class="block">
-            <div class="block-title">2. La<br>personnalisation</div>
-            <p>
-              Tu choisis pour qui il est, ce que tu souhaites lui murmurer, et
-              quelques détails personnels.
+            <div class="block-title">
+              <span class="block-index">2.</span>
+              <span class="block-label" data-i18n="block2_title">La personnalisation</span>
+            </div>
+            <p data-i18n="block2_text">
+              Tu choisis pour qui il est, ce que tu souhaites lui murmurer, et quelques détails personnels.
             </p>
           </div>
 
           <div class="block">
-            <div class="block-title">3. Le murmure vivant</div>
-            <p>
-              La voix d’IA compose et lit un message unique à chaque ouverture,
-              comme un secret confié au bois.
+            <div class="block-title">
+              <span class="block-index">3.</span>
+              <span class="block-label" data-i18n="block3_title">Le murmure vivant</span>
+            </div>
+            <p data-i18n="block3_text">
+              La voix d’IA compose et lit un message unique à chaque ouverture, comme un secret confié au bois.
             </p>
           </div>
         </div>
       </section>
 
       <aside class="side-card">
-        <div class="side-title">Exemple de murmure</div>
-        <div class="side-quote">
+        <div class="side-title" data-i18n="side_title">Exemple de murmure</div>
+        <div class="side-quote" data-i18n="side_quote">
           « Marie, comme au printemps à Toulouse, sache que chaque pas de ce nouveau chemin
           est accompagné d’une lumière douce que tu ne vois pas encore, mais que le bois a déjà reconnue. »
         </div>
-        <div class="side-meta">Bijou démo · ID TEST001 · Voix IA</div>
+        <div class="side-meta" data-i18n="side_meta">
+          Bijou démo · ID TEST001 · Voix IA
+        </div>
         <div class="side-orbit"></div>
       </aside>
     </div>
@@ -517,7 +544,7 @@
     </div>
   </footer>
 
-  <!-- facultatif : si tu gardes ton script global de langue -->
+  <!-- Script de bascule FR/EN (fichier commun) -->
   <script src="/lang-switch.js"></script>
 </body>
 </html>
