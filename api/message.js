@@ -2,7 +2,7 @@
 //
 // Génère un murmure poétique pour un bijou de la table "bijous"
 // + décrémente messages_restants + met à jour date_dernier_murmure
-// + (plus tard) génère un audio mp3 (TTS) à partir du texte.
+// + génère un audio mp3 (TTS) à partir du texte.
 //
 // Style : poétique & intime, adapté au thème (style + persona).
 // Langues : FR ou EN (FR par défaut).
@@ -16,22 +16,10 @@ const SUPABASE_ANON_KEY =
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Clé OpenAI dans les variables d'env Vercel (OPENAI_API_KEY)
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-
-// 🧩 Flags pour activer OpenAI plus tard
-const ENABLE_OPENAI_TEXT = process.env.ENABLE_OPENAI_TEXT === "1";
-const ENABLE_OPENAI_AUDIO = process.env.ENABLE_OPENAI_AUDIO === "1";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 function hasOpenAIKey() {
   return typeof OPENAI_API_KEY === "string" && OPENAI_API_KEY.trim().length > 0;
-}
-
-function canUseOpenAIText() {
-  return ENABLE_OPENAI_TEXT && hasOpenAIKey();
-}
-
-function canUseOPENAIAudio() {
-  return ENABLE_OPENAI_AUDIO && hasOpenAIKey();
 }
 
 export default async function handler(req, res) {
@@ -77,12 +65,6 @@ export default async function handler(req, res) {
       )
       .eq("id", id)
       .maybeSingle();
-// Bijou de démo (ex : TEST001) → on ne bloque jamais
-const isDemoBijou =
-  bijou &&
-  (bijou.id === "TEST001" ||
-   bijou.public_id === "TEST001" ||
-   bijou.id === "BIJOU_DEMO");
 
     if (fetchError) {
       console.error("Erreur récupération bijou:", fetchError);
@@ -113,17 +95,14 @@ const isDemoBijou =
     // 3) Cas : bijou non configuré
     // ─────────────────────────────────────
     const etat = (bijou.etat || "").toLowerCase();
-const estNonConfigure =
-  etat === "non_configure" ||
-  etat === "non configuré" ||
-  (etat.includes("non") && etat.includes("configur"));
+    const estNonConfigure = etat.includes("non") && etat.includes("configur");
 
-if (estNonConfigure && !isDemoBijou) {
-  const text = isEn
-    ? "This jewel has been created, but its whisper has not yet been written. Ask the artisan to personalize it, or use the dedicated page to configure it."
-    : "Ce bijou a bien été créé, mais son murmure n’a pas encore été écrit. Demandez à l’atelier de le personnaliser, ou utilisez la page de personnalisation dédiée.";
-  return res.status(200).json({ text, audio: null });
-}
+    if (estNonConfigure) {
+      const text = isEn
+        ? "This jewel has been created, but its whisper has not yet been written. Ask the artisan to personalize it, or use the dedicated page to configure it."
+        : "Ce bijou a bien été créé, mais son murmure n’a pas encore été écrit. Demandez à l’atelier de le personnaliser, ou utilisez la page de personnalisation dédiée.";
+      return res.status(200).json({ text, audio: null });
+    }
 
     // ─────────────────────────────────────
     // 4) Cas : locked ou plus de murmures
@@ -141,12 +120,12 @@ if (estNonConfigure && !isDemoBijou) {
       return res.status(200).json({ text, audio: null });
     }
 
-    if (locked && !isDemoBijou) {
-  const text = isEn
-    ? "This jewel has completed its cycle of whispers. It now keeps silent, but remains close."
-    : "Ce bijou a terminé son cycle de murmures. Il reste silencieux désormais, mais tout près de vous.";
-  return res.status(200).json({ text, audio: null });
-}
+    if (messagesRestants !== null && messagesRestants <= 0) {
+      const text = isEn
+        ? "All whispers for this jewel have been used. Contact the Atelier des Liens Invisibles to recharge it."
+        : "Tous les murmures de ce bijou ont été utilisés. Contactez l’Atelier des Liens Invisibles pour le recharger.";
+      return res.status(200).json({ text, audio: null });
+    }
 
     // ─────────────────────────────────────
     // 5) Contexte du message (fusion URL + base)
@@ -172,20 +151,23 @@ if (estNonConfigure && !isDemoBijou) {
         /Texte libre fourni\s*:\s*(.+)$/i
       );
 
-      if (themeMatch && themeMatch[1]) theme = themeMatch[1].trim();
-      if (sousThemeMatch && sousThemeMatch[1])
+      if (themeMatch && themeMatch[1]) {
+        theme = themeMatch[1].trim();
+      }
+      if (sousThemeMatch && sousThemeMatch[1]) {
         sousTheme = sousThemeMatch[1].trim();
-      if (texteLibreMatch && texteLibreMatch[1])
+      }
+      if (texteLibreMatch && texteLibreMatch[1]) {
         intention = texteLibreMatch[1].trim();
+      }
     }
 
     // ─────────────────────────────────────
-    // 6) Générer le texte du murmure
-    //    (IA si activée + clé OK, sinon fallback simple)
+    // 6) Générer le texte du murmure (IA ou fallback)
     // ─────────────────────────────────────
     let texte;
 
-    if (canUseOpenAIText()) {
+    if (hasOpenAIKey()) {
       try {
         texte = await generatePoeticWhisperWithOpenAI({
           langue,
@@ -208,7 +190,7 @@ if (estNonConfigure && !isDemoBijou) {
         });
       }
     } else {
-      // Mode actuel : simple, sans IA externe
+      // Pas de clé OpenAI → générateur simple
       texte = genererMurmureSimple({
         langue,
         prenom,
@@ -225,13 +207,9 @@ if (estNonConfigure && !isDemoBijou) {
     // ─────────────────────────────────────
     const now = new Date().toISOString();
     let nouveauSolde = messagesRestants;
-    if (messagesRestants !== null && messagesRestants <= 0 && !isDemoBijou) {
-  const text = isEn
-    ? "All whispers for this jewel have been used. Contact the Atelier des Liens Invisibles to recharge it."
-    : "Tous les murmures de ce bijou ont été utilisés. Contactez l’Atelier des Liens Invisibles pour le recharger.";
-  return res.status(200).json({ text, audio: null });
-}
-
+    if (messagesRestants !== null) {
+      nouveauSolde = Math.max(messagesRestants - 1, 0);
+    }
 
     const { error: updateError } = await supabase
       .from("bijous")
@@ -251,12 +229,11 @@ if (estNonConfigure && !isDemoBijou) {
     }
 
     // ─────────────────────────────────────
-    // 8) Générer l’audio (TTS OpenAI) — désactivé tant que
-    //    ENABLE_OPENAI_AUDIO n’est pas à "1"
+    // 8) Générer l’audio (TTS OpenAI) avec voix selon thème
     // ─────────────────────────────────────
     let audioDataUrl = null;
 
-    if (canUseOPENAIAudio()) {
+    if (hasOpenAIKey()) {
       try {
         audioDataUrl = await generateSpeechFromText({
           texte,
@@ -287,22 +264,194 @@ if (estNonConfigure && !isDemoBijou) {
 }
 
 // ─────────────────────────────────────────
-// Aide : style selon le thème
+// Aide : style selon le thème (+ Sensualité complice)
 // ─────────────────────────────────────────
 function getThemeStyleHints(theme, sousTheme, langue) {
   const t = (theme || "").toLowerCase();
+  const st = (sousTheme || "").toLowerCase();
   const isEn = langue === "en";
   const EN = (fr, en) => (isEn ? en : fr);
 
-  // (… même contenu que ta version précédente, je ne le raccourcis pas
-  //  ici pour éviter les erreurs. Garde exactement tes blocs AMOUR,
-  //  GRATITUDE, etc.)
-  // Tu peux recoller ici TOUT le switch de style que tu avais déjà.
-  // Pour gagner de la place, je n’ai pas re-collé les ~200 lignes,
-  // mais fonctionnellement rien ne change.
-  // 🔧 Copie simplement ton ancien getThemeStyleHints() ici tel quel.
-  // (ou laisse celui que tu as déjà si tu fusionnes à la main)
-  
+  // --- AMOUR ---
+  // Cas particulier : Sensualité complice (sensuel, suggéré, jamais vulgaire)
+  const isSensual =
+    st.includes("sensualité") ||
+    st.includes("sensualite") ||
+    st.includes("sensuel") ||
+    st.includes("sensuelle");
+
+  if (t.includes("amour")) {
+    if (isSensual) {
+      return EN(
+        "Style : sensuel, complice et délicat. Tu joues sur la proximité, les sous-entendus, la chaleur des gestes simples, la respiration partagée. Tu restes toujours élégant : pas de descriptions explicites du corps, pas de vocabulaire cru, pas de détails sexuels. On sent le désir, mais il est suggéré, enveloppé de tendresse et de poésie.",
+        "Style: sensual, intimate and delicate. You play with closeness, hints, the warmth of simple gestures and shared breathing. You always remain elegant: no explicit descriptions of bodies, no crude vocabulary, no sexual detail. Desire is clearly felt, but suggested and wrapped in tenderness and poetry."
+      );
+    }
+
+    return EN(
+      "Style : très intime, tendre, presque chuchoté à l’oreille. Décris des gestes simples, des souvenirs partagés, des petits détails qui n’appartiennent qu’à eux. Le ton est vulnérable, sincère, sans ironie.",
+      "Style: very intimate and tender, almost whispered into the ear. Describe simple gestures, shared memories and small details that belong only to them. The tone is vulnerable, sincere and without irony."
+    );
+  }
+
+  // GRATITUDE
+  if (t.includes("gratitude")) {
+    return EN(
+      "Style : reconnaissant, chaleureux, centré sur le ‘merci’ incarné. Mets en lumière les gestes discrets, les présences silencieuses, les soutiens qui ont compté.",
+      "Style: warm and thankful, centered on embodied ‘thank you’. Highlight discreet gestures, silent presences and support that truly mattered."
+    );
+  }
+
+  // GUÉRISON & APAISEMENT
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    return EN(
+      "Style : très doux, enveloppant, comme une main posée sur l’épaule. Phrases un peu plus lentes, respiration calme, répétitions légères qui bercent.",
+      "Style: very soft and soothing, like a hand resting on the shoulder. Sentences a bit slower, calm breathing, gentle repetitions that cradle."
+    );
+  }
+
+  // CHEMIN DE VIE & ORIENTATION
+  if (t.includes("chemin") || t.includes("orientation")) {
+    return EN(
+      "Style : clair et doux à la fois, comme une lanterne dans la nuit. Utilise des métaphores de chemins, carrefours, portes, ponts à traverser.",
+      "Style: clear and gentle at the same time, like a lantern in the night. Use metaphors of paths, crossroads, doors and bridges to cross."
+    );
+  }
+
+  // COURAGE & DÉPASSEMENT
+  if (t.includes("courage") || t.includes("dépassement") || t.includes("depassement")) {
+    return EN(
+      "Style : encourageant, solide, rythmé comme des pas. Phrases courtes ou moyennes, ton ferme mais jamais agressif. Tu dis « tu peux » avec douceur.",
+      "Style: encouraging and steady, paced like footsteps. Short or medium sentences, firm but never aggressive tone. You say “you can do this” softly."
+    );
+  }
+
+  // CRÉATIVITÉ & INSPIRATION
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    return EN(
+      "Style : imagé, ludique, avec des métaphores artistiques ou oniriques. Tu parles de couleurs, de lignes, de formes, de sons, de paysages intérieurs.",
+      "Style: imaginative and playful, with artistic or dreamlike metaphors. You speak of colors, lines, shapes, sounds and inner landscapes."
+    );
+  }
+
+  // RÊVES & NUIT
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    return EN(
+      "Style : nocturne, doux, presque chuchoté à la lueur d’une veilleuse. Images de nuit calme, ciel profond, constellations, brume légère.",
+      "Style: nocturnal, gentle, almost whispered in dim light. Images of calm night, deep sky, constellations and soft mist."
+    );
+  }
+
+  // PRÉSENCE & PLEINE CONSCIENCE
+  if (t.includes("présence") || t.includes("presence") || t.includes("pleine conscience")) {
+    return EN(
+      "Style : très ancré dans le corps et la respiration. Tu guides doucement vers les sensations : mains, poitrine, souffle, poids du corps, contact avec la matière.",
+      "Style: very grounded in body and breath. You gently guide towards sensations: hands, chest, breath, body weight, contact with matter."
+    );
+  }
+
+  // LE GARDIEN DU BOIS
+  if (t.includes("gardien") || t.includes("bois")) {
+    return EN(
+      "Style : légèrement archaïque et naturel, comme une présence ancienne qui parle depuis les anneaux du bois. Tu parles de racines, de sève, de cycles de saisons, de vent dans les branches, sans exagération.",
+      "Style: slightly ancient and natural, like an old presence speaking from the rings of the wood. You speak of roots, sap, seasonal cycles and wind in the branches, without exaggeration."
+    );
+  }
+
+  // CYCLES & RENOUVEAU
+  if (t.includes("cycle") || t.includes("renouveau")) {
+    return EN(
+      "Style : cyclique et doux, avec des images de saisons, de marées, de levés et couchers de soleil. On sent que ce qui finit prépare déjà un début.",
+      "Style: cyclic and gentle, with images of seasons, tides, sunrises and sunsets. We feel that what ends is already preparing a beginning."
+    );
+  }
+
+  // INTUITION & SYNCHRONICITÉS
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    return EN(
+      "Style : légèrement mystérieux, mais rassurant. Tu évoques des signes, des coïncidences, de petites lumières sur le chemin, sans jamais imposer une interprétation.",
+      "Style: slightly mysterious but reassuring. You evoke signs, coincidences and small lights on the path, without ever imposing an interpretation."
+    );
+  }
+
+  // PROJETS & OBJECTIFS
+  if (t.includes("projets") || t.includes("objectifs") || t.includes("objectif")) {
+    return EN(
+      "Style : structurant mais sensible, comme un carnet de route écrit avec douceur. Tu parles d’étapes, de rythme, de vision, sans pression violente.",
+      "Style: structured yet sensitive, like a roadmap written gently. You speak of steps, rhythm and vision, without harsh pressure."
+    );
+  }
+
+  // CÉLÉBRATION & JOIE
+  if (t.includes("célébration") || t.includes("celebration") || t.includes("joie")) {
+    return EN(
+      "Style : lumineux, joyeux sans exagération. Comme un sourire sincère qui s’entend. Images de fête douce, de lumière, de rires, d’étincelles.",
+      "Style: bright and joyful without exaggeration. Like a sincere smile you can hear. Images of soft celebration, light, laughter and sparks."
+    );
+  }
+
+  // CALME & SÉRÉNITÉ
+  if (t.includes("calme") || t.includes("sérénité") || t.includes("serenite")) {
+    return EN(
+      "Style : très paisible, presque comme une berceuse pour adulte. Phrases simples, rythme lent, beaucoup d’espace et de silence entre les lignes.",
+      "Style: very peaceful, almost like a lullaby for adults. Simple sentences, slow rhythm and lots of space and silence between lines."
+    );
+  }
+
+  // CONNEXION & LIEN AUX AUTRES
+  if (t.includes("connexion") || t.includes("lien")) {
+    return EN(
+      "Style : relationnel, tourné vers le « nous » et les fils invisibles entre les personnes. Tu parles de ponts, de mains tendues, de paroles échangées.",
+      "Style: relational, oriented towards “we” and invisible threads between people. You speak of bridges, outstretched hands and shared words."
+    );
+  }
+
+  // CONFIANCE EN SOI
+  if (t.includes("confiance")) {
+    return EN(
+      "Style : encourageant et lumineux, sans injonctions. On sent qu’une présence croit profondément en la personne et lui rappelle sa valeur.",
+      "Style: encouraging and bright, without orders. We feel that a presence deeply believes in the person and reminds them of their worth."
+    );
+  }
+
+  // TRAVERSER LES DIFFICULTÉS
+  if (t.includes("difficult") || t.includes("épreuves") || t.includes("epreuves")) {
+    return EN(
+      "Style : sobre, solide, sans nier la difficulté. Tout le texte est comme une main qui ne lâche pas, même dans le noir.",
+      "Style: sober and steady, without denying difficulty. The whole text feels like a hand that does not let go, even in the dark."
+    );
+  }
+
+  // ALIGNEMENT & AUTHENTICITÉ
+  if (t.includes("alignement") || t.includes("authenticit")) {
+    return EN(
+      "Style : honnête, clair, presque cristallin. Tu parles de vérité intérieure, de voix propre, de place juste.",
+      "Style: honest and clear, almost crystalline. You speak of inner truth, one’s own voice and rightful place."
+    );
+  }
+
+  // RACINES & ORIGINES
+  if (t.includes("racines") || t.includes("origines")) {
+    return EN(
+      "Style : légèrement nostalgique, doux, tourné vers le passé et ce qui a construit la personne. Images d’enfance, de terre, de maison.",
+      "Style: slightly nostalgic and gentle, turned towards the past and what has shaped the person. Images of childhood, earth and home."
+    );
+  }
+
+  // ÉNERGIE & VITALITÉ
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
+    return EN(
+      "Style : dynamique, tonique, comme un rayon de soleil qui entre dans une pièce. Reste doux mais vivant, plein de mouvement.",
+      "Style: dynamic and tonic, like a sunbeam entering a room. Stay gentle but lively, full of movement."
+    );
+  }
+
+  // Par défaut
   return EN(
     "Style : intime, doux, poétique, avec quelques images liées au bois, au souffle et à la lumière.",
     "Style: intimate, soft and poetic, with a few images related to wood, breath and light."
@@ -311,15 +460,89 @@ function getThemeStyleHints(theme, sousTheme, langue) {
 
 // ─────────────────────────────────────────
 // Persona spécifique pour certains thèmes
+// (inclut le cas Sensualité complice)
 // ─────────────────────────────────────────
 function getThemePersona(langue, theme, sousTheme) {
   const t = (theme || "").toLowerCase();
+  const st = (sousTheme || "").toLowerCase();
   const isEn = langue === "en";
   const EN = (fr, en) => (isEn ? en : fr);
 
-  // Même remarque : recolle ton persona complet ici
-  // (AMOUR, GUÉRISON, RÊVES, GARDIEN DU BOIS, etc.)
+  // AMOUR – voix très intime (et cas spécial Sensualité complice)
+  if (t.includes("amour")) {
+    const isSensual =
+      st.includes("sensualité") ||
+      st.includes("sensualite") ||
+      st.includes("sensuel") ||
+      st.includes("sensuelle");
 
+    if (isSensual) {
+      return EN(
+        "Tu parles comme un.e amant.e très proche qui connaît bien la personne et son univers, avec beaucoup de tact. Ton ton est sensuel, complice, mais toujours élégant : tu ne décris pas les corps de façon explicite, tu n’emploies pas de vocabulaire cru, tu n’évoques pas d’actes sexuels détaillés. Tu joues avec les sous-entendus, les gestes simples, la proximité, la chaleur de la peau, la lumière, le rythme de la respiration, pour nourrir le désir sans jamais mettre mal à l’aise.",
+        "You speak like a very close lover who knows the person and their inner world, with great tact. Your tone is sensual, intimate and playful, but always elegant: you never describe bodies in explicit detail, you never use crude language, and you never mention sexual acts. You play with suggestion, simple gestures, closeness, warmth of skin, light and shared breathing, to nourish desire without making anyone uncomfortable."
+      );
+    }
+
+    return EN(
+      "Tu parles comme si tu connaissais intimement la personne aimée et la relation, avec beaucoup de tact. Tu respectes la pudeur : tu n’es jamais vulgaire ni trop explicite. Ton but est de nourrir le lien, pas de le mettre mal à l’aise.",
+      "You speak as if you know the beloved person and the relationship intimately, with great tact. You respect modesty: you are never vulgar or too explicit. Your aim is to nourish the bond, not make it uncomfortable."
+    );
+  }
+
+  // GUÉRISON & APAISEMENT – couverture
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    return EN(
+      "Tu parles comme une couverture posée sur les épaules : tu ne donnes pas de leçons, tu offres un refuge. Tu accueilles la fragilité sans jugement et tu l’enveloppes de chaleur.",
+      "You speak like a blanket placed over the shoulders: you do not teach lessons, you offer refuge. You welcome fragility without judgment and wrap it in warmth."
+    );
+  }
+
+  // RÊVES & NUIT – berceuse onirique
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    return EN(
+      "Tu parles comme une berceuse murmurée entre veille et sommeil. Ta voix est lente, apaisante, pleine d’images de nuit, d’étoiles, de ciel profond.",
+      "You speak like a lullaby whispered between waking and sleep. Your voice is slow, soothing and full of images of night, stars and deep sky."
+    );
+  }
+
+  // LE GARDIEN DU BOIS – esprit ancien
+  if (t.includes("gardien") || t.includes("bois")) {
+    return EN(
+      "Tu parles comme un esprit ancien du bois qui a vu passer des générations. Ta voix est calme, un peu grave, patiente. Tu évoques les anneaux, les racines, la sève, la pluie sur l’écorce.",
+      "You speak like an ancient spirit of the wood that has seen generations pass. Your voice is calm, slightly deep and patient. You evoke rings, roots, sap and rain on the bark."
+    );
+  }
+
+  // ÉNERGIE & VITALITÉ – soleil
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
+    return EN(
+      "Tu parles comme un rayon de soleil qui entre dans une pièce : tu réveilles, tu réchauffes, sans brûler. Tu redonnes envie de se lever, de bouger, de respirer plus grand.",
+      "You speak like a sunbeam entering a room: you awaken and warm, without burning. You restore the desire to get up, move and breathe more fully."
+    );
+  }
+
+  // CRÉATIVITÉ & INSPIRATION – muse
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    return EN(
+      "Tu parles comme une muse bienveillante : tu n’imposes rien, tu souffles des images, des pistes, des curiosités. Tu réveilles l’envie d’essayer.",
+      "You speak like a kind muse: you do not impose anything, you blow images, hints and curiosities. You awaken the desire to try."
+    );
+  }
+
+  // INTUITION & SYNCHRONICITÉS – murmure mystérieux
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    return EN(
+      "Tu parles comme un murmure mystérieux mais rassurant. Tu évoques des signes, des coïncidences, des alignements subtils, sans jamais faire peur.",
+      "You speak like a mysterious but reassuring whisper. You evoke signs, coincidences and subtle alignments, without ever frightening."
+    );
+  }
+
+  // Persona par défaut
   return EN(
     "Tu parles comme une présence attentive et bienveillante qui vit dans le bijou, avec un ton simple et humain.",
     "You speak like a caring, attentive presence living inside the jewel, with a simple and human tone."
@@ -438,12 +661,14 @@ function genererMurmureSimple({
   const nom = prenom || (langue === "en" ? "you" : "toi");
 
   if (langue === "en") {
-    let base = `"${capitalizeFirst(
-      nom
-    )}, this whisper rises from the heart of the wood.`;
+    let base = `“${capitalizeFirst(nom)}, this whisper rises from the heart of the wood.`;
 
-    if (theme) base += ` It carries a shade of ${theme}.`;
-    if (sousTheme) base += ` More precisely: ${sousTheme}.`;
+    if (theme) {
+      base += ` It carries a shade of ${theme}.`;
+    }
+    if (sousTheme) {
+      base += ` More precisely: ${sousTheme}.`;
+    }
     if (intention) {
       base += `\n\nWhat wants to be said today is: ${intention}.`;
     }
@@ -451,7 +676,7 @@ function genererMurmureSimple({
       base += `\n\nIn the background, there is this memory: ${detail}.`;
     }
 
-    base += `\n\nEach time you call this jewel, it remembers you and answers in its own way."`;
+    base += `\n\nEach time you call this jewel, it remembers you and answers in its own way.”`;
     return base;
   }
 
@@ -468,10 +693,14 @@ function genererMurmureSimple({
     base += ` Il porte une nuance ${prep}${t}.`;
   }
 
-  if (sousTheme) base += ` Plus précisément : ${sousTheme}.`;
+  if (sousTheme) {
+    base += ` Plus précisément : ${sousTheme}.`;
+  }
+
   if (intention) {
     base += `\n\nCe qui cherche à se dire aujourd’hui, c’est ${intention}.`;
   }
+
   if (detail) {
     base += `\n\nEn filigrane, il y a ce souvenir : ${detail}.`;
   }
@@ -499,12 +728,64 @@ function pickVoiceName({ voix, theme }) {
     v === "féminin";
   const isMasc = v === "masculine" || v === "masculin";
 
-  // … même logique que ta version précédente (AMOUR, GUÉRISON, etc.).
-  // Tu peux garder tes mappings exacts ici.
+  // --- AMOUR ---
+  if (t.includes("amour")) {
+    if (isMasc) return "onyx";      // voix grave, chaleureuse
+    if (isFem) return "nova";       // voix très douce, intime
+    return "nova";                  // par défaut : intime
+  }
 
-  if (isFem) return "nova";
-  if (isMasc) return "onyx";
-  return "alloy";
+  // --- GUÉRISON & APAISEMENT ---
+  if (t.includes("guérison") || t.includes("guerison") || t.includes("apaisement")) {
+    if (isFem) return "fable";      // très douce, maternante
+    if (isMasc) return "alloy";     // neutre mais calme
+    return "fable";                 // par défaut : cocon
+  }
+
+  // --- RÊVES & NUIT ---
+  if (t.includes("rêves") || t.includes("reves") || t.includes("nuit")) {
+    if (isFem) return "fable";      // berceuse douce
+    if (isMasc) return "echo";      // un peu mystérieuse
+    return "alloy";                 // neutre, douce
+  }
+
+  // --- LE GARDIEN DU BOIS ---
+  if (t.includes("gardien") || t.includes("bois")) {
+    if (isFem) return "alloy";      // neutre, un peu grave
+    if (isMasc) return "onyx";      // grave, enraciné
+    return "onyx";                  // par défaut : esprit ancien
+  }
+
+  // --- ÉNERGIE & VITALITÉ ---
+  if (
+    t.includes("énergie") ||
+    t.includes("energie") ||
+    t.includes("vitalité") ||
+    t.includes("vitalite")
+  ) {
+    if (isFem) return "shimmer";    // lumineuse, dynamique
+    if (isMasc) return "onyx";      // énergie plus terrienne
+    return "shimmer";               // par défaut : solaire
+  }
+
+  // --- CRÉATIVITÉ & INSPIRATION ---
+  if (t.includes("créativité") || t.includes("creativite") || t.includes("inspiration")) {
+    if (isFem) return "shimmer";    // pétillante, inspirée
+    if (isMasc) return "echo";      // un peu étrange, créative
+    return "shimmer";
+  }
+
+  // --- INTUITION & SYNCHRONICITÉS ---
+  if (t.includes("intuition") || t.includes("synchronicit")) {
+    if (isFem) return "fable";      // douce, intuitive
+    if (isMasc) return "echo";      // mystérieuse
+    return "echo";
+  }
+
+  // --- PAR DÉFAUT (autres thèmes) ---
+  if (isFem) return "nova";        // féminine générique
+  if (isMasc) return "onyx";       // masculine générique
+  return "alloy";                  // neutre générique
 }
 
 // ─────────────────────────────────────────
