@@ -4,43 +4,42 @@
   <meta charset="UTF-8" />
   <title>Customize the whisper – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    /* Simple FR / EN switch (no JS) */
-    .lang-switch-wrapper {
-      max-width: 720px;
-      margin: 14px auto 0;
-      padding: 0 8px;
-      display: flex;
-      justify-content: flex-end;
-    }
+  <style>/* Simple FR / EN switch (no JS) – local to this page */
+.pswitch-wrapper {
+  max-width: 720px;
+  margin: 14px auto 0;
+  padding: 0 8px;
+  display: flex;
+  justify-content: flex-end;
+}
 
-    .lang-switch {
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-    }
+.pswitch {
+  display: inline-flex;
+  background: #f7ecdd;
+  border-radius: 999px;
+  padding: 3px;
+  border: 1px solid rgba(170, 140, 90, 0.45);
+  gap: 3px;
+  align-items: center;
+}
 
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-      text-decoration: none;
-      display: inline-block;
-    }
+.pswitch-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  background: transparent;
+  color: #5a4335;
+  text-decoration: none;
+  display: inline-block;
+}
 
-    .lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
-      cursor: default;
+.pswitch-btn.active {
+  background: #b8833a;
+  color: #fff;
+  font-weight: 600;
+  cursor: default;
     }
 
     :root {
