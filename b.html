@@ -8,33 +8,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
-
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335; /* tu peux ajuster */
-}
-
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
-
     :root {
       --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
@@ -89,7 +62,6 @@
       border: 1px solid var(--border-soft);
       padding: 20px 18px 22px;
       backdrop-filter: blur(10px);
-      position: relative;
     }
 
     h1 {
@@ -104,35 +76,6 @@
       font-size: 0.9rem;
       color: var(--text-soft);
       margin-bottom: 10px;
-    }
-
-    /* Switch langue */
-    .lang-switch {
-      position: absolute;
-      top: 16px;
-      right: 18px;
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-    }
-
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-soft);
-    }
-
-    .lang-btn.active {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
     }
 
     .badge-code {
@@ -241,11 +184,6 @@
 </head>
 <body>
   <div class="card">
-    <div class="lang-switch">
-      <button type="button" class="lang-btn" id="langFr">FR</button>
-      <button type="button" class="lang-btn" id="langEn">EN</button>
-    </div>
-
     <h1>L’ATELIER DES LIENS INVISIBLES</h1>
     <div class="sub" id="subtitle">
       Vérification de votre bijou en cours…
@@ -279,11 +217,6 @@
     const contentEl = document.getElementById("content");
     const infoEl = document.getElementById("info");
 
-    const btnFr = document.getElementById("langFr");
-    const btnEn = document.getElementById("langEn");
-
-    let UI_LANG = "fr"; // fr | en
-
     function getPublicIdFromUrl() {
       const url = new URL(window.location.href);
 
@@ -303,78 +236,23 @@
       return null;
     }
 
-    function getLangParamFromUrl() {
-      const url = new URL(window.location.href);
-      const lang = (url.searchParams.get("lang") || "").toLowerCase();
-      if (lang === "fr" || lang === "en") return lang;
-      return null;
-    }
-
-    function detectUiLang(bijouLang) {
-      // 1) Paramètre explicite ?lang=
-      const paramLang = getLangParamFromUrl();
-      if (paramLang) return paramLang;
-
-      // 2) Langue du bijou en base
-      const fromDb = (bijouLang || "").toLowerCase();
-      if (fromDb === "fr" || fromDb === "en") return fromDb;
-
-      // 3) Langue du navigateur
-      const navLang = (navigator.language || navigator.userLanguage || "fr").toLowerCase();
-      if (navLang.startsWith("en")) return "en";
-
-      return "fr";
-    }
-
-    function updateLangSwitchUi() {
-      if (UI_LANG === "en") {
-        btnEn.classList.add("active");
-        btnFr.classList.remove("active");
-        document.documentElement.lang = "en";
-      } else {
-        btnFr.classList.add("active");
-        btnEn.classList.remove("active");
-        document.documentElement.lang = "fr";
-      }
-    }
-
-    function setLangAndReload(lang) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", lang);
-      window.location.href = url.toString();
-    }
-
-    btnFr.addEventListener("click", () => setLangAndReload("fr"));
-    btnEn.addEventListener("click", () => setLangAndReload("en"));
-
     async function main() {
       const publicId = getPublicIdFromUrl();
 
       if (!publicId) {
-        UI_LANG = detectUiLang(null);
-        updateLangSwitchUi();
-
-        subtitle.textContent =
-          UI_LANG === "en" ? "Jewel not found" : "Bijou introuvable";
+        subtitle.textContent = "Bijou introuvable";
+        statusEl.textContent = "";
         statusEl.classList.remove("loading");
         statusEl.classList.add("error");
-        statusEl.textContent =
-          UI_LANG === "en"
-            ? "No jewel code was detected in this link."
-            : "Aucun code de bijou n’a été détecté dans ce lien.";
-        infoEl.textContent =
-          UI_LANG === "en"
-            ? "Check the QR code or NFC tag, or contact the Atelier."
-            : "Vérifiez le QR code ou la puce NFC, ou contactez l’atelier.";
+        statusEl.textContent = "Aucun code de bijou n’a été détecté dans ce lien.";
+        infoEl.textContent = "Vérifiez le QR code ou la puce NFC, ou contactez l’atelier.";
         return;
       }
 
       codeZone.style.display = "inline-flex";
       codeLabel.textContent = "Code bijou : " + publicId;
 
-      // Texte provisoire FR, on corrigera selon la langue après
       subtitle.textContent = "Connexion au bijou en cours…";
-      statusEl.textContent = "Lecture du murmure en préparation…";
 
       const { data: bijou, error } = await supabase
         .from("bijoux")
@@ -396,54 +274,30 @@
 
       if (error) {
         console.error(error);
-        UI_LANG = detectUiLang(null);
-        updateLangSwitchUi();
-
-        subtitle.textContent =
-          UI_LANG === "en"
-            ? "Unable to read this jewel."
-            : "Impossible de lire les informations du bijou.";
+        subtitle.textContent = "Impossible de lire les informations du bijou.";
         statusEl.classList.add("error");
-        statusEl.textContent =
-          UI_LANG === "en"
-            ? "An error occurred. Please try again later."
-            : "Une erreur est survenue. Merci de réessayer plus tard.";
-        infoEl.textContent =
-          UI_LANG === "en"
-            ? "If the problem persists, please contact the Atelier des Liens Invisibles."
-            : "Si le problème persiste, contactez l’Atelier des Liens Invisibles.";
+        statusEl.textContent = "Une erreur est survenue. Merci de réessayer plus tard.";
+        infoEl.textContent = "Si le problème persiste, contactez l’Atelier des Liens Invisibles.";
         return;
       }
 
       if (!bijou) {
-        UI_LANG = detectUiLang(null);
-        updateLangSwitchUi();
-
-        subtitle.textContent =
-          UI_LANG === "en" ? "Jewel not recognized" : "Bijou non reconnu";
+        subtitle.textContent = "Bijou non reconnu";
         statusEl.classList.add("error");
         statusEl.textContent =
-          UI_LANG === "en"
-            ? "This code does not match any jewel registered in the Atelier."
-            : "Ce code ne correspond à aucun bijou enregistré dans l’atelier.";
+          "Ce code ne correspond à aucun bijou enregistré dans l’atelier.";
         infoEl.textContent =
-          UI_LANG === "en"
-            ? "Make sure the tag or QR code really comes from the Atelier des Liens Invisibles."
-            : "Vérifiez que la puce ou le QR code vous a bien été remis par l’Atelier des Liens Invisibles.";
+          "Vérifiez que la puce ou le QR code vous a bien été remis par l’Atelier des Liens Invisibles.";
         return;
       }
 
-      // Déterminer la langue d’interface (UI_LANG)
-      UI_LANG = detectUiLang(bijou.langue);
-      const isEn = UI_LANG === "en";
-      updateLangSwitchUi();
+      // Déterminer la langue d’interface
+      const langue = (bijou.langue || "fr").toLowerCase();
+      const isEn = langue === "en";
 
-      // Texte de statut
       const nom =
         bijou.prenom ||
-        (isEn
-          ? "the person who will receive this jewel"
-          : "la personne qui recevra ce bijou");
+        (isEn ? "the person who will receive this jewel" : "la personne qui recevra ce bijou");
 
       const isConfigured =
         bijou.etat === "configure" && bijou.prenom && bijou.theme && bijou.sous_theme;
@@ -465,6 +319,7 @@
 
         const restants = bijou.messages_restants;
         const max = bijou.messages_max;
+        const hasNoMessages = restants != null && restants <= 0;
 
         statusEl.textContent = isEn
           ? `This jewel is linked to ${nom}. There are ${
@@ -474,15 +329,13 @@
               restants != null ? restants : "?"
             } murmure(s) sur ${max || "?"}.`;
 
-        renderActiveActions(bijou, isEn);
+        renderActiveActions(bijou, isEn, hasNoMessages);
       }
     }
 
     function renderConfigurationInvite(bijou, isEn) {
       const id = bijou.id;
-      const persoPage = isEn ? "/personnalisation-en.html" : "/personnalisation.html";
-      const indexPage = isEn ? "/index-en.html" : "/index.html";
-      const urlPersonnalisation = `${persoPage}?id=${encodeURIComponent(id)}`;
+      const urlPersonnalisation = `/personnalisation.html?id=${encodeURIComponent(id)}`;
 
       const themeText = bijou.theme || (isEn ? "not defined yet" : "non défini");
       const preText = isEn
@@ -504,7 +357,7 @@
           <a href="${urlPersonnalisation}" class="btn btn-main">
             ${isEn ? "✨ Personalize this whisper" : "✨ Personnaliser ce murmure"}
           </a>
-          <a href="${indexPage}" class="btn btn-ghost">
+          <a href="/" class="btn btn-ghost">
             ${isEn ? "Back to the Atelier website" : "Revenir au site de l’Atelier"}
           </a>
         </div>
@@ -515,16 +368,62 @@
         : "Vous pouvez personnaliser ce bijou vous-même, ou demander à l’artisan de le faire pour vous.";
     }
 
-    function renderActiveActions(bijou, isEn) {
+    function renderActiveActions(bijou, isEn, hasNoMessages) {
       const id = bijou.id;
-      const bijouPage = isEn ? "/bijou-en.html" : "/bijou.html";
-      const persoPage = isEn ? "/personnalisation-en.html" : "/personnalisation.html";
-
-      const urlMurmure = `${bijouPage}?id=${encodeURIComponent(id)}`;
-      const urlPerso = `${persoPage}?id=${encodeURIComponent(id)}`;
+      const urlMurmure = `/bijou.html?id=${encodeURIComponent(id)}`;
+      const urlPerso = `/personnalisation.html?id=${encodeURIComponent(id)}`;
 
       const themeText = bijou.theme || (isEn ? "not defined" : "non défini");
       const sousThemeText = bijou.sous_theme || (isEn ? "not specified" : "non précisé");
+
+      // Préparation du mail de recharge
+      const mailSubject = encodeURIComponent(
+        (isEn ? "Recharge jewel " : "Recharge bijou ") + (bijou.public_id || bijou.id)
+      );
+      const mailBody = encodeURIComponent(
+        (isEn
+          ? `Hello,\n\nI would like to recharge the jewel ${bijou.public_id || bijou.id}.\n\nThank you.`
+          : `Bonjour,\n\nJe souhaite recharger le bijou ${bijou.public_id || bijou.id}.\n\nMerci.`)
+      );
+
+      // ⚠️ Remplace cette adresse par la tienne si besoin
+      const rechargeMailTo = `mailto:contact@atelier-liens-invisibles.fr?subject=${mailSubject}&body=${mailBody}`;
+
+      let actionsHtml = "";
+
+      if (hasNoMessages) {
+        // Mode “tous les murmures utilisés” → focus recharge
+        actionsHtml = `
+          <div class="actions">
+            <a href="${rechargeMailTo}" class="btn btn-main">
+              ${isEn ? "🔁 Request a recharge" : "🔁 Demander une recharge"}
+            </a>
+            <a href="/" class="btn btn-ghost">
+              ${isEn ? "Back to the Atelier website" : "Revenir au site de l’Atelier"}
+            </a>
+          </div>
+        `;
+
+        infoEl.textContent = isEn
+          ? "All whispers linked to this jewel have been used. You can contact the Atelier to recharge it."
+          : "Tous les murmures liés à ce bijou ont été utilisés. Vous pouvez contacter l’Atelier pour le recharger.";
+      } else {
+        // Mode normal → écouter + ajuster la personnalisation
+        actionsHtml = `
+          <div class="actions">
+            <a href="${urlMurmure}" class="btn btn-main">
+              ${isEn ? "🎧 Listen to the whisper" : "🎧 Écouter le murmure"}
+            </a>
+            <a href="${urlPerso}" class="btn btn-ghost">
+              ${isEn ? "Adjust personalization" : "Ajuster la personnalisation"}
+            </a>
+          </div>
+        `;
+
+        infoEl.textContent = isEn
+          ? "Each time you tap the jewel with a compatible phone, a new whisper can be generated, until all whispers are used."
+          : "À chaque contact du bijou avec un téléphone compatible, un nouveau murmure peut être généré, jusqu’à épuisement des murmures.";
+      }
 
       contentEl.innerHTML = `
         <div class="bloc">
@@ -536,24 +435,11 @@
             ${isEn ? "Sub-theme:" : "Sous-thème :"} <strong>${sousThemeText}</strong>
           </p>
         </div>
-
-        <div class="actions">
-          <a href="${urlMurmure}" class="btn btn-main">
-            ${isEn ? "🎧 Listen to the whisper" : "🎧 Écouter le murmure"}
-          </a>
-          <a href="${urlPerso}" class="btn btn-ghost">
-            ${isEn ? "Adjust personalization" : "Ajuster la personnalisation"}
-          </a>
-        </div>
+        ${actionsHtml}
       `;
-
-      infoEl.textContent = isEn
-        ? "Each time you tap the jewel with a compatible phone, a new whisper can be generated."
-        : "À chaque contact du bijou avec un téléphone compatible, un nouveau murmure peut être généré.";
     }
 
     main();
   </script>
-  <script src="/lang-switch.js"></script>
 </body>
 </html>
