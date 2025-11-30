@@ -2,24 +2,21 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>J’ai déjà un bijou – L’Atelier des Liens Invisibles</title>
+  <title>Accéder à votre bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
-      --accent-dark: #8a5f25;
       --accent-soft: #eadcc8;
       --text-main: #2e241b;
       --text-soft: #5a4335;
       --border-soft: rgba(170, 140, 90, 0.55);
-      --shadow-soft: 0 14px 34px rgba(0,0,0,0.26);
-      --radius-xl: 22px;
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 26px;
     }
 
+    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
@@ -33,10 +30,9 @@
       align-items: center;
       padding: 18px 12px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    /* 🌲 Fond forêt identique aux autres pages */
     body::before {
       content: "";
       position: fixed;
@@ -46,7 +42,6 @@
       transform: scale(1.03);
       z-index: -2;
     }
-
     body::after {
       content: "";
       position: fixed;
@@ -55,133 +50,161 @@
       z-index: -1;
     }
 
-    /* Carte centrale */
     .card {
-      max-width: 520px;
+      max-width: 900px;
       width: 100%;
       background: var(--bg-card);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 22px 20px 26px;
+      padding: 26px 20px 24px;
       backdrop-filter: blur(10px);
-      animation: fadeIn 0.5s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
-    .logo {
-      font-size: 0.85rem;
-      letter-spacing: 0.18em;
+    .logo-title {
+      font-size: 1.02rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
-      text-align: center;
-      margin-bottom: 4px;
     }
 
-    .subtitle {
-      font-size: 0.83rem;
+    .logo-sub {
+      font-size: 0.9rem;
       color: var(--text-soft);
-      text-align: center;
-      margin-bottom: 18px;
+      margin-top: 4px;
     }
 
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 9px;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+    }
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 8px 0 4px;
+      font-size: 1.1rem;
+    }
     .intro {
-      font-size: 0.84rem;
-      color: var(--text-soft);
-      margin-bottom: 12px;
       text-align: center;
+      font-size: 0.94rem;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
 
     label {
       display: block;
-      margin-top: 10px;
-      font-size: 0.82rem;
-      color: var(--text-soft);
+      font-size: 0.9rem;
       font-weight: 600;
+      margin-bottom: 6px;
     }
 
-    input {
+    input[type="text"] {
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 14px;
+      padding: 12px 14px;
+      border-radius: 999px;
       border: 1px solid var(--accent-soft);
-      background: rgba(255,255,255,0.9);
-      margin-top: 6px;
-      font-size: 0.9rem;
-      color: var(--text-main);
+      background: #fffdf8;
+      font-size: 0.96rem;
       outline: none;
     }
-
-    input:focus {
+    input[type="text"]:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
 
-    button {
-      width: 100%;
+    .main-btn {
       margin-top: 16px;
-      padding: 11px 18px;
-      border-radius: 18px;
-      border: 1px solid var(--accent-dark);
-      background: var(--accent);
-      color: white;
-      font-size: 0.95rem;
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 13px 18px;
+      font-size: 1rem;
       cursor: pointer;
+      background: #d39633;
+      color: #fff;
       font-weight: 600;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
-      transition: 0.2s;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 10px;
     }
-
-    button:hover {
-      background: var(--accent-dark);
-      transform: translateY(-1px);
-    }
-
-    button:disabled {
-      opacity: 0.7;
+    .main-btn:disabled {
+      opacity: 0.6;
       cursor: wait;
-      transform: none;
     }
-
-    .result {
-      margin-top: 16px;
-      font-size: 0.88rem;
-      color: var(--text-soft);
+    .main-btn:hover:not(:disabled) {
+      background: #b67622;
     }
 
     .status {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .info-bottom {
+      margin-top: 18px;
+      font-size: 0.84rem;
+      color: #8a6c4c;
+    }
+
+    .result {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(170,140,90,0.5);
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: #f5ebdd;
+      border: 1px solid var(--border-soft);
       font-size: 0.82rem;
-      margin-top: 6px;
-      color: #a08967;
+      margin-bottom: 8px;
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #82a738;
     }
 
-    .status.error {
-      color: #b03a3a;
-    }
-
-    .bloc {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      background: #fffdf8;
-      border: 1px solid #e4d5c3;
-      font-size: 0.88rem;
-    }
-
-    .bloc-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.11em;
-      color: #856549;
-      margin-bottom: 4px;
+    .result-title {
+      font-weight: 600;
+      margin-bottom: 6px;
     }
 
     .actions {
@@ -190,277 +213,220 @@
       flex-direction: column;
       gap: 8px;
     }
-
-    @media (min-width: 480px) {
-      .actions {
-        flex-direction: row;
-      }
-      .actions a {
-        flex: 1;
-      }
+    @media (min-width: 640px) {
+      .actions { flex-direction: row; }
     }
 
-    a.btn {
+    .btn-secondary, .btn-ghost {
       border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 0.88rem;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
       text-decoration: none;
-      text-align: center;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       font-weight: 500;
-      border: 1px solid transparent;
+      width: 100%;
     }
 
-    .btn-main {
+    .btn-secondary {
       background: #d39633;
       color: #fff;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-      border-color: #a86b1e;
+      border: 1px solid #a86b1e;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
     }
-    .btn-main:hover {
+    .btn-secondary:hover {
       background: #b67622;
     }
 
     .btn-ghost {
       background: #fff;
       color: var(--accent);
-      border-color: var(--accent-soft);
+      border: 1px solid var(--accent-soft);
     }
     .btn-ghost:hover {
       background: var(--accent-soft);
       color: #4a321e;
     }
 
-    .small-note {
-      margin-top: 10px;
-      font-size: 0.78rem;
-      color: #8a735a;
-    }
+    .error { color: #b03a3a; }
   </style>
 </head>
-
 <body>
   <div class="card">
+    <div class="top-row">
+      <div>
+        <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="logo-sub">Accédez au murmure de votre bijou.</div>
+      </div>
+      <div class="lang-switch">
+        <button class="lang-btn active" type="button">FR</button>
+        <a class="lang-btn" href="/client-en.html">EN</a>
+      </div>
+    </div>
 
-    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
-    <div class="subtitle">Accédez au murmure de votre bijou.</div>
-
+    <h2>Accédez au murmure de votre bijou.</h2>
     <p class="intro">
-      Indiquez le <strong>code de votre bijou</strong> (code sur la carte, ou identifiant interne),
-      et nous vous guiderons vers son murmure ou sa recharge.
+      Indiquez le <strong>code de votre bijou</strong> (code sur la carte, ou identifiant interne), et
+      nous vous guiderons vers son murmure ou sa recharge.
     </p>
 
-    <label for="codeBijou">Code du bijou</label>
+    <label for="codeInput">Code du bijou</label>
     <input
+      id="codeInput"
       type="text"
-      id="codeBijou"
       placeholder="ex : 95QN27 ou BIJOU001"
     />
 
-    <button id="searchBtn">
+    <button id="searchBtn" class="main-btn">
       🔍 Trouver mon bijou
     </button>
 
-    <div class="status" id="status">En attente de votre code…</div>
+    <div id="status" class="status">En attente de votre code…</div>
 
-    <div class="result" id="result"></div>
+    <div id="result" class="result" style="display:none;"></div>
 
-    <div class="small-note">
+    <div class="info-bottom">
       En cas de difficulté, vous pouvez toujours contacter l’Atelier directement.
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
-
-    // 🔧 À adapter si besoin
-    const RECHARGE_EMAIL = "contact@atelier-liens-invisibles.fr";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const codeInput = document.getElementById("codeBijou");
-    const searchBtn = document.getElementById("searchBtn");
     const statusEl = document.getElementById("status");
     const resultEl = document.getElementById("result");
+    const searchBtn = document.getElementById("searchBtn");
+    const codeInput = document.getElementById("codeInput");
 
-    async function findBijouByCode(code) {
-      // 1) Essayer par public_id
-      let { data: bijou, error } = await supabase
-        .from("bijoux")
-        .select(`
-          id,
-          public_id,
-          etat,
-          langue,
-          prenom,
-          theme,
-          sous_theme,
-          messages_restants,
-          messages_max,
-          locked
-        `)
-        .eq("public_id", code)
-        .maybeSingle();
+    let currentBijou = null; // pour le bouton de recharge
 
-      if (error) throw error;
-      if (bijou) return bijou;
-
-      // 2) Sinon, essayer par id interne
-      const res2 = await supabase
-        .from("bijoux")
-        .select(`
-          id,
-          public_id,
-          etat,
-          langue,
-          prenom,
-          theme,
-          sous_theme,
-          messages_restants,
-          messages_max,
-          locked
-        `)
-        .eq("id", code)
-        .maybeSingle();
-
-      if (res2.error) throw res2.error;
-      return res2.data || null;
-    }
-
-    function renderBijou(bijou) {
-      const langue = (bijou.langue || "fr").toLowerCase();
-      const isEn = langue === "en"; // on garde pour plus tard si tu veux rendre cette page bilingue
-      const restants = bijou.messages_restants;
-      const max = bijou.messages_max;
-      const locked = bijou.locked === true;
-      const hasNoMessages = (restants != null && restants <= 0) || locked;
-
-      const nom = bijou.prenom || (isEn ? "la personne liée au bijou" : "la personne liée au bijou");
-      const themeText = bijou.theme || (isEn ? "not defined" : "non défini");
-      const sousThemeText = bijou.sous_theme || (isEn ? "not specified" : "non précisé");
-
-      const urlMurmure = `/bijou.html?id=${encodeURIComponent(bijou.id)}`;
-      const urlPerso = `/personnalisation.html?id=${encodeURIComponent(bijou.id)}`;
-
-      const mailSubject = encodeURIComponent(
-        (isEn ? "Recharge jewel " : "Recharge bijou ") + (bijou.public_id || bijou.id)
-      );
-      const mailBody = encodeURIComponent(
-        (isEn
-          ? `Hello,\n\nI would like to recharge the jewel ${bijou.public_id || bijou.id}.\n\nThank you.`
-          : `Bonjour,\n\nJe souhaite recharger le bijou ${bijou.public_id || bijou.id}.\n\nMerci.`)
-      );
-      const mailtoUrl = `mailto:${RECHARGE_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
-
-      let compteurTexte = "";
-      if (restants == null || max == null) {
-        compteurTexte = "Nombre de murmures restants : information indisponible.";
-      } else if (hasNoMessages) {
-        compteurTexte = `Ce bijou a épuisé ses murmures (${restants}/${max}).`;
-      } else {
-        compteurTexte = `Il reste ${restants} murmure(s) sur ${max}.`;
-      }
-
-      let actionsHtml = "";
-
-      if (hasNoMessages) {
-        // Mode recharge
-        actionsHtml = `
-          <div class="actions">
-            <a href="${mailtoUrl}" class="btn btn-main">
-              🔁 Demander une recharge
-            </a>
-            <a href="/" class="btn btn-ghost">
-              Revenir à l’accueil
-            </a>
-          </div>
-        `;
-      } else {
-        // Mode normal : écouter + ajuster
-        actionsHtml = `
-          <div class="actions">
-            <a href="${urlMurmure}" class="btn btn-main">
-              🎧 Écouter le murmure
-            </a>
-            <a href="${urlPerso}" class="btn btn-ghost">
-              Ajuster la personnalisation
-            </a>
-          </div>
-        `;
-      }
-
-      resultEl.innerHTML = `
-        <div class="bloc">
-          <div class="bloc-title">Bijou trouvé</div>
-          <p>
-            <strong>ID interne :</strong> ${bijou.id}<br/>
-            <strong>Code public :</strong> ${bijou.public_id || "—"}<br/>
-            <strong>Pour :</strong> ${nom}<br/>
-            <strong>Thème :</strong> ${themeText}<br/>
-            <strong>Sous-thème :</strong> ${sousThemeText}
-          </p>
-          <p>${compteurTexte}</p>
-        </div>
-        ${actionsHtml}
-      `;
-
-      if (hasNoMessages) {
-        statusEl.textContent =
-          "Ce bijou a terminé son cycle de murmures. Vous pouvez demander une recharge.";
-      } else {
-        statusEl.textContent =
-          "Votre bijou est actif. Vous pouvez écouter un murmure ou ajuster la personnalisation.";
-      }
-      statusEl.classList.remove("error");
-    }
-
-    searchBtn.addEventListener("click", async () => {
+    async function searchBijou() {
       const code = codeInput.value.trim();
-
       if (!code) {
-        statusEl.textContent = "Merci de saisir un code de bijou.";
-        statusEl.classList.add("error");
-        resultEl.innerHTML = "";
+        alert("Merci d’indiquer un code de bijou.");
         return;
       }
 
       statusEl.textContent = "Recherche du bijou en cours…";
       statusEl.classList.remove("error");
       searchBtn.disabled = true;
+      resultEl.style.display = "none";
       resultEl.innerHTML = "";
 
       try {
-        const bijou = await findBijouByCode(code);
+        const params = new URLSearchParams({ code });
+        const r = await fetch(`/api/getBijou?${params.toString()}`);
+        const data = await r.json();
 
-        if (!bijou) {
-          statusEl.textContent =
-            "Aucun bijou ne correspond à ce code. Vérifiez l’orthographe ou contactez l’atelier.";
+        searchBtn.disabled = false;
+
+        if (!data || !data.ok || !data.bijou) {
+          statusEl.textContent = "Aucun bijou ne correspond à ce code.";
           statusEl.classList.add("error");
-          resultEl.innerHTML = "";
           return;
         }
 
-        renderBijou(bijou);
+        const bijou = data.bijou;
+        currentBijou = bijou;
+
+        const publicId = bijou.public_id || code;
+        const prenom = bijou.prenom || "la personne reliée à ce bijou";
+        const theme = bijou.theme || "non défini";
+        const restants =
+          typeof bijou.messages_restants === "number"
+            ? bijou.messages_restants
+            : null;
+        const max =
+          typeof bijou.messages_max === "number"
+            ? bijou.messages_max
+            : null;
+
+        statusEl.textContent = "Bijou trouvé.";
+
+        const listenUrl = `/b.html?code=${encodeURIComponent(publicId)}`;
+
+        let compteurTexte = "";
+        if (restants !== null && max !== null) {
+          compteurTexte = `Il reste ${restants} murmure(s) sur ${max}.`;
+        } else if (restants !== null) {
+          compteurTexte = `Il reste ${restants} murmure(s) disponibles.`;
+        }
+
+        resultEl.innerHTML = `
+          <div class="badge">
+            <div class="badge-dot"></div>
+            <span>Code bijou : ${publicId}</span>
+          </div>
+
+          <div class="result-title">
+            Bijou relié à ${prenom}.
+          </div>
+          <div>
+            Thème actuel : <strong>${theme}</strong><br/>
+            ${compteurTexte}
+          </div>
+
+          <div class="actions">
+            <a id="btnListen" class="btn-secondary" href="${listenUrl}">
+              🎧 Écouter le murmure
+            </a>
+            <a id="btnRecharge" class="btn-ghost" href="#">
+              ➕ Recharger ce bijou
+            </a>
+          </div>
+        `;
+        resultEl.style.display = "block";
+
+        // branchement du bouton recharge (Stripe / paiement)
+        const btnRecharge = document.getElementById("btnRecharge");
+        btnRecharge.addEventListener("click", async (e) => {
+          e.preventDefault();
+          if (!currentBijou || !currentBijou.public_id) {
+            alert("Impossible d’identifier ce bijou pour la recharge.");
+            return;
+          }
+          btnRecharge.textContent = "Patientez…";
+          btnRecharge.disabled = true;
+
+          try {
+            const resp = await fetch("/api/createCheckoutSession", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                public_id: currentBijou.public_id
+              })
+            });
+            const out = await resp.json();
+            if (out && out.url) {
+              window.location.href = out.url;
+            } else {
+              alert("Recharge impossible pour le moment. Merci de contacter l’Atelier.");
+              btnRecharge.textContent = "➕ Recharger ce bijou";
+              btnRecharge.disabled = false;
+            }
+          } catch (err) {
+            console.error(err);
+            alert("Erreur de connexion. Merci de réessayer plus tard.");
+            btnRecharge.textContent = "➕ Recharger ce bijou";
+            btnRecharge.disabled = false;
+          }
+        });
+
       } catch (e) {
         console.error(e);
-        statusEl.textContent =
-          "Erreur lors de la connexion à l’atelier. Merci de réessayer plus tard.";
+        statusEl.textContent = "Erreur lors de la recherche.";
         statusEl.classList.add("error");
-        resultEl.innerHTML = "";
-      } finally {
         searchBtn.disabled = false;
       }
-    });
+    }
 
-    // Permet d’appuyer sur Entrée dans le champ
+    searchBtn.addEventListener("click", searchBijou);
     codeInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        searchBtn.click();
+        e.preventDefault();
+        searchBijou();
       }
     });
   </script>
