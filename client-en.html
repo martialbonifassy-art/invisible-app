@@ -2,52 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>I already have a jewel – The Atelier of Invisible Threads</title>
+  <title>I already have a jewel – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    /* Switch FR / EN global (no JS) */
-    .lang-switch {
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-      margin-left: 8px;
-    }
-
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
-      cursor: default;
-    }
-
     :root {
       --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
+      --accent-dark: #8a5f25;
       --accent-soft: #eadcc8;
       --text-main: #2e241b;
       --text-soft: #5a4335;
       --border-soft: rgba(170, 140, 90, 0.55);
-      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.26);
       --radius-xl: 22px;
     }
 
-    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
@@ -57,11 +29,14 @@
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
       position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
+    /* 🌲 Forest background, same as other pages */
     body::before {
       content: "";
       position: fixed;
@@ -71,6 +46,7 @@
       transform: scale(1.03);
       z-index: -2;
     }
+
     body::after {
       content: "";
       position: fixed;
@@ -79,70 +55,7 @@
       z-index: -1;
     }
 
-    header {
-      max-width: 980px;
-      width: 100%;
-      margin: 16px auto 0;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      backdrop-filter: blur(8px);
-      background: rgba(255, 248, 236, 0.9);
-      border-radius: 999px;
-      border: 1px solid rgba(200, 176, 130, 0.7);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-    }
-
-    .logo-zone { display: flex; flex-direction: column; }
-    .logo-title {
-      font-size: 0.95rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .logo-sub {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-    }
-
-    nav {
-      display: flex;
-      gap: 10px;
-      font-size: 0.82rem;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    nav a {
-      text-decoration: none;
-      color: var(--text-main);
-      padding: 6px 11px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--accent-soft);
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    nav a:hover {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    @media (max-width: 760px) {
-      header { flex-direction: column; align-items: flex-start; }
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 18px 12px 32px;
-    }
-
+    /* Main card */
     .card {
       max-width: 520px;
       width: 100%;
@@ -152,6 +65,12 @@
       border: 1px solid var(--border-soft);
       padding: 22px 20px 26px;
       backdrop-filter: blur(10px);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .logo {
@@ -164,33 +83,17 @@
     }
 
     .subtitle {
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       color: var(--text-soft);
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
-    .id-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--accent-soft);
-      background: rgba(250, 240, 225, 0.95);
-      font-size: 0.8rem;
+    .intro {
+      font-size: 0.84rem;
       color: var(--text-soft);
-      margin: 0 auto 18px;
-      display: none;
-      width: fit-content;
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #82a738;
-      box-shadow: 0 0 8px rgba(130,167,56,0.9);
+      margin-bottom: 12px;
+      text-align: center;
     }
 
     label {
@@ -203,11 +106,11 @@
 
     input {
       width: 100%;
-      padding: 9px 11px;
+      padding: 10px 12px;
       border-radius: 14px;
       border: 1px solid var(--accent-soft);
       background: rgba(255,255,255,0.9);
-      margin-top: 5px;
+      margin-top: 6px;
       font-size: 0.9rem;
       color: var(--text-main);
       outline: none;
@@ -223,7 +126,7 @@
       margin-top: 16px;
       padding: 11px 18px;
       border-radius: 18px;
-      border: 1px solid #8a5f25;
+      border: 1px solid var(--accent-dark);
       background: var(--accent);
       color: white;
       font-size: 0.95rem;
@@ -231,112 +134,331 @@
       font-weight: 600;
       box-shadow: 0 10px 22px rgba(0,0,0,0.25);
       transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
     button:hover {
-      background: #8a5f25;
+      background: var(--accent-dark);
       transform: translateY(-1px);
     }
 
-    .info {
-      margin-top: 12px;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      text-align: center;
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
     }
 
-    .small {
+    .result {
+      margin-top: 16px;
+      font-size: 0.88rem;
+      color: var(--text-soft);
+    }
+
+    .status {
+      font-size: 0.82rem;
+      margin-top: 6px;
+      color: #a08967;
+    }
+
+    .status.error {
+      color: #b03a3a;
+    }
+
+    .bloc {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: #fffdf8;
+      border: 1px solid #e4d5c3;
+      font-size: 0.88rem;
+    }
+
+    .bloc-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+      margin-bottom: 4px;
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 480px) {
+      .actions {
+        flex-direction: row;
+      }
+      .actions a {
+        flex: 1;
+      }
+    }
+
+    a.btn {
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      text-decoration: none;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .btn-main {
+      background: #d39633;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      border-color: #a86b1e;
+    }
+    .btn-main:hover {
+      background: #b67622;
+    }
+
+    .btn-ghost {
+      background: #fff;
+      color: var(--accent);
+      border-color: var(--accent-soft);
+    }
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
+
+    .small-note {
+      margin-top: 10px;
       font-size: 0.78rem;
       color: #8a735a;
-      margin-top: 10px;
-      text-align: center;
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="logo-zone">
-      <div class="logo-title">THE ATELIER OF INVISIBLE THREADS</div>
-      <div class="logo-sub">Wooden objects augmented with an intimate voice.</div>
+  <div class="card">
+
+    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+    <div class="subtitle">Access the whisper of your jewel.</div>
+
+    <p class="intro">
+      Enter the <strong>code of your jewel</strong> (code on the card, or internal ID),
+      and we will guide you towards its whisper or a recharge.
+    </p>
+
+    <label for="codeBijou">Jewel code</label>
+    <input
+      type="text"
+      id="codeBijou"
+      placeholder="e.g. 95QN27 or BIJOU001"
+    />
+
+    <button id="searchBtn">
+      🔍 Find my jewel
+    </button>
+
+    <div class="status" id="status">Waiting for your code…</div>
+
+    <div class="result" id="result"></div>
+
+    <div class="small-note">
+      If you encounter difficulties, you can always contact the Atelier directly.
     </div>
-    <nav>
-      <a href="/index-en.html">Home</a>
-      <a href="/login.html">Artisan space</a>
-      <div class="lang-switch">
-        <a class="lang-btn" href="/client.html">FR</a>
-        <span class="lang-btn active">EN</span>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <div class="card">
-      <div class="logo">THE ATELIER OF INVISIBLE THREADS</div>
-      <div class="subtitle">Access the whisper linked to your jewel.</div>
-
-      <div class="id-badge" id="idBadge">
-        <div class="badge-dot"></div>
-        <span id="badgeText"></span>
-      </div>
-
-      <label for="code">Jewel code</label>
-      <input
-        type="text"
-        id="code"
-        placeholder="e.g. 95QN27 (written on the card or the jewel)"
-      />
-
-      <button id="openBtn">Open my jewel</button>
-
-      <div class="info">
-        By entering this code, you will be redirected to the secure page of your jewel.<br />
-        There you can see its status and listen to its whisper.
-      </div>
-
-      <div class="small">
-        If you scanned an NFC tag, this code is already embedded in the link
-        and you normally don’t need to type anything.
-      </div>
-    </div>
-  </main>
+  </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const fromQuery = params.get("code") || params.get("c") || "";
-    const codeInput = document.getElementById("code");
-    const idBadge = document.getElementById("idBadge");
-    const badgeText = document.getElementById("badgeText");
+    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
-    if (fromQuery) {
-      codeInput.value = fromQuery;
-      idBadge.style.display = "inline-flex";
-      badgeText.textContent = "Detected code: " + fromQuery;
+    // 🔧 Adapt this email if needed
+    const RECHARGE_EMAIL = "contact@atelier-liens-invisibles.fr";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const codeInput = document.getElementById("codeBijou");
+    const searchBtn = document.getElementById("searchBtn");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+
+    async function findBijouByCode(code) {
+      // 1) Try by public_id
+      let { data: bijou, error } = await supabase
+        .from("bijoux")
+        .select(`
+          id,
+          public_id,
+          etat,
+          langue,
+          prenom,
+          theme,
+          sous_theme,
+          messages_restants,
+          messages_max,
+          locked
+        `)
+        .eq("public_id", code)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (bijou) return bijou;
+
+      // 2) Otherwise try by internal id
+      const res2 = await supabase
+        .from("bijoux")
+        .select(`
+          id,
+          public_id,
+          etat,
+          langue,
+          prenom,
+          theme,
+          sous_theme,
+          messages_restants,
+          messages_max,
+          locked
+        `)
+        .eq("id", code)
+        .maybeSingle();
+
+      if (res2.error) throw res2.error;
+      return res2.data || null;
     }
 
-    function cleanCode(raw) {
-      if (!raw) return "";
-      let code = raw.trim();
-      try {
-        if (code.includes("http")) {
-          const url = new URL(code);
-          const qCode = url.searchParams.get("code") || url.searchParams.get("c");
-          if (qCode) return qCode.trim();
-          const parts = url.pathname.split("/").filter(Boolean);
-          return parts[parts.length - 1] || code;
-        }
-      } catch (e) {}
-      return code;
+    function renderBijou(bijou) {
+      // This is the EN page → we keep interface in English on purpose
+      const restants = bijou.messages_restants;
+      const max = bijou.messages_max;
+      const locked = bijou.locked === true;
+      const hasNoMessages = (restants != null && restants <= 0) || locked;
+
+      const nom = bijou.prenom || "the person linked to this jewel";
+      const themeText = bijou.theme || "not defined";
+      const sousThemeText = bijou.sous_theme || "not specified";
+
+      const urlMurmure = `/bijou-en.html?id=${encodeURIComponent(bijou.id)}`;
+      const urlPerso = `/personnalisation-en.html?id=${encodeURIComponent(bijou.id)}`;
+
+      const mailSubject = encodeURIComponent(
+        "Recharge jewel " + (bijou.public_id || bijou.id)
+      );
+      const mailBody = encodeURIComponent(
+        `Hello,\n\nI would like to recharge the jewel ${bijou.public_id || bijou.id}.\n\nThank you.`
+      );
+      const mailtoUrl = `mailto:${RECHARGE_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
+
+      let counterText = "";
+      if (restants == null || max == null) {
+        counterText = "Number of whispers remaining: information unavailable.";
+      } else if (hasNoMessages) {
+        counterText = `This jewel has used all its whispers (${restants}/${max}).`;
+      } else {
+        counterText = `There are ${restants} whisper(s) left out of ${max}.`;
+      }
+
+      let actionsHtml = "";
+
+      if (hasNoMessages) {
+        // Recharge mode
+        actionsHtml = `
+          <div class="actions">
+            <a href="${mailtoUrl}" class="btn btn-main">
+              🔁 Request a recharge
+            </a>
+            <a href="/index-en.html" class="btn btn-ghost">
+              Back to the Atelier
+            </a>
+          </div>
+        `;
+      } else {
+        // Normal mode: listen + adjust
+        actionsHtml = `
+          <div class="actions">
+            <a href="${urlMurmure}" class="btn btn-main">
+              🎧 Listen to the whisper
+            </a>
+            <a href="${urlPerso}" class="btn btn-ghost">
+              Adjust personalization
+            </a>
+          </div>
+        `;
+      }
+
+      resultEl.innerHTML = `
+        <div class="bloc">
+          <div class="bloc-title">Jewel found</div>
+          <p>
+            <strong>Internal ID:</strong> ${bijou.id}<br/>
+            <strong>Public code:</strong> ${bijou.public_id || "—"}<br/>
+            <strong>For:</strong> ${nom}<br/>
+            <strong>Theme:</strong> ${themeText}<br/>
+            <strong>Sub-theme:</strong> ${sousThemeText}
+          </p>
+          <p>${counterText}</p>
+        </div>
+        ${actionsHtml}
+      `;
+
+      if (hasNoMessages) {
+        statusEl.textContent =
+          "This jewel has completed its cycle of whispers. You can request a recharge.";
+      } else {
+        statusEl.textContent =
+          "Your jewel is active. You can listen to a whisper or adjust the personalization.";
+      }
+      statusEl.classList.remove("error");
     }
 
-    document.getElementById("openBtn").addEventListener("click", () => {
-      const raw = codeInput.value;
-      const code = cleanCode(raw);
+    searchBtn.addEventListener("click", async () => {
+      const code = codeInput.value.trim();
+
       if (!code) {
-        alert("Please enter the jewel code.");
+        statusEl.textContent = "Please enter a jewel code.";
+        statusEl.classList.add("error");
+        resultEl.innerHTML = "";
         return;
       }
-      const url = `/b.html?code=${encodeURIComponent(code)}`;
-      window.location.href = url;
+
+      statusEl.textContent = "Searching for the jewel…";
+      statusEl.classList.remove("error");
+      searchBtn.disabled = true;
+      resultEl.innerHTML = "";
+
+      try {
+        const bijou = await findBijouByCode(code);
+
+        if (!bijou) {
+          statusEl.textContent =
+            "No jewel matches this code. Please check the spelling or contact the Atelier.";
+          statusEl.classList.add("error");
+          resultEl.innerHTML = "";
+          return;
+        }
+
+        renderBijou(bijou);
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent =
+          "Error while connecting to the Atelier. Please try again later.";
+        statusEl.classList.add("error");
+        resultEl.innerHTML = "";
+      } finally {
+        searchBtn.disabled = false;
+      }
+    });
+
+    // Allow pressing Enter in the input
+    codeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        searchBtn.click();
+      }
     });
   </script>
 </body>
