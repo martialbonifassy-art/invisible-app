@@ -1,375 +1,520 @@
-/* Switch FR / EN global */
-.lang-switch {
-  display: inline-flex;
-  background: #f7ecdd;
-  border-radius: 999px;
-  padding: 3px;
-  border: 1px solid rgba(170, 140, 90, 0.45);
-  gap: 3px;
-  align-items: center;
-}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>L’Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-.lang-btn {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  background: transparent;
-  color: #5a4335;
-}
+  <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
+      --radius-xl: 26px;
+    }
 
-.lang-btn.active {
-  background: #b8833a;
-  color: #fff;
-  font-weight: 600;
-}
+    /* éviter les micro-sauts de scroll */
+    html {
+      overflow-y: scroll;
+    }
 
-:root {
-  --bg-card: rgba(255,250,243,0.98);
-  --accent: #b8833a;
-  --accent-soft: #eadcc8;
-  --text-main: #2e241b;
-  --text-soft: #5a4335;
-  --border-soft: rgba(170, 140, 90, 0.55);
-  --shadow-soft: 0 14px 34px rgba(0,0,0,0.28);
-  --radius-xl: 26px;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-html {
-  overflow-y: scroll;
-}
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-* { box-sizing: border-box; }
+    /* Fond forêt flou + assombri */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
 
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Helvetica Neue", Arial, sans-serif;
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
-}
+    /* voile crème par-dessus */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
 
-/* Background forest */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
-  filter: blur(3px) brightness(0.7);
-  transform: scale(1.03);
-  z-index: -2;
-}
+    /* Switch FR / EN global (simple, fonctionne même sans JS) */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+    }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(246, 236, 220, 0.6);
-  z-index: -1;
-}
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+    }
 
-/* Header */
-header {
-  max-width: 980px;
-  width: 100%;
-  margin: 16px auto 0;
-  padding: 10px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  backdrop-filter: blur(8px);
-  background: rgba(255, 248, 236, 0.9);
-  border-radius: 999px;
-  border: 1px solid rgba(200, 176, 130, 0.7);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-}
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
 
-.logo-zone { display: flex; flex-direction: column; }
+    /* HEADER */
+    header {
+      max-width: 980px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 248, 236, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(200, 176, 130, 0.7);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
 
-.logo-title {
-  font-size: 1rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
+    .logo-zone {
+      display: flex;
+      flex-direction: column;
+    }
 
-.logo-sub {
-  font-size: 0.82rem;
-  color: var(--text-soft);
-}
+    .logo-title {
+      font-size: 1rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
 
-nav { display: flex; gap: 10px; font-size: 0.86rem; }
+    .logo-sub {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
 
-nav a {
-  text-decoration: none;
-  color: var(--text-main);
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--accent-soft);
-  font-weight: 500;
-  white-space: nowrap;
-}
+    nav {
+      display: flex;
+      gap: 10px;
+      font-size: 0.86rem;
+      align-items: center;
+    }
 
-nav a:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
+    nav a.nav-link {
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--accent-soft);
+      font-weight: 500;
+      white-space: nowrap;
+    }
 
-.nav-artisan {
-  background: #f5e3cc;
-  border-color: rgba(170, 140, 90, 0.8);
-  font-size: 0.8rem;
-}
+    nav a.nav-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
-.nav-artisan:hover {
-  background: var(--accent);
-  color: #fff;
-}
+    .nav-artisan {
+      background: #f5e3cc;
+      border-color: rgba(170, 140, 90, 0.8);
+      font-size: 0.8rem;
+    }
 
-/* Main */
-main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  padding: 18px 12px 32px;
-}
+    .nav-artisan:hover {
+      background: var(--accent);
+      color: #fff;
+    }
 
-.page {
-  max-width: 980px;
-  width: 100%;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-soft);
-  padding: 24px 20px 26px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 24px;
-  backdrop-filter: blur(10px);
-}
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 18px 12px 32px;
+    }
 
-/* Responsive fix */
-@media (max-width: 760px) {
-  .page { grid-template-columns: 1fr; border-radius: 18px; }
-  header { flex-direction: column; align-items: flex-start; }
-  nav { flex-wrap: wrap; }
-}
+    .page {
+      max-width: 980px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 24px 20px 26px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 24px;
+      backdrop-filter: blur(10px);
+    }
 
-/* Hero */
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(234, 220, 200, 0.98);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-soft);
-  margin-bottom: 8px;
-}
+    @media (max-width: 760px) {
+      .page {
+        grid-template-columns: 1fr;
+        border-radius: 18px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        flex-wrap: wrap;
+      }
+    }
 
-.hero-badge-dot {
-  width: 6px; height: 6px; border-radius: 999px; background: #82a738;
-}
+    /* HERO */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(234, 220, 200, 0.98);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
 
-h1 {
-  font-size: 2rem;
-  margin: 0 0 10px;
-  color: #231a13;
-}
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #82a738;
+    }
 
-.hero-slogan {
-  font-size: 1rem;
-  color: var(--text-soft);
-  margin-bottom: 18px;
-  font-weight: 500;
-}
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 10px;
+      color: #231a13;
+    }
 
-.hero-text {
-  font-size: 0.96rem;
-  color: var(--text-soft);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
+    .hero-slogan {
+      font-size: 1rem;
+      color: var(--text-soft);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
 
-.cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-}
+    .hero-text {
+      font-size: 0.96rem;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
 
-.btn-main, .btn-ghost, .btn-outline {
-  border-radius: 999px;
-  padding: 11px 20px;
-  font-size: 0.95rem;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  white-space: nowrap;
-}
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
 
-.btn-main {
-  background: #d39633;
-  color: white;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-  border: 1px solid #a86b1e;
-}
+    .btn-main,
+    .btn-ghost,
+    .btn-outline {
+      border-radius: 999px;
+      padding: 11px 20px;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
 
-.btn-main:hover {
-  background: #b67622;
-}
+    .btn-main {
+      background: #d39633;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+      border: 1px solid #a86b1e;
+    }
 
-.btn-ghost {
-  background: #fff;
-  color: var(--accent);
-  border: 1px solid var(--accent-soft);
-}
+    .btn-main:hover {
+      background: #b67622;
+    }
 
-.btn-ghost:hover {
-  background: var(--accent-soft);
-  color: #4a321e;
-}
+    .btn-ghost {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+    }
 
-.btn-outline {
-  background: transparent;
-  color: var(--text-soft);
-  border: 1px dashed var(--accent-soft);
-  font-size: 0.88rem;
-}
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
 
-.btn-outline:hover {
-  background: rgba(255,255,255,0.8);
-}
+    .btn-outline {
+      background: transparent;
+      color: var(--text-soft);
+      border: 1px dashed var(--accent-soft);
+      font-size: 0.88rem;
+    }
 
-.hero-note {
-  font-size: 0.8rem;
-  color: var(--text-soft);
-  opacity: 0.95;
-  margin-bottom: 6px;
-}
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.8);
+    }
 
-.hero-note a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-}
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      opacity: 0.95;
+      margin-bottom: 6px;
+    }
 
-.hero-note a:hover {
-  text-decoration: underline;
-}
+    .hero-note a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
 
-/* Sidebar sample */
-.side-card {
-  border-radius: 22px;
-  background: rgba(250,240,225,0.98);
-  padding: 16px 14px 18px;
-  position: relative;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-  border: 1px solid rgba(180,145,98,0.6);
-}
+    .hero-note a:hover {
+      text-decoration: underline;
+    }
 
-.side-title {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--text-soft);
-  margin-bottom: 10px;
-}
+    /* ASIDE */
+    .side-card {
+      border-radius: 22px;
+      background: rgba(250,240,225,0.98);
+      padding: 16px 14px 18px;
+      position: relative;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      border: 1px solid rgba(180,145,98,0.6);
+    }
 
-.side-quote {
-  font-size: 0.92rem;
-  font-style: italic;
-  margin-bottom: 12px;
-  color: var(--text-main);
-}
+    .side-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
 
-.side-meta { font-size: 0.8rem; color: var(--text-soft); }
+    .side-quote {
+      font-size: 0.92rem;
+      font-style: italic;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
 
-.side-orbit {
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  border: 1px dashed rgba(133,101,73,0.35);
-  right: -40px;
-  bottom: -40px;
-}
+    .side-meta {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
 
-/* Blocks */
-.blocks {
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 12px;
-  font-size: 0.88rem;
-}
+    .side-orbit {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      border: 1px dashed rgba(133,101,73,0.35);
+      right: -40px;
+      bottom: -40px;
+    }
 
-@media (max-width: 760px) {
-  .blocks { grid-template-columns: 1fr; }
-}
+    /* BLOCS 1-2-3 */
+    .blocks {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      font-size: 0.88rem;
+    }
 
-/* --- Corrected title --- */
-.block-title {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.10em;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  font-weight: 600;
-  line-height: 1.3;
-  word-break: break-word;
-}
+    @media (max-width: 760px) {
+      .blocks {
+        grid-template-columns: 1fr;
+      }
+    }
 
-@media (max-width: 760px) {
-  .block-title {
-    font-size: 0.74rem;
-    letter-spacing: 0.08em;
-  }
-}
+    .block {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(244,230,211,0.98);
+      border: 1px solid rgba(179,144,97,0.6);
+    }
 
-.block {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(244,230,211,0.98);
-  border: 1px solid rgba(179,144,97,0.6);
-}
+    .block-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
 
-footer {
-  max-width: 980px;
-  width: 100%;
-  margin: 0 auto 18px;
-  padding: 0 16px;
-  font-size: 0.78rem;
-  display: flex;
-  justify-content: space-between;
-  color: #f5eee4;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
+    footer {
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto 18px;
+      padding: 0 16px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      color: #f5eee4;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    }
 
-@media (max-width: 700px) {
-  footer { flex-direction: column; gap: 4px; }
-}
+    @media (max-width: 700px) {
+      footer {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
 
-footer a {
-  color: #f5eee4;
-  text-decoration: none;
-}
+    footer a {
+      color: #f5eee4;
+      text-decoration: none;
+    }
 
-footer a:hover {
-  text-decoration: underline;
-}
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo-zone">
+      <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-sub">Objets en bois augmentés d’une voix intime.</div>
+    </div>
+
+    <nav>
+      <a href="#concept" class="nav-link">Concept</a>
+      <a href="#fonctionnement" class="nav-link">Comment ça marche ?</a>
+      <a href="/client.html" class="nav-link">J’ai déjà un bijou</a>
+      <a href="/login.html" class="nav-link nav-artisan">Espace artisan</a>
+
+      <!-- switch FR/EN simple -->
+      <div class="lang-switch">
+        <a href="/index.html" class="lang-btn active" data-lang="fr">FR</a>
+        <a href="/index-en.html" class="lang-btn" data-lang="en">EN</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page" id="concept">
+      <section>
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          <div>Objets en bois & murmures numériques</div>
+        </div>
+
+        <h1>L’émotion programmée de la matière.</h1>
+
+        <div class="hero-slogan">
+          Des bijoux et objets en bois, équipés d’une puce NFC, qui murmurent
+          des messages uniques écrits et lus par une IA poétique.
+        </div>
+
+        <div class="hero-text">
+          Chaque pièce est créée à l’atelier, puis reliée à une intelligence artificielle
+          qui compose des messages intimes à partir de quelques détails&nbsp;:
+          un prénom, un souvenir, une date, un lieu, une intention.
+          À chaque contact avec le téléphone, le bijou souffle un nouveau murmure –
+          jusqu’à épuisement de ses messages, rechargeables à l’atelier.
+        </div>
+
+        <div class="cta-row">
+          <a class="btn-main" href="/personnalisation.html">
+            🌿 Créer un murmure pour quelqu’un
+          </a>
+          <a class="btn-ghost" href="/bijou.html?id=TEST001&lang=fr">
+            ✨ Écouter un murmure de démo
+          </a>
+          <a class="btn-outline" href="/client.html">
+            Je possède déjà un bijou
+          </a>
+        </div>
+
+        <div class="hero-note">
+          Scanne simplement la puce NFC avec un smartphone compatible pour entendre la voix du bois.
+        </div>
+
+        <div class="blocks" id="fonctionnement">
+          <div class="block">
+            <div class="block-title">1. L’objet</div>
+            <p>
+              Un bijou ou un objet en bois, façonné à la main, avec une puce NFC discrètement intégrée.
+            </p>
+          </div>
+
+          <div class="block">
+            <div class="block-title">2. La personnalisation</div>
+            <p>
+              Tu choisis pour qui il est, ce que tu souhaites lui murmurer, et
+              quelques détails personnels.
+            </p>
+          </div>
+
+          <div class="block">
+            <div class="block-title">3. Le murmure vivant</div>
+            <p>
+              La voix d’IA compose et lit un message unique à chaque ouverture,
+              comme un secret confié au bois.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <div class="side-title">Exemple de murmure</div>
+        <div class="side-quote">
+          « Marie, comme au printemps à Toulouse, sache que chaque pas de ce nouveau chemin
+          est accompagné d’une lumière douce que tu ne vois pas encore, mais que le bois a déjà reconnue. »
+        </div>
+        <div class="side-meta">Bijou démo · ID TEST001 · Voix IA</div>
+        <div class="side-orbit"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <div>© L’Atelier des Liens Invisibles</div>
+    <div>
+      <a href="/login.html">Accès atelier</a> ·
+      <a href="/personnalisation.html">Personnalisation interne</a>
+    </div>
+  </footer>
+
+  <!-- facultatif : si tu gardes ton script global de langue -->
+  <script src="/lang-switch.js"></script>
+</body>
+</html>
