@@ -742,40 +742,42 @@
     // 6) Whisper preview (/api/message)
 
     btnTester.addEventListener("click", async () => {
-      const id = idInput.value.trim() || "BIJOU001";
-      const prenom = prenomInput.value.trim();
-      const intention = intentionInput.value.trim();
-      const detail = detailInput.value.trim();
-      const voix = voixSelect.value;
+  const prenom = prenomInput.value.trim();
+  const intention = intentionInput.value.trim();
+  const detail = detailInput.value.trim();
+  const voix = voixSelect.value;
+  const theme = themeSelect.value || "";
+  const sousTheme = sousThemeSelect.value || "";
 
-      etat.textContent = "The AI is composing the whisper…";
-      btnTester.disabled = true;
-      preview.textContent = "";
+  etat.textContent = "The AI is composing the whisper…";
+  btnTester.disabled = true;
+  preview.textContent = "";
 
-      const params = new URLSearchParams({
-        id,
-        prenom,
-        intention,
-        detail,
-        voix,
-        lang: "en"
-      });
+  const params = new URLSearchParams({
+    prenom,
+    intention,
+    detail,
+    voix,
+    theme,
+    sous_theme: sousTheme,
+    lang: "en"
+  });
 
-      try {
-        const r = await fetch(`/api/message?${params.toString()}`);
-        const data = await r.json();
-        preview.textContent =
-          data.text || "I am here, silent, but present for you.";
-        etat.textContent = "Whisper generated (preview).";
-      } catch (e) {
-        console.error(e);
-        preview.textContent =
-          "Error: unable to reach the jewel’s voice.";
-        etat.textContent = "Connection error with the AI.";
-      } finally {
-        btnTester.disabled = false;
-      }
-    });
+  try {
+    const r = await fetch(`/api/previewMessage?${params.toString()}`);
+    const data = await r.json();
+    preview.textContent =
+      data.text || "I am here, silently, but present for you.";
+    etat.textContent = "Whisper generated (preview).";
+  } catch (e) {
+    console.error(e);
+    preview.textContent =
+      "Error: unable to reach the jewel’s voice (preview).";
+    etat.textContent = "Connection error with the AI.";
+  } finally {
+    btnTester.disabled = false;
+  }
+});
 
     // 7) Save jewel in Supabase via /api/saveBijou
 
