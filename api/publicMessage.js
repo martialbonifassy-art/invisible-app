@@ -1,121 +1,227 @@
 // api/publicMessage.js
 //
 // Endpoint PUBLIC pour générer un murmure à partir d'un public_id.
-// Utilisé par b.html (client final).
+// Utilisé par b.html (lecture côté client final).
 //
 // - récupère le bijou via public_id
 // - vérifie : configuré / locked / messages_restants
-// - génère un texte IA (GPT-4.1) adapté au thème + langue
+// - génère un texte IA (GPT-4.1-mini) adapté au thème + langue
 // - génère un audio TTS (OpenAI) → data:audio/mp3;base64,...
 // - décrémente messages_restants + met à jour date_dernier_murmure
 
-import { supabase } from "../../utils/supabaseClient";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { createClient } from "@supabase/supabase-js";
 
 // ─────────────────────────────────────
-// Aide : prompt IA pour le texte
+// Supabase
 // ─────────────────────────────────────
 
-async function generateWhisperIA({ langue, prenom, theme, sous_theme, intention, detail }) {
-  const isEn = (langue || "").toLowerCase() === "en";
+const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
-  const prompt = isEn
-    ? `
-You are a poetic, intimate voice living inside a wooden jewel.
-You write a short whisper (5 to 9 short lines), warm, sensory and elegant.
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-Recipient: ${prenom || "you"}
-Main theme: ${theme || "not specified"}
-Sub-theme: ${sous_theme || "not specified"}
-User intention: ${intention || "none"}
-Detail or memory to weave in: ${detail || "none"}
+// ─────────────────────────────────────
+// OpenAI
+// ─────────────────────────────────────
 
-Tone rules:
-- poetic but never cliché
-- emotional but never needy
-- warm, sensory, subtle
-- if the sub-theme or theme suggests sensuality (e.g. "Sensualité complice"):
-  → sensual, elegant, suggestive, never vulgar, no explicit sexual content
-- never use emojis
-- you do not mention that you are an AI or that this is a “message”
-- you speak as if the jewel itself were addressing the person
-`
-    : `
-Tu es une voix poétique et intime qui habite dans un bijou en bois.
-Tu écris un murmure court (entre 5 et 9 lignes courtes), chaleureux, sensoriel et élégant.
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-Destinataire : ${prenom || "toi"}
-Thème principal : ${theme || "non précisé"}
-Sous-thème : ${sous_theme || "non précisé"}
-Intention : ${intention || "aucune"}
-Détail ou souvenir à tisser : ${detail || "aucun"}
-
-Règles de ton :
-- poétique mais jamais cliché
-- émotionnel mais jamais plaintif
-- sensoriel, subtil, chaleureux
-- si le thème ou sous-thème évoque la sensualité (ex : "Sensualité complice") :
-  → style sensuel, élégant, suggestif, mais jamais vulgaire ni explicite
-- pas d’emojis
-- tu ne mentionnes pas que tu es une IA ni que ceci est un “message”
-- tu parles comme si le bijou lui-même s’adressait à la personne
-`;
-
-  const response = await openai.chat.completions.create({
-    model: "gpt-4.1",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.9,
-    max_tokens: 400,
-  });
-
-  const content =
-    response.choices?.[0]?.message?.content?.trim() ||
-    (isEn
-      ? "I am here, silently, but present for you."
-      : "Je suis là, silencieux, mais présent pour toi.");
-
-  return content;
+function hasOpenAIKey() {
+  return typeof OPENAI_API_KEY === "string" && OPENAI_API_KEY.trim().length > 0;
 }
 
 // ─────────────────────────────────────
-// Aide : voix TTS selon langue + voix
+// Petite aide : choisir la voix TTS
 // ─────────────────────────────────────
 
-function pickVoiceName(langue, voix) {
-  const lang = (langue || "fr").toLowerCase();
+function pickVoiceName({ voix, theme, langue }) {
+  const t = (theme || "").toLowerCase();
   const v = (voix || "neutre").toLowerCase();
+  const lang = (langue || "fr").toLowerCase();
 
-  // Map très simple, à ajuster selon les voix OpenAI dispo
+  const isFem =
+    v === "feminine" ||
+    v === "féminine" ||
+    v === "feminin" ||
+    v === "féminin";
+  const isMasc = v === "masculine" || v === "masculin";
+
+  // Pour la logique, on garde quelque chose de simple et cohérent
   if (lang === "fr") {
-    if (v.includes("fem")) return "sophie";   // imaginaire – à adapter si besoin
-    if (v.includes("masc")) return "antoine";
-    return "sophie";
+    if (isFem) return "nova";
+    if (isMasc) return "onyx";
+    return "alloy";
   } else {
-    if (v.includes("fem")) return "alloy";
-    if (v.includes("masc")) return "onyx";
+    if (isFem) return "nova";
+    if (isMasc) return "onyx";
     return "alloy";
   }
 }
 
-async function generateAudioIA({ texte, langue, voix }) {
-  if (!texte) return null;
+// ─────────────────────────────────────
+// IA : texte poétique (avec sensualité élégante possible)
+// ─────────────────────────────────────
 
-  const voiceName = pickVoiceName(langue, voix);
+async function generatePoeticWhisperWithOpenAI({
+  langue,
+  prenom,
+  theme,
+  sous_theme,
+  intention,
+  detail,
+}) {
+  const isEn = (langue || "").toLowerCase() === "en";
+  const name = prenom || (isEn ? "you" : "toi");
+  const themeLower = (theme || "").toLowerCase();
+  const sousLower = (sous_theme || "").toLowerCase();
 
-  const resp = await openai.audio.speech.create({
-    model: "gpt-4o-mini-tts",
-    voice: voiceName,
-    input: texte,
-    format: "mp3",
+  const hasSensualFlavor =
+    themeLower.includes("sensual") ||
+    themeLower.includes("sensualité") ||
+    sousLower.includes("sensual") ||
+    sousLower.includes("sensualité") ||
+    sousLower.includes("complice");
+
+  const system = isEn
+    ? "You are a gentle, poetic voice living inside a wooden jewel. You write short, intimate whispers (5 to 9 short lines), in a soft, emotional, delicate style. You never mention that you are an AI or that this is a message or a text. You speak as if the jewel itself were addressing the person."
+    : "Tu es une voix douce et poétique qui habite dans un bijou en bois. Tu écris de courts murmures intimes (entre 5 et 9 lignes courtes), dans un style délicat, sensible et chaleureux. Tu ne mentionnes jamais que tu es une IA, ni que ceci est un message ou un texte. Tu parles comme si le bijou lui-même s’adressait à la personne.";
+
+  const sensualBlockEn = `
+If the theme or sub-theme suggests sensuality or complicity (for example: “Sensualité complice”), your tone can be warm, elegant and suggestive, but never vulgar or explicit. You evoke touch, closeness, warmth, breath, but you avoid explicit sexual content.`;
+  const sensualBlockFr = `
+Si le thème ou le sous-thème évoque la sensualité ou une complicité amoureuse (par exemple : « Sensualité complice »), ton ton peut être chaleureux, élégant et suggestif, mais jamais vulgaire ni explicite. Tu évoques le toucher, la proximité, la chaleur, le souffle, mais tu évites tout contenu sexuel explicite.`;
+
+  const userPrompt = isEn
+    ? `Write a poetic whisper for ${name}.
+
+Main theme: ${theme || "not specified"}
+Sub-theme: ${sous_theme || "not specified"}
+Intention or situation: ${intention || "not specified"}
+Detail or memory to weave in: ${detail || "none"}
+
+Style:
+- 5 to 9 short lines (line breaks welcome)
+- intimate, soft, poetic, sensory
+- speak in the first person as the jewel or a very close presence
+- no emojis
+${
+  hasSensualFlavor
+    ? sensualBlockEn
+    : "If the theme is not sensual, you keep a gentle, emotional tone without focusing on the body."
+}
+Transform all of this into a single organic text, without bullet points.`
+    : `Écris un murmure poétique pour ${name}.
+
+Thème principal : ${theme || "non précisé"}
+Sous-thème : ${sous_theme || "non précisé"}
+Intention ou situation : ${intention || "non précisé"}
+Détail ou souvenir à tisser : ${detail || "aucun"}
+
+Style :
+- entre 5 et 9 lignes courtes (retours à la ligne bienvenus)
+- intime, doux, poétique, sensoriel
+- le bijou parle à la première personne ou comme une présence très proche
+- pas d’emojis
+${
+  hasSensualFlavor
+    ? sensualBlockFr
+    : "Si le thème n’est pas sensuel, tu gardes un ton tendre et émotionnel sans insister sur le corps."
+}
+Transforme tout cela en un seul texte organique, sans puces.`;
+
+  const body = {
+    model: "gpt-4.1-mini",
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.95,
+    max_tokens: 400,
+  };
+
+  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
 
-  const buffer = Buffer.from(await resp.arrayBuffer());
-  const base64 = buffer.toString("base64");
-  return `data:audio/mp3;base64,${base64}`;
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => "");
+    throw new Error(
+      `Erreur OpenAI chat (${resp.status}): ${errText.slice(0, 200)}`
+    );
+  }
+
+  const data = await resp.json();
+  const content =
+    data.choices?.[0]?.message?.content?.trim() ||
+    (isEn
+      ? "I am here, silently, but present for you."
+      : "Je suis là, silencieux, mais présent pour toi.");
+  return content;
+}
+
+// Fallback simple si pas de clé ou erreur IA
+function genererMurmureSimple({ langue, prenom, theme, sous_theme, intention, detail }) {
+  const nom = prenom || (langue === "en" ? "you" : "toi");
+
+  if (langue === "en") {
+    let base = `"${nom}, this whisper rises from the heart of the wood.`;
+    if (theme) base += ` It carries a shade of ${theme}.`;
+    if (sous_theme) base += ` More precisely: ${sous_theme}.`;
+    if (intention) base += `\n\nWhat wants to be said today is: ${intention}.`;
+    if (detail) base += `\n\nIn the background, there is this memory: ${detail}.`;
+    base += `\n\nEach time you call this jewel, it remembers you and answers in its own way."`;
+    return base;
+  }
+
+  let base = `« ${nom}, ce murmure s’élève du cœur du bois.`;
+  if (theme) base += ` Il porte une nuance de ${theme}.`;
+  if (sous_theme) base += ` Plus précisément : ${sous_theme}.`;
+  if (intention) base += `\n\nCe qui cherche à se dire aujourd’hui, c’est ${intention}.`;
+  if (detail) base += `\n\nEn filigrane, il y a ce souvenir : ${detail}.`;
+  base += `\n\nÀ chaque fois que tu appelles ce bijou, il se souvient de toi et répond à sa manière. »`;
+  return base;
+}
+
+// ─────────────────────────────────────
+// IA : audio TTS OpenAI
+// ─────────────────────────────────────
+
+async function generateSpeechFromText({ texte, langue, voix, theme }) {
+  if (!texte || !OPENAI_API_KEY) return null;
+
+  const voiceName = pickVoiceName({ voix, theme, langue });
+
+  const body = {
+    model: "tts-1",
+    voice: voiceName,
+    input: texte,
+  };
+
+  const resp = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => "");
+    throw new Error(
+      `Erreur OpenAI audio (${resp.status}): ${errText.slice(0, 200)}`
+    );
+  }
+
+  const arrayBuffer = await resp.arrayBuffer();
+  const base64Audio = Buffer.from(arrayBuffer).toString("base64");
+  return `data:audio/mp3;base64,${base64Audio}`;
 }
 
 // ─────────────────────────────────────
@@ -135,9 +241,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Paramètre public_id manquant." });
     }
 
-    // 1) Récupérer le bijou
+    // 1) Récupérer le bijou via public_id
     const { data: bijou, error: fetchError } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .select(
         `
         id,
@@ -183,7 +289,6 @@ export default async function handler(req, res) {
         ? bijou.messages_restants
         : null;
 
-    // Bijou non configuré
     const estNonConfigure =
       etat.includes("non") && etat.includes("configur");
 
@@ -202,7 +307,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Bijou verrouillé
     if (locked) {
       const text = isEn
         ? "This jewel has completed its cycle of whispers. It now remains silently close to you."
@@ -218,7 +322,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Plus de murmures
     if (messagesRestants !== null && messagesRestants <= 0) {
       const text = isEn
         ? "All the whispers for this jewel have been used. Please contact the Atelier des Liens Invisibles if you wish to recharge it."
@@ -234,38 +337,50 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3) Génération du texte IA
+    // 3) Contexte pour l'IA
+    const prenom = bijou.prenom || "";
+    const intention = bijou.intention || "";
+    const detail = bijou.detail || "";
+    const theme = bijou.theme || "";
+    const sous_theme = bijou.sous_theme || "";
+    const voix = (bijou.voix || "neutre").toLowerCase();
+
+    // 4) Génération du texte IA
     let texte;
-    try {
-      texte = await generateWhisperIA({
+
+    if (hasOpenAIKey()) {
+      try {
+        texte = await generatePoeticWhisperWithOpenAI({
+          langue,
+          prenom,
+          theme,
+          sous_theme,
+          intention,
+          detail,
+        });
+      } catch (err) {
+        console.error("Erreur OpenAI texte publicMessage, fallback simple:", err);
+        texte = genererMurmureSimple({
+          langue,
+          prenom,
+          theme,
+          sous_theme,
+          intention,
+          detail,
+        });
+      }
+    } else {
+      texte = genererMurmureSimple({
         langue,
-        prenom: bijou.prenom,
-        theme: bijou.theme,
-        sous_theme: bijou.sous_theme,
-        intention: bijou.intention,
-        detail: bijou.detail,
+        prenom,
+        theme,
+        sous_theme,
+        intention,
+        detail,
       });
-    } catch (err) {
-      console.error("Erreur génération texte IA publicMessage:", err);
-      texte = isEn
-        ? "I am here, silently, but present for you."
-        : "Je suis là, silencieux, mais présent pour toi.";
     }
 
-    // 4) Génération de l’audio IA
-    let audioDataUrl = null;
-    try {
-      audioDataUrl = await generateAudioIA({
-        texte,
-        langue,
-        voix: bijou.voix || "neutre",
-      });
-    } catch (err) {
-      console.error("Erreur génération audio IA publicMessage:", err);
-      audioDataUrl = null;
-    }
-
-    // 5) Mise à jour du compteur et de la date
+    // 5) Mise à jour du compteur / date
     const nowIso = new Date().toISOString();
     let nouveauSolde = messagesRestants;
     if (messagesRestants !== null) {
@@ -273,7 +388,7 @@ export default async function handler(req, res) {
     }
 
     const { error: updateError } = await supabase
-      .from("bijoux")
+      .from("bijous")
       .update({
         messages_restants: nouveauSolde,
         date_dernier_murmure: nowIso,
@@ -285,10 +400,26 @@ export default async function handler(req, res) {
         "Erreur update messages_restants/date_dernier_murmure:",
         updateError
       );
-      // On ne bloque pas la réponse au client pour autant
+      // on laisse quand même passer le murmure
     }
 
-    // 6) Réponse finale
+    // 6) Génération de l’audio (si possible)
+    let audioDataUrl = null;
+    if (hasOpenAIKey()) {
+      try {
+        audioDataUrl = await generateSpeechFromText({
+          texte,
+          langue,
+          voix,
+          theme,
+        });
+      } catch (err) {
+        console.error("Erreur OpenAI audio publicMessage:", err);
+        audioDataUrl = null;
+      }
+    }
+
+    // 7) Réponse finale
     return res.status(200).json({
       ok: true,
       id: bijou.id,
