@@ -381,9 +381,11 @@ function typewriter(el, text, speed = 25) {
         statusEl.textContent = currentLang === "en"
           ? "An error occurred. Please try again later."
           : "Une erreur est survenue. Merci de réessayer plus tard.";
-        murmureEl.textContent = currentLang === "en"
-          ? "I am here, silent, but present for you. (Internal error.)"
-          : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
+        const errText = currentLang === "en"
+  ? "I am here, silent, but present for you. (Internal error.)"
+  : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
+typewriter(murmureEl, errText);
+
         audioPlayer.style.display = "none";
       }
     }
