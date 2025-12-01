@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Créer un bijou – Espace artisan</title>
+  <title>Créer un bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg-card: rgba(255,250,243,0.98);
@@ -34,7 +34,7 @@
       overflow-x: hidden;
     }
 
-    /* 🌲 Fond forêt, comme les autres pages */
+    /* Fond forêt */
     body::before {
       content: "";
       position: fixed;
@@ -53,107 +53,152 @@
     }
 
     .card {
-      max-width: 540px;
+      max-width: 720px;
       width: 100%;
       background: var(--bg-card);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 22px 20px 26px;
+      padding: 18px 16px 22px;
       backdrop-filter: blur(10px);
-      animation: fadeIn 0.4s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
     }
 
-    .logo {
-      font-size: 0.85rem;
-      letter-spacing: 0.18em;
+    h1 {
+      font-size: 1rem;
       text-transform: uppercase;
+      letter-spacing: 0.16em;
       color: var(--accent);
-      text-align: center;
-      margin-bottom: 4px;
+      margin: 0;
+    }
+
+    .user-info {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      text-align: right;
+    }
+
+    .logout-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #b83a3a;
+      background: #d44949;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.78rem;
+      margin-left: 8px;
+    }
+
+    .toolbar-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .toolbar-top a.btn-secondary {
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+      white-space: nowrap;
+    }
+    .toolbar-top a.btn-secondary:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
     }
 
     .subtitle {
-      font-size: 0.83rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
-      text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
-    h2 {
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-soft);
-      margin: 0 0 10px;
-      text-align: left;
+    form {
+      margin-top: 6px;
+    }
+
+    .group {
+      margin-bottom: 12px;
     }
 
     label {
       display: block;
-      margin-top: 10px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.11em;
       color: #856549;
+      margin-bottom: 4px;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
-      padding: 9px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--accent-soft);
-      background: rgba(255,255,255,0.92);
-      margin-top: 4px;
-      font-size: 0.88rem;
-      color: var(--text-main);
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      background: #fffdf8;
       outline: none;
     }
 
-    input:focus,
-    select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
+    input:disabled {
+      background: #f3e6d5;
+      color: #7a5a3a;
     }
 
     .row {
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .row > div { flex: 1; }
-
-    .helper {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-top: 4px;
-    }
-
-    .button-row {
-      margin-top: 18px;
-      display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    @media (min-width: 560px) {
-      .button-row {
-        flex-direction: row;
-      }
-      .button-row button,
-      .button-row a {
-        flex: 1;
-      }
+    .row > .group {
+      flex: 1;
+      min-width: 140px;
     }
 
-    button,
-    a.btn {
+    .inline {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .small-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: #d6a85a;
+      color: #fff;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+    }
+
+    .small-hint {
+      font-size: 0.75rem;
+      color: #8a735a;
+      margin-top: 3px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 18px;
       border-radius: 18px;
       border: 1px solid var(--accent-dark);
       background: var(--accent);
@@ -161,248 +206,350 @@
       font-size: 0.95rem;
       cursor: pointer;
       font-weight: 600;
-      padding: 11px 16px;
       box-shadow: 0 10px 22px rgba(0,0,0,0.25);
-      transition: 0.18s transform, 0.18s box-shadow, 0.18s background;
-      text-decoration: none;
-      text-align: center;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      transition: 0.2s;
     }
 
-    button:hover,
-    a.btn:hover {
+    .submit-btn:hover {
       background: var(--accent-dark);
       transform: translateY(-1px);
-      box-shadow: 0 12px 26px rgba(0,0,0,0.28);
     }
 
-    button.secondary,
-    a.btn.secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: var(--accent-soft);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-    }
-
-    button.secondary:hover,
-    a.btn.secondary:hover {
-      background: var(--accent-soft);
-      color: #4a321e;
-    }
-
-    button:disabled {
-      opacity: 0.7;
+    .submit-btn:disabled {
+      opacity: 0.6;
       cursor: wait;
       transform: none;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
     }
 
-    .status {
-      margin-top: 14px;
-      font-size: 0.86rem;
-      color: var(--text-soft);
-      min-height: 1.2em;
-    }
-
-    .status.error {
-      color: #b03a3a;
-    }
-
-    .status.success {
-      color: #2a7c4d;
-    }
-
-    .public-link {
+    .msg {
       margin-top: 10px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-soft);
-      background: #f3e4ce;
-      border-radius: 12px;
-      padding: 8px 10px;
+    }
+
+    .msg.error {
+      color: #b83a3a;
+    }
+
+    .msg.success {
+      color: #3f7a3a;
+    }
+
+    .urls {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f3e3cc;
+      font-size: 0.82rem;
+      color: #5a4335;
+    }
+
+    .urls code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      background: #f0e3cf;
+      padding: 3px 6px;
+      border-radius: 6px;
+      display: block;
+      margin-top: 3px;
       word-break: break-all;
     }
 
-    .public-link code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.78rem;
+    @media (max-width: 780px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .user-info {
+        text-align: left;
+      }
     }
   </style>
 </head>
-
 <body>
   <div class="card">
-    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
-    <div class="subtitle">Création d’un nouveau bijou – espace artisan.</div>
+    <header>
+      <h1>CRÉER UN BIJOU</h1>
+      <div class="user-info" id="userInfo">Connexion en cours…</div>
+    </header>
 
-    <h2>Nouvel identifiant</h2>
-
-    <label for="idBijou">ID interne du bijou</label>
-    <div class="row">
-      <div>
-        <input
-          type="text"
-          id="idBijou"
-          placeholder="ex : BIJOU123"
-          autocomplete="off"
-        />
-      </div>
-      <div>
-        <button type="button" class="secondary" id="btnAutoId">
-          Générer un ID
-        </button>
-      </div>
-    </div>
-    <div class="helper">
-      Cet ID reste interne à l’atelier (par ex. BIJOU001, BIJOU002).  
-      Le code public pour le client sera généré automatiquement.
+    <div class="toolbar-top">
+      <a href="/dashboard.html" class="btn-secondary">⬅️ Retour au dashboard</a>
+      <span>Cette page sert à enregistrer un nouveau bijou dans la base.</span>
     </div>
 
-    <div class="row">
-      <div>
-        <label for="langue">Langue par défaut</label>
-        <select id="langue">
-          <option value="fr">Français</option>
-          <option value="en">Anglais</option>
-        </select>
-      </div>
-      <div>
-        <label for="messagesMax">Messages max</label>
-        <input
-          type="number"
-          id="messagesMax"
-          min="1"
-          max="999"
-          value="100"
-        />
-      </div>
+    <div class="subtitle">
+      1) Tu indiques le <strong>code public</strong> gravé sur la puce ou le QR.<br />
+      2) La page génère un <strong>ID interne</strong> pour l’atelier.<br />
+      3) Le bijou est créé avec un stock de murmures, prêt à être configuré.
     </div>
 
-    <div class="helper">
-      À la création, <strong>messages_restants</strong> sera initialisé au même
-      nombre que <strong>messages_max</strong> (ou par la logique de l’API).
-    </div>
+    <form id="formBijou">
+      <div class="group">
+        <label for="publicId">Code public (QR / puce)</label>
+        <div class="inline">
+          <input id="publicId" type="text" placeholder="ex : 95QN27" />
+        </div>
+        <div class="small-hint">
+          C’est le code que le client scannera (lien /b.html?public_id=…).
+        </div>
+      </div>
 
-    <div class="button-row">
-      <button type="button" id="btnCreate">
-        ✨ Créer ce bijou
+      <div class="group">
+        <label for="internalId">ID interne du bijou</label>
+        <div class="inline">
+          <input id="internalId" type="text" placeholder="ex : BIJOU123456" />
+          <button type="button" class="small-btn" id="btnGenInternal">Générer</button>
+        </div>
+        <div class="small-hint">
+          Visible seulement dans l’atelier (Supabase, dashboard). Peut rester auto-généré.
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="group">
+          <label for="langue">Langue par défaut</label>
+          <select id="langue">
+            <option value="fr">Français</option>
+            <option value="en">Anglais</option>
+          </select>
+        </div>
+
+        <div class="group">
+          <label for="voix">Voix par défaut</label>
+          <select id="voix">
+            <option value="neutre">Neutre</option>
+            <option value="feminine">Féminine</option>
+            <option value="masculine">Masculine</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="group">
+          <label for="messagesMax">Nombre de murmures</label>
+          <input id="messagesMax" type="number" min="1" value="100" />
+          <div class="small-hint">
+            Utilisé pour <em>messages_max</em> et <em>messages_restants</em>.
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="clientEmail">Email client (optionnel)</label>
+          <input id="clientEmail" type="email" placeholder="ex : client@exemple.com" />
+        </div>
+      </div>
+
+      <div class="group">
+        <label for="origin">Origine (optionnel)</label>
+        <input id="origin" type="text" placeholder="ex : Boutique X, Marché de Noël…" />
+      </div>
+
+      <button type="submit" class="submit-btn" id="btnSubmit">
+        ✨ Créer ce bijou dans l’atelier
       </button>
-      <a href="/dashboard.html" class="btn secondary">
-        ⬅️ Retour au dashboard
-      </a>
-    </div>
 
-    <div id="status" class="status"></div>
+      <div class="msg" id="msg"></div>
 
-    <div id="publicInfo" class="public-link" style="display:none;">
-      URL publique pour la puce NFC / QR :<br />
-      <code id="publicUrl"></code>
-    </div>
+      <div class="urls" id="urlsBox" style="display:none;">
+        <div><strong>Liens associés :</strong></div>
+        <div style="margin-top:6px;">
+          Lien client (lecture / état du bijou) :
+          <code id="urlClient"></code>
+        </div>
+        <div style="margin-top:6px;">
+          Lien direct vers le bijou (murmure) :
+          <code id="urlBijou"></code>
+        </div>
+        <div style="margin-top:6px;">
+          Lien public (QR / NFC) :
+          <code id="urlPublic"></code>
+        </div>
+      </div>
+    </form>
   </div>
 
   <script>
-    const idInput = document.getElementById("idBijou");
-    const langueSelect = document.getElementById("langue");
-    const messagesMaxInput = document.getElementById("messagesMax");
-    const btnAutoId = document.getElementById("btnAutoId");
-    const btnCreate = document.getElementById("btnCreate");
-    const statusEl = document.getElementById("status");
-    const publicInfo = document.getElementById("publicInfo");
-    const publicUrlEl = document.getElementById("publicUrl");
+    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
-    // Génération d'un ID simple et lisible : BIJOU + 4 caractères
-    function generateBijouId() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let suffix = "";
-      for (let i = 0; i < 4; i++) {
-        suffix += chars[Math.floor(Math.random() * chars.length)];
-      }
-      return "BIJOU" + suffix;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const userInfo = document.getElementById("userInfo");
+    const form = document.getElementById("formBijou");
+    const msgEl = document.getElementById("msg");
+    const btnSubmit = document.getElementById("btnSubmit");
+    const btnGenInternal = document.getElementById("btnGenInternal");
+
+    const publicIdInput = document.getElementById("publicId");
+    const internalIdInput = document.getElementById("internalId");
+    const langueInput = document.getElementById("langue");
+    const voixInput = document.getElementById("voix");
+    const messagesMaxInput = document.getElementById("messagesMax");
+    const clientEmailInput = document.getElementById("clientEmail");
+    const originInput = document.getElementById("origin");
+
+    const urlsBox = document.getElementById("urlsBox");
+    const urlClientEl = document.getElementById("urlClient");
+    const urlBijouEl = document.getElementById("urlBijou");
+    const urlPublicEl = document.getElementById("urlPublic");
+
+    function generateInternalId() {
+      const base = "BIJOU";
+      const rand = Math.floor(100000 + Math.random() * 900000); // 6 chiffres
+      return base + rand;
     }
 
-    btnAutoId.addEventListener("click", () => {
-      idInput.value = generateBijouId();
-    });
+    // Optionnel : générer un code public si tu veux
+    function generatePublicId() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < 6; i++) {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return out;
+    }
 
-    btnCreate.addEventListener("click", async () => {
-      const id = idInput.value.trim();
-      const langue = (langueSelect.value || "fr").toLowerCase();
-      let messagesMax = parseInt(messagesMaxInput.value, 10);
+    async function requireAuth() {
+      const { data } = await supabase.auth.getSession();
+      const session = data.session;
 
-      statusEl.className = "status";
-      publicInfo.style.display = "none";
-      publicUrlEl.textContent = "";
-
-      if (!id) {
-        statusEl.textContent = "Veuillez saisir un ID de bijou (ou utiliser la génération automatique).";
-        statusEl.classList.add("error");
+      if (!session) {
+        window.location.href = "/login.html";
         return;
       }
 
-      if (!messagesMax || messagesMax <= 0) {
-        messagesMax = 100;
+      const email = session.user.email;
+      userInfo.innerHTML = `
+        Connecté en tant que ${email}
+        <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+      `;
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "/login.html";
+    }
+    window.logout = logout;
+
+    btnGenInternal.addEventListener("click", () => {
+      internalIdInput.value = generateInternalId();
+    });
+
+    // Proposer un ID interne dès l’arrivée sur la page
+    window.addEventListener("load", () => {
+      if (!internalIdInput.value) {
+        internalIdInput.value = generateInternalId();
+      }
+      requireAuth();
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgEl.textContent = "";
+      msgEl.className = "msg";
+      urlsBox.style.display = "none";
+
+      const publicId = publicIdInput.value.trim();
+      const id = internalIdInput.value.trim();
+      const langue = (langueInput.value || "fr").toLowerCase();
+      const voix = (voixInput.value || "neutre").toLowerCase();
+      const messagesMax = parseInt(messagesMaxInput.value, 10) || 0;
+      const clientEmail = clientEmailInput.value.trim() || null;
+      const origin = originInput.value.trim() || null;
+
+      if (!publicId) {
+        msgEl.textContent = "Merci d’indiquer un code public (QR / puce).";
+        msgEl.classList.add("error");
+        return;
+      }
+      if (!id) {
+        msgEl.textContent = "Merci d’indiquer un ID interne (ou de le générer).";
+        msgEl.classList.add("error");
+        return;
+      }
+      if (!messagesMax || messagesMax < 1) {
+        msgEl.textContent = "Le nombre de murmures doit être au minimum 1.";
+        msgEl.classList.add("error");
+        return;
       }
 
-      const body = {
-        id,
-        langue,
-        messages_max: messagesMax,
-        // on laisse l’API générer public_id + messages_restants + autres valeurs par défaut
-        prenom: null,
-        intention: null,
-        detail: null,
-        voix: null,
-        theme: null,
-        sous_theme: null
-      };
-
-      btnCreate.disabled = true;
-      statusEl.textContent = "Création du bijou en cours…";
+      btnSubmit.disabled = true;
+      msgEl.textContent = "Création du bijou en cours…";
 
       try {
-        const r = await fetch("/api/saveBijou", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
-        });
+        // Vérifier que le code public n’existe pas déjà
+        const { data: existing, error: checkError } = await supabase
+          .from("bijous")
+          .select("id, public_id")
+          .eq("public_id", publicId)
+          .maybeSingle();
 
-        const data = await r.json().catch(() => ({}));
-
-        if (!r.ok || data.error) {
-          console.error("Erreur saveBijou:", data.error || r.statusText);
-          statusEl.textContent =
-            "Erreur : impossible de créer ce bijou. " +
-            (data.error ? `(${data.error})` : "");
-          statusEl.classList.add("error");
+        if (checkError) {
+          console.error(checkError);
+          msgEl.textContent =
+            "Erreur lors de la vérification du code public. Le bijou n’a pas été créé.";
+          msgEl.classList.add("error");
+          btnSubmit.disabled = false;
           return;
         }
 
-        statusEl.textContent = "Bijou créé avec succès dans l’atelier.";
-        statusEl.classList.add("success");
-
-        // Essayer de récupérer le public_id renvoyé par l’API
-        const bijou = data.bijou || data.data || data;
-        const publicId = bijou.public_id || bijou.publicId || null;
-
-        if (publicId) {
-          const baseUrl = window.location.origin || "https://invisible-app-atelier.vercel.app";
-          const url = baseUrl + "/b/" + encodeURIComponent(publicId);
-          publicUrlEl.textContent = url;
-          publicInfo.style.display = "block";
-        } else {
-          publicInfo.style.display = "none";
+        if (existing) {
+          msgEl.textContent =
+            "Ce code public est déjà lié au bijou " + existing.id + ". Merci d’en choisir un autre.";
+          msgEl.classList.add("error");
+          btnSubmit.disabled = false;
+          return;
         }
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent =
-          "Erreur réseau : la demande n’a pas pu être envoyée au serveur.";
-        statusEl.classList.add("error");
+
+        const now = new Date().toISOString();
+
+        const insertPayload = {
+          id,
+          public_id: publicId,
+          langue,
+          voix,
+          messages_max: messagesMax,
+          messages_restants: messagesMax,
+          etat: "non configuré",
+          locked: false,
+          paid: false,
+          origin,
+          client_email: clientEmail,
+          date_creation: now
+        };
+
+        const { error: insertError } = await supabase
+          .from("bijous")
+          .insert([insertPayload]);
+
+        if (insertError) {
+          console.error(insertError);
+          msgEl.textContent =
+            "Erreur lors de la création du bijou dans Supabase.";
+          msgEl.classList.add("error");
+          btnSubmit.disabled = false;
+          return;
+        }
+
+        msgEl.textContent = "Bijou créé avec succès. Il est prêt à être configuré.";
+        msgEl.classList.add("success");
+
+        // Afficher les URLs utiles
+        const base = window.location.origin || "https://invisible-app-atelier.vercel.app";
+        urlClientEl.textContent = `${base}/client.html?code=${encodeURIComponent(publicId)}`;
+        urlBijouEl.textContent = `${base}/bijou.html?id=${encodeURIComponent(id)}`;
+        urlPublicEl.textContent = `${base}/b.html?public_id=${encodeURIComponent(publicId)}`;
+        urlsBox.style.display = "block";
+
+      } catch (err) {
+        console.error(err);
+        msgEl.textContent =
+          "Erreur inattendue lors de la création du bijou.";
+        msgEl.classList.add("error");
       } finally {
-        btnCreate.disabled = false;
+        btnSubmit.disabled = false;
       }
     });
   </script>
