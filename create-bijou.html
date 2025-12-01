@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Créer un bijou – Espace artisan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-dark: #8a5f25;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 🌲 Fond forêt, comme les autres pages */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    .card {
+      max-width: 540px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 22px 20px 26px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.83rem;
+      color: var(--text-soft);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      margin: 0 0 10px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(255,255,255,0.92);
+      margin-top: 4px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .row > div { flex: 1; }
+
+    .helper {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .button-row {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 560px) {
+      .button-row {
+        flex-direction: row;
+      }
+      .button-row button,
+      .button-row a {
+        flex: 1;
+      }
+    }
+
+    button,
+    a.btn {
+      border-radius: 18px;
+      border: 1px solid var(--accent-dark);
+      background: var(--accent);
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 11px 16px;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+      transition: 0.18s transform, 0.18s box-shadow, 0.18s background;
+      text-decoration: none;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover,
+    a.btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.28);
+    }
+
+    button.secondary,
+    a.btn.secondary {
+      background: #fff;
+      color: var(--accent);
+      border-color: var(--accent-soft);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    }
+
+    button.secondary:hover,
+    a.btn.secondary:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+      min-height: 1.2em;
+    }
+
+    .status.error {
+      color: #b03a3a;
+    }
+
+    .status.success {
+      color: #2a7c4d;
+    }
+
+    .public-link {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      background: #f3e4ce;
+      border-radius: 12px;
+      padding: 8px 10px;
+      word-break: break-all;
+    }
+
+    .public-link code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+    <div class="subtitle">Création d’un nouveau bijou – espace artisan.</div>
+
+    <h2>Nouvel identifiant</h2>
+
+    <label for="idBijou">ID interne du bijou</label>
+    <div class="row">
+      <div>
+        <input
+          type="text"
+          id="idBijou"
+          placeholder="ex : BIJOU123"
+          autocomplete="off"
+        />
+      </div>
+      <div>
+        <button type="button" class="secondary" id="btnAutoId">
+          Générer un ID
+        </button>
+      </div>
+    </div>
+    <div class="helper">
+      Cet ID reste interne à l’atelier (par ex. BIJOU001, BIJOU002).  
+      Le code public pour le client sera généré automatiquement.
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="langue">Langue par défaut</label>
+        <select id="langue">
+          <option value="fr">Français</option>
+          <option value="en">Anglais</option>
+        </select>
+      </div>
+      <div>
+        <label for="messagesMax">Messages max</label>
+        <input
+          type="number"
+          id="messagesMax"
+          min="1"
+          max="999"
+          value="100"
+        />
+      </div>
+    </div>
+
+    <div class="helper">
+      À la création, <strong>messages_restants</strong> sera initialisé au même
+      nombre que <strong>messages_max</strong> (ou par la logique de l’API).
+    </div>
+
+    <div class="button-row">
+      <button type="button" id="btnCreate">
+        ✨ Créer ce bijou
+      </button>
+      <a href="/dashboard.html" class="btn secondary">
+        ⬅️ Retour au dashboard
+      </a>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div id="publicInfo" class="public-link" style="display:none;">
+      URL publique pour la puce NFC / QR :<br />
+      <code id="publicUrl"></code>
+    </div>
+  </div>
+
+  <script>
+    const idInput = document.getElementById("idBijou");
+    const langueSelect = document.getElementById("langue");
+    const messagesMaxInput = document.getElementById("messagesMax");
+    const btnAutoId = document.getElementById("btnAutoId");
+    const btnCreate = document.getElementById("btnCreate");
+    const statusEl = document.getElementById("status");
+    const publicInfo = document.getElementById("publicInfo");
+    const publicUrlEl = document.getElementById("publicUrl");
+
+    // Génération d'un ID simple et lisible : BIJOU + 4 caractères
+    function generateBijouId() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let suffix = "";
+      for (let i = 0; i < 4; i++) {
+        suffix += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return "BIJOU" + suffix;
+    }
+
+    btnAutoId.addEventListener("click", () => {
+      idInput.value = generateBijouId();
+    });
+
+    btnCreate.addEventListener("click", async () => {
+      const id = idInput.value.trim();
+      const langue = (langueSelect.value || "fr").toLowerCase();
+      let messagesMax = parseInt(messagesMaxInput.value, 10);
+
+      statusEl.className = "status";
+      publicInfo.style.display = "none";
+      publicUrlEl.textContent = "";
+
+      if (!id) {
+        statusEl.textContent = "Veuillez saisir un ID de bijou (ou utiliser la génération automatique).";
+        statusEl.classList.add("error");
+        return;
+      }
+
+      if (!messagesMax || messagesMax <= 0) {
+        messagesMax = 100;
+      }
+
+      const body = {
+        id,
+        langue,
+        messages_max: messagesMax,
+        // on laisse l’API générer public_id + messages_restants + autres valeurs par défaut
+        prenom: null,
+        intention: null,
+        detail: null,
+        voix: null,
+        theme: null,
+        sous_theme: null
+      };
+
+      btnCreate.disabled = true;
+      statusEl.textContent = "Création du bijou en cours…";
+
+      try {
+        const r = await fetch("/api/saveBijou", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await r.json().catch(() => ({}));
+
+        if (!r.ok || data.error) {
+          console.error("Erreur saveBijou:", data.error || r.statusText);
+          statusEl.textContent =
+            "Erreur : impossible de créer ce bijou. " +
+            (data.error ? `(${data.error})` : "");
+          statusEl.classList.add("error");
+          return;
+        }
+
+        statusEl.textContent = "Bijou créé avec succès dans l’atelier.";
+        statusEl.classList.add("success");
+
+        // Essayer de récupérer le public_id renvoyé par l’API
+        const bijou = data.bijou || data.data || data;
+        const publicId = bijou.public_id || bijou.publicId || null;
+
+        if (publicId) {
+          const baseUrl = window.location.origin || "https://invisible-app-atelier.vercel.app";
+          const url = baseUrl + "/b/" + encodeURIComponent(publicId);
+          publicUrlEl.textContent = url;
+          publicInfo.style.display = "block";
+        } else {
+          publicInfo.style.display = "none";
+        }
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent =
+          "Erreur réseau : la demande n’a pas pu être envoyée au serveur.";
+        statusEl.classList.add("error");
+      } finally {
+        btnCreate.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
