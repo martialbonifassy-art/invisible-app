@@ -142,6 +142,38 @@
       white-space: nowrap;
     }
 
+    /* 🔹 Boutons liens "Créer un bijou" et "Retour site" */
+    .toolbar a.btn-primary {
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent-dark);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+      white-space: nowrap;
+    }
+    .toolbar a.btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .toolbar a.btn-secondary {
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+      white-space: nowrap;
+    }
+    .toolbar a.btn-secondary:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -272,6 +304,12 @@
       </div>
       <div class="toolbar-group">
         <button id="btnRefresh">🔄 Actualiser</button>
+      </div>
+
+      <!-- ⭐ NOUVEAUX BOUTONS : CRÉER + RETOUR SITE ⭐ -->
+      <div class="toolbar-group">
+        <a href="/create-bijou.html" class="btn-primary">➕ Créer un bijou</a>
+        <a href="/index.html" class="btn-secondary">⬅️ Retour au site</a>
       </div>
     </div>
 
