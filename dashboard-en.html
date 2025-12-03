@@ -2,197 +2,552 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Artisan dashboard – L’Atelier des Liens Invisibles</title>
+  <title>Artisan Dashboard – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="assets/styles.css" />
   <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-dark: #8a5f25;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #050607 url("assets/foret-atelier.jpg") center/cover fixed no-repeat;
-      color: #f9f7f1;
-    }
-    .overlay {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
       min-height: 100vh;
-      background: linear-gradient(
-        to bottom,
-        rgba(5, 6, 8, 0.95),
-        rgba(6, 5, 4, 0.95)
-      );
-      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* Forest background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
+      z-index: -1;
+    }
+
+    .card {
+      max-width: 980px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 18px 16px 22px;
+      backdrop-filter: blur(10px);
+    }
+
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 10px;
+      gap: 10px;
     }
-    .logo {
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: 1.2rem;
-      letter-spacing: 0.09em;
+
+    h1 {
+      font-size: 1.1rem;
       text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin: 0;
     }
-    .lang-switch button {
-      background: transparent;
-      border: 1px solid rgba(255, 240, 210, 0.5);
-      color: #f9f4e5;
-      padding: 0.4rem 0.8rem;
+
+    .user-info {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      text-align: right;
+    }
+
+    .logout-btn {
+      padding: 6px 10px;
       border-radius: 999px;
-      font-size: 0.85rem;
+      border: 1px solid #b83a3a;
+      background: #d44949;
+      color: #fff;
       cursor: pointer;
+      font-size: 0.78rem;
+      margin-left: 8px;
     }
-    .lang-switch button.active {
-      background: rgba(255, 240, 210, 0.15);
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      margin-top: 4px;
     }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .toolbar label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      background: #fffdf8;
+      outline: none;
+    }
+
+    .toolbar button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: #d6a85a;
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+      white-space: nowrap;
+    }
+
+    /* Buttons "Create jewel" and "Back to site" */
+    .toolbar a.btn-primary {
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent-dark);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+      white-space: nowrap;
+    }
+    .toolbar a.btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .toolbar a.btn-secondary {
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+      white-space: nowrap;
+    }
+    .toolbar a.btn-secondary:hover {
+      background: var(--accent-soft);
+      color: #4a321e;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: rgba(10, 9, 8, 0.95);
-      border-radius: 1rem;
+      background: #fffdf8;
+      border-radius: 14px;
       overflow: hidden;
-    }
-    th, td {
-      padding: 0.6rem 0.75rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
       font-size: 0.85rem;
     }
-    th {
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e4d5c3;
       text-align: left;
-      background: rgba(28, 20, 13, 0.95);
-      border-bottom: 1px solid rgba(246, 224, 188, 0.3);
+      vertical-align: middle;
     }
-    tr:nth-child(even) td {
-      background: rgba(16, 13, 11, 0.95);
+
+    th {
+      background: #eadcc8;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      color: var(--text-soft);
+      white-space: nowrap;
     }
-    tr:nth-child(odd) td {
-      background: rgba(9, 7, 6, 0.95);
+
+    tr:last-child td {
+      border-bottom: none;
     }
-    .tag {
-      font-size: 0.75rem;
-      padding: 0.15rem 0.55rem;
+
+    .btn {
+      padding: 5px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(246, 224, 188, 0.4);
-      background: rgba(6, 4, 3, 0.9);
-    }
-    .actions button {
-      font-size: 0.75rem;
-      padding: 0.35rem 0.7rem;
-      border-radius: 999px;
-      border: 1px solid rgba(246, 224, 188, 0.4);
-      background: transparent;
-      color: #f9f7f1;
+      border: none;
       cursor: pointer;
-      margin-right: 0.25rem;
+      font-size: 0.76rem;
+      color: #fff;
+      white-space: nowrap;
     }
-  </style>
-  <script>
-    function switchLanguage(lang) {
-      if (lang === "fr") {
-        localStorage.setItem("preferred_lang", "fr");
-        window.location.href = "dashboard.html";
-      } else {
-        localStorage.setItem("preferred_lang", "en");
-        window.location.href = "dashboard-en.html";
+
+    .btn-recharge { background: #82a738; }
+    .btn-modif    { background: #b8833a; }
+    .btn-suppr    { background: #b83a3a; }
+    .btn-voir     { background: #6b7fb8; }
+
+    .zone-msg {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .col-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.82rem;
+    }
+
+    .intention-snippet {
+      font-size: 0.8rem;
+      color: #7a5a45;
+      max-width: 280px;
+    }
+
+    .small-muted {
+      font-size: 0.76rem;
+      color: #937b66;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 780px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .user-info {
+        text-align: left;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead {
+        display: none;
+      }
+      tr {
+        border-bottom: 1px solid #e4d5c3;
+        margin-bottom: 6px;
+        padding: 6px 2px;
+      }
+      td {
+        border-bottom: none;
+        padding: 4px 4px;
+      }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-soft);
+        margin-bottom: 1px;
       }
     }
-  </script>
+  </style>
 </head>
 <body>
-  <div class="overlay">
+  <div class="card">
     <header>
-      <div class="logo">Artisan dashboard</div>
-      <div class="lang-switch">
-        <button onclick="switchLanguage('fr')">FR</button>
-        <button class="active" onclick="switchLanguage('en')">EN</button>
-      </div>
+      <h1>ARTISAN DASHBOARD</h1>
+      <div class="user-info" id="userInfo">Checking session…</div>
     </header>
 
-    <table id="bijoux-table">
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <label for="search">Search</label>
+        <input id="search" type="text" placeholder="ID, first name, intention…" />
+      </div>
+      <div class="toolbar-group">
+        <label for="filterVoix">Voice</label>
+        <select id="filterVoix">
+          <option value="">All</option>
+          <option value="neutre">Neutral</option>
+          <option value="feminine">Feminine</option>
+          <option value="masculine">Masculine</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <button id="btnRefresh">🔄 Refresh</button>
+      </div>
+
+      <div class="toolbar-group">
+        <a href="/create-bijou.html" class="btn-primary">➕ Create a jewel</a>
+        <a href="/index-en.html" class="btn-secondary">⬅️ Back to site</a>
+      </div>
+    </div>
+
+    <table id="tableBijoux">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Public ID</th>
           <th>First name</th>
-          <th>Theme</th>
-          <th>Subtheme</th>
+          <th>Intention</th>
           <th>Remaining</th>
-          <th>Locked</th>
-          <th>Paid</th>
-          <th>Last whisper</th>
+          <th>Max</th>
+          <th>Voice</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Filled by JS -->
-      </tbody>
+      <tbody></tbody>
     </table>
+
+    <div class="zone-msg" id="msg"></div>
   </div>
 
   <script>
-    // Adapte cette logique à ton dashboard FR existant (copie/colle le JS de dashboard.html en le gardant identique)
-    async function loadBijoux() {
-      const tbody = document.querySelector("#bijoux-table tbody");
-      tbody.innerHTML = "<tr><td colspan='10'>Loading jewels...</td></tr>";
+    const msg = document.getElementById("msg");
+    const userInfo = document.getElementById("userInfo");
+    const searchInput = document.getElementById("search");
+    const filterVoix = document.getElementById("filterVoix");
+    const btnRefresh = document.getElementById("btnRefresh");
+    const tbody = document.querySelector("#tableBijoux tbody");
 
+    let bijouxData = [];
+
+    function normaliserTexte(str) {
+      return (str || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    // Auth check via /api/me
+    async function requireAuth() {
       try {
-        const resp = await fetch("/api/listBijoux");
-        if (!resp.ok) throw new Error("Server error");
-        const bijoux = await resp.json();
-
-        if (!bijoux.length) {
-          tbody.innerHTML = "<tr><td colspan='10'>No jewels yet.</td></tr>";
+        const resp = await fetch("/api/me");
+        if (resp.status === 401) {
+          window.location.href = "/login-en.html";
           return;
         }
+        const data = await resp.json().catch(() => ({}));
+        const email = data && data.email ? data.email : "artisan";
 
-        tbody.innerHTML = "";
-        for (const b of bijoux) {
-          const tr = document.createElement("tr");
+        userInfo.innerHTML = `
+          Logged in as ${email}
+          <button class="logout-btn" onclick="logout()">Log out</button>
+        `;
 
-          tr.innerHTML = `
-            <td>${b.id}</td>
-            <td>${b.public_id || "-"}</td>
-            <td>${b.prenom || "-"}</td>
-            <td>${b.theme || "-"}</td>
-            <td>${b.sous_theme || "-"}</td>
-            <td>${b.messages_restants}/${b.messages_max}</td>
-            <td>${b.locked ? "<span class='tag'>Locked</span>" : ""}</td>
-            <td>${b.paid ? "<span class='tag'>Paid</span>" : ""}</td>
-            <td>${b.last_murmur_at ? new Date(b.last_murmur_at).toLocaleString() : "-"}</td>
-            <td class="actions">
-              <button onclick="recharge('${b.id}')">Recharge</button>
-              <button onclick="removeBijou('${b.id}')">Delete</button>
-            </td>
-          `;
-
-          tbody.appendChild(tr);
-        }
+        loadJewels();
       } catch (e) {
-        console.error(e);
-        tbody.innerHTML = "<tr><td colspan='10'>Error loading jewels.</td></tr>";
+        console.error("Error /api/me", e);
+        window.location.href = "/login-en.html";
       }
     }
 
+    async function logout() {
+      try {
+        await fetch("/api/logout", { method: "POST" });
+      } catch (e) {
+        console.error("Logout error", e);
+      } finally {
+        window.location.href = "/login-en.html";
+      }
+    }
+
+    async function loadJewels() {
+      msg.textContent = "Loading data…";
+
+      try {
+        const r = await fetch("/api/listBijoux");
+        const data = await r.json();
+
+        bijouxData = Array.isArray(data) ? data : (data.data || data.bijoux || []);
+
+        renderTable();
+        msg.textContent = bijouxData.length
+          ? `Jewels loaded: ${bijouxData.length}`
+          : "No jewels recorded yet.";
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Error while loading jewels.";
+      }
+    }
+
+    function renderTable() {
+      const terme = normaliserTexte(searchInput.value);
+      const filtre = filterVoix.value;
+      tbody.innerHTML = "";
+
+      const filtered = bijouxData.filter((b) => {
+        const id = normaliserTexte(b.id);
+        const prenom = normaliserTexte(b.prenom);
+        const intention = normaliserTexte(b.intention);
+        const voix = (b.voix || "").toString();
+
+        const okSearch =
+          !terme ||
+          id.includes(terme) ||
+          prenom.includes(terme) ||
+          intention.includes(terme);
+
+        const okVoix = !filtre || voix === filtre;
+
+        return okSearch && okVoix;
+      });
+
+      if (!filtered.length) {
+        msg.textContent = "No jewel matches these filters.";
+        return;
+      }
+
+      filtered.forEach((b) => {
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td");
+        tdId.className = "col-id";
+        tdId.dataset.label = "ID";
+        tdId.textContent = b.id;
+        tr.appendChild(tdId);
+
+        const tdPrenom = document.createElement("td");
+        tdPrenom.dataset.label = "First name";
+        tdPrenom.textContent = b.prenom || "-";
+        tr.appendChild(tdPrenom);
+
+        const tdIntention = document.createElement("td");
+        tdIntention.dataset.label = "Intention";
+        const snippet = (b.intention || "").toString();
+        const shortText = snippet.length > 120 ? snippet.slice(0, 120) + "…" : snippet;
+        tdIntention.innerHTML = `
+          <div class="intention-snippet">${shortText || "<span class='small-muted'>—</span>"}</div>
+        `;
+        tr.appendChild(tdIntention);
+
+        const tdRestants = document.createElement("td");
+        tdRestants.dataset.label = "Remaining";
+        tdRestants.textContent =
+          b.messages_restants != null ? b.messages_restants : "-";
+        tr.appendChild(tdRestants);
+
+        const tdMax = document.createElement("td");
+        tdMax.dataset.label = "Max";
+        tdMax.textContent = b.messages_max != null ? b.messages_max : "-";
+        tr.appendChild(tdMax);
+
+        const tdVoix = document.createElement("td");
+        tdVoix.dataset.label = "Voice";
+        tdVoix.textContent = b.voix || "-";
+        tr.appendChild(tdVoix);
+
+        const tdActions = document.createElement("td");
+        tdActions.dataset.label = "Actions";
+
+        const btnVoir = document.createElement("button");
+        btnVoir.className = "btn btn-voir";
+        btnVoir.textContent = "View jewel";
+        btnVoir.addEventListener("click", () => {
+          if (!b.id) return;
+          const url = `/bijou.html?id=${encodeURIComponent(b.id)}`;
+          window.open(url, "_blank");
+        });
+
+        const btnRecharge = document.createElement("button");
+        btnRecharge.className = "btn btn-recharge";
+        btnRecharge.textContent = "Recharge";
+        btnRecharge.addEventListener("click", async () => {
+          await recharge(b.id);
+        });
+
+        const btnModif = document.createElement("button");
+        btnModif.className = "btn btn-modif";
+        btnModif.textContent = "Edit";
+        btnModif.addEventListener("click", () => {
+          editJewel(b.id);
+        });
+
+        const btnSuppr = document.createElement("button");
+        btnSuppr.className = "btn btn-suppr";
+        btnSuppr.textContent = "Delete";
+        btnSuppr.addEventListener("click", async () => {
+          await deleteJewel(b.id);
+        });
+
+        tdActions.appendChild(btnVoir);
+        tdActions.appendChild(btnRecharge);
+        tdActions.appendChild(btnModif);
+        tdActions.appendChild(btnSuppr);
+
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
     async function recharge(id) {
-      if (!confirm("Recharge whispers for this jewel?")) return;
-      await fetch("/api/rechargeBijou", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      loadBijoux();
+      if (!id) return;
+      if (!confirm(`Recharge whispers for jewel ${id}?`)) return;
+      try {
+        await fetch(`/api/rechargeBijou?id=${encodeURIComponent(id)}`);
+        msg.textContent = `Jewel ${id} recharged.`;
+        loadJewels();
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Error while recharging.";
+      }
     }
 
-    async function removeBijou(id) {
-      if (!confirm("Delete this jewel? This cannot be undone.")) return;
-      await fetch("/api/deleteBijou", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      loadBijoux();
+    async function deleteJewel(id) {
+      if (!id) return;
+      if (!confirm(`Delete jewel ${id}? This cannot be undone.`)) return;
+      try {
+        await fetch(`/api/deleteBijou?id=${encodeURIComponent(id)}`);
+        msg.textContent = `Jewel ${id} deleted.`;
+        loadJewels();
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "Error while deleting.";
+      }
     }
 
-    loadBijoux();
+    function editJewel(id) {
+      if (!id) return;
+      window.location.href = `/personnalisation.html?id=${encodeURIComponent(id)}`;
+    }
+
+    // expose logout
+    window.logout = logout;
+
+    searchInput.addEventListener("input", renderTable);
+    filterVoix.addEventListener("change", renderTable);
+    btnRefresh.addEventListener("click", loadJewels);
+
+    requireAuth();
   </script>
 </body>
 </html>
