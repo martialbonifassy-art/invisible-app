@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Connexion artisan – Atelier des Liens Invisibles</title>
+  <title>Artisan Login – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       margin: 0;
@@ -84,27 +85,33 @@
 </head>
 <body>
   <div class="card">
-    <h1>ACCÈS ARTISAN</h1>
-    <p>Connexion à l’espace de gestion des bijoux.</p>
+    <h1>ARTISAN ACCESS</h1>
+    <p>Sign in to the jewel management space.</p>
 
     <label for="email">Email</label>
     <input id="email" type="email" placeholder="martialbonifass@gmail.com" />
 
-    <label for="password">Mot de passe</label>
+    <label for="password">Password</label>
     <input id="password" type="password" placeholder="••••••••" />
 
-    <button id="btnLogin">Se connecter</button>
+    <button id="btnLogin">Sign in</button>
 
     <div class="msg" id="msg"></div>
   </div>
 
   <script>
+    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const emailInput = document.getElementById("email");
     const passInput = document.getElementById("password");
     const btnLogin = document.getElementById("btnLogin");
     const msg = document.getElementById("msg");
 
-    async function tryLogin() {
+    btnLogin.addEventListener("click", async () => {
       msg.textContent = "";
       btnLogin.disabled = true;
 
@@ -112,56 +119,35 @@
       const password = passInput.value.trim();
 
       if (!email || !password) {
-        msg.textContent = "Merci de remplir email et mot de passe.";
+        msg.textContent = "Please fill in both email and password.";
         btnLogin.disabled = false;
         return;
       }
 
-      try {
-        const resp = await fetch("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ email, password })
-        });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        const data = await resp.json().catch(() => ({}));
-
-        if (!resp.ok || !data.ok) {
-          msg.textContent =
-            data && data.error
-              ? "Connexion impossible : " + data.error
-              : "Connexion impossible. Merci de vérifier vos identifiants.";
-          btnLogin.disabled = false;
-          return;
-        }
-
-        msg.textContent = "Connexion réussie, redirection en cours…";
-        window.location.href = "/dashboard.html";
-      } catch (e) {
-        console.error(e);
-        msg.textContent =
-          "Erreur de connexion au serveur. Merci de réessayer plus tard.";
+      if (error) {
+        console.error(error);
+        msg.textContent = "Sign-in failed: " + error.message;
         btnLogin.disabled = false;
+        return;
       }
-    }
 
-    btnLogin.addEventListener("click", tryLogin);
+      msg.textContent = "Sign-in successful, redirecting…";
+      // Redirect to the English dashboard
+      window.location.href = "/dashboard-en.html";
+    });
 
-    // Validation avec Entrée
-    passInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        tryLogin();
+    // If already logged in, redirect directly to the English dashboard
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        window.location.href = "/dashboard-en.html";
       }
-    });
-    emailInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        tryLogin();
-      }
-    });
+    })();
   </script>
 </body>
 </html>
