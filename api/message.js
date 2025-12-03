@@ -9,7 +9,7 @@ import OpenAI from "openai";
 // ─────────────────────────────
 
 const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY as string;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY as string; // service role conseillé côté serveur
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -18,10 +18,10 @@ const openai = new OpenAI({
 });
 
 // ─────────────────────────────
-// 2) Types & Helpers
+// 2) Type de la réponse JSON
 // ─────────────────────────────
 
-type ApiResponse = {
+type MessageResponse = {
   ok: boolean;
   preview: boolean;
   text?: string;
@@ -31,20 +31,20 @@ type ApiResponse = {
   error_code?: string;
 };
 
+// Helper erreur avec contrat JSON cohérent
 function sendError(
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<MessageResponse>,
+  status: number,
   code: string,
   message: string,
   preview: boolean
 ) {
-  return res.status(200).json({
+  res.status(status).json({
     ok: false,
     preview,
-    error: message,
     error_code: code,
-    text: "",
+    error: message,
     audio_url: null,
-    messages_restants: null,
   });
 }
 
@@ -54,18 +54,19 @@ function sendError(
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
+  res: NextApiResponse<MessageResponse>
 ) {
   if (req.method !== "GET") {
     return sendError(
       res,
+      405,
       "METHOD_NOT_ALLOWED",
       "Only GET is allowed.",
       true
     );
   }
 
-  // Params
+  // Récupération des query params
   const {
     id,
     prenom = "",
@@ -76,24 +77,37 @@ export default async function handler(
     preview: previewParam,
     theme,
     sous_theme,
-  } = req.query as any;
+  } = req.query as {
+    id?: string;
+    prenom?: string;
+    intention?: string;
+    detail?: string;
+    voix?: string;
+    lang?: string;
+    preview?: string;
+    theme?: string;
+    sous_theme?: string;
+  };
 
   const isPreview = previewParam === "1" || previewParam === "true";
-  const safeLang = lang === "en" ? "en" : "fr";
 
   if (!id) {
     return sendError(
       res,
+      400,
       "MISSING_ID",
-      safeLang === "en" ? "Missing jewel ID." : "ID de bijou manquant.",
+      lang === "en" ? "Missing jewel ID." : "ID de bijou manquant.",
       isPreview
     );
   }
 
+  const safeLang = lang === "en" ? "en" : "fr";
+
   try {
     // ─────────────────────────────
-    // 4) Récupération du bijou
+    // 4) Récupérer le bijou
     // ─────────────────────────────
+
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select("*")
@@ -101,10 +115,14 @@ export default async function handler(
       .maybeSingle();
 
     if (fetchError) {
+      console.error("Supabase fetch error:", fetchError);
       return sendError(
         res,
+        500,
         "DB_ERROR",
-        safeLang === "en" ? "Database error." : "Erreur base de données.",
+        safeLang === "en"
+          ? "Error while fetching the jewel."
+          : "Erreur lors de la récupération du bijou.",
         isPreview
       );
     }
@@ -112,23 +130,28 @@ export default async function handler(
     if (!bijou) {
       return sendError(
         res,
+        404,
         "NOT_FOUND",
-        safeLang === "en" ? "Jewel not found." : "Bijou introuvable.",
+        safeLang === "en"
+          ? "No jewel found with this ID."
+          : "Aucun bijou trouvé avec cet ID.",
         isPreview
       );
     }
 
     // ─────────────────────────────
-    // 5) Vérification crédit (si pas preview)
+    // 5) Vérifier le crédit / état (si pas en preview)
     // ─────────────────────────────
+
     if (!isPreview) {
       if (bijou.locked) {
         return sendError(
           res,
+          403,
           "LOCKED",
           safeLang === "en"
-            ? "This jewel is locked."
-            : "Ce bijou est verrouillé.",
+            ? "This jewel is locked. Please contact the Atelier."
+            : "Ce bijou est verrouillé. Merci de contacter l’Atelier.",
           false
         );
       }
@@ -136,52 +159,95 @@ export default async function handler(
       if (!bijou.paid) {
         return sendError(
           res,
+          402,
           "UNPAID",
           safeLang === "en"
-            ? "This jewel is not activated."
-            : "Ce bijou n’est pas activé.",
+            ? "This jewel has not been activated yet."
+            : "Ce bijou n’a pas encore été activé.",
           false
         );
       }
 
-      if (bijou.messages_restants <= 0) {
+      if (
+        typeof bijou.messages_restants === "number" &&
+        bijou.messages_restants <= 0
+      ) {
         return sendError(
           res,
+          403,
           "NO_CREDIT",
           safeLang === "en"
-            ? "No whispers left."
-            : "Plus de murmures restants.",
+            ? "No whispers left on this jewel."
+            : "Il ne reste plus de murmures sur ce bijou.",
           false
         );
       }
     }
 
     // ─────────────────────────────
-    // 6) Prompt IA
+    // 6) Construire le prompt pour l’IA
     // ─────────────────────────────
+
     const targetName = prenom || bijou.prenom || "";
+    const effectiveTheme = theme || bijou.theme || "";
+    const effectiveSousTheme = sous_theme || bijou.sous_theme || "";
+
+    const langueDescription =
+      safeLang === "en"
+        ? "Write the response in natural, poetic but simple English, spoken in the first person as a whisper addressed directly to the listener."
+        : "Écris la réponse en français, dans un ton simple, poétique et intime, à la première personne, comme un murmure adressé directement à la personne qui écoute.";
+
+    const baseContext =
+      safeLang === "en"
+        ? "You are the invisible whisper linked to a wooden jewel, created by a human artisan."
+        : "Tu es le murmure invisible lié à un bijou en bois, créé par un artisan humain.";
+
+    const themeLine =
+      effectiveTheme || effectiveSousTheme
+        ? safeLang === "en"
+          ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${effectiveSousTheme || "-"}.`
+          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${effectiveSousTheme || "-"}.`
+        : "";
+
+    const intentionLine =
+      intention || bijou.intention
+        ? safeLang === "en"
+          ? `Extra instructions from the giver: ${intention || bijou.intention}.`
+          : `Instructions supplémentaires de la personne qui offre : ${intention || bijou.intention}.`
+        : "";
+
+    const detailLine =
+      detail || bijou.detail
+        ? safeLang === "en"
+          ? `A memory or detail to weave in: ${detail || bijou.detail}.`
+          : `Un souvenir ou détail à intégrer : ${detail || bijou.detail}.`
+        : "";
+
+    const nameLine = targetName
+      ? safeLang === "en"
+        ? `The whisper is addressed to: ${targetName}.`
+        : `Le murmure s’adresse à : ${targetName}.`
+      : "";
+
+    const lengthInstruction =
+      safeLang === "en"
+        ? "Length: about 1 to 2 spoken minutes. No introduction about being an AI."
+        : "Longueur : environ 1 à 2 minutes à l’oral. Ne te présentes pas comme une IA.";
 
     const fullPrompt = [
-      safeLang === "en"
-        ? `You are the invisible whisper linked to a wooden jewel.`
-        : `Tu es le murmure invisible d’un bijou en bois, créé par un artisan.`,
-      safeLang === "en"
-        ? "Write in simple, intimate, poetic English."
-        : "Écris en français simple, intimiste et poétique.",
-      safeLang === "en"
-        ? "Length: around one minute. No AI disclaimers."
-        : "Longueur : environ une minute. Pas de mention d’IA.",
-      theme ? `Theme: ${theme}` : "",
-      sous_theme ? `Sub-theme: ${sous_theme}` : "",
-      targetName ? `For: ${targetName}` : "",
-      intention ? `Intent: ${intention}` : bijou.intention || "",
-      detail ? `Detail: ${detail}` : bijou.detail || "",
+      baseContext,
+      langueDescription,
+      lengthInstruction,
+      themeLine,
+      nameLine,
+      intentionLine,
+      detailLine,
     ]
       .filter(Boolean)
       .join("\n");
 
     // ─────────────────────────────
-    // 7) Génération du texte
+    // 7) Appel OpenAI (texte)
     // ─────────────────────────────
 
     let generatedText = "";
@@ -190,10 +256,16 @@ export default async function handler(
       const chat = await openai.chat.completions.create({
         model: "gpt-4.1-mini",
         messages: [
-          { role: "system", content: fullPrompt },
+          {
+            role: "system",
+            content: fullPrompt,
+          },
           {
             role: "user",
-            content: safeLang === "en" ? "Compose the whisper." : "Compose le murmure.",
+            content:
+              safeLang === "en"
+                ? "Compose the whisper now."
+                : "Compose maintenant le murmure.",
           },
         ],
         temperature: 0.9,
@@ -203,23 +275,25 @@ export default async function handler(
       generatedText =
         chat.choices?.[0]?.message?.content?.trim() ||
         (safeLang === "en"
-          ? "I am here, silent but present."
-          : "Je suis là, silencieux mais présent.");
+          ? "I am here, silent, but present for you."
+          : "Je suis là, silencieux, mais présent pour toi.");
     } catch (err) {
-      console.error(err);
+      console.error("OpenAI text error:", err);
       return sendError(
         res,
+        500,
         "GENERATION_ERROR",
         safeLang === "en"
-          ? "Error generating whisper."
-          : "Erreur génération murmure.",
+          ? "Error while generating the whisper."
+          : "Erreur lors de la génération du murmure.",
         isPreview
       );
     }
 
     // ─────────────────────────────
-    // 8) PREVIEW → retour immédiat
+    // 8) Si preview → pas de décrément, pas d’audio
     // ─────────────────────────────
+
     if (isPreview) {
       return res.status(200).json({
         ok: true,
@@ -231,42 +305,58 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 9) TTS (audio) — optionnel
+    // 9) TTS & stockage audio (à adapter)
     // ─────────────────────────────
 
-    let audio_url: string | null = null;
+    let audioUrl: string | null = null;
 
     try {
+      // Exemple avec OpenAI TTS (tu peux adapter stockage dans Supabase Storage, S3, etc.)
       const speech = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
-        voice: voix === "masculine" ? "verse" : "alloy",
+        voice:
+          voix === "feminine"
+            ? "alloy"
+            : voix === "masculine"
+            ? "verse"
+            : "alloy",
         input: generatedText,
       });
 
-      // À implémenter plus tard : upload Supabase Storage
-      audio_url = null;
+      // À toi d’implémenter l’upload du buffer dans Supabase Storage ou autre
+      // Pour l’instant, on laisse audioUrl = null pour ne pas casser le front
+      audioUrl = null;
     } catch (err) {
       console.error("TTS error:", err);
-      audio_url = null;
+      audioUrl = null; // on renvoie quand même le texte
     }
 
     // ─────────────────────────────
-    // 10) Décrément
+    // 10) Décrément des crédits + metadata
     // ─────────────────────────────
 
-    const newRemaining =
-      typeof bijou.messages_restants === "number"
-        ? Math.max(0, bijou.messages_restants - 1)
-        : null;
+    let remaining = bijou.messages_restants;
 
-    await supabase.from("bijous").update({
-      messages_restants: newRemaining,
-      last_used_at: new Date().toISOString(),
-      last_prenom: targetName || null,
-      last_lang: safeLang,
-      last_theme: theme || null,
-      last_sous_theme: sous_theme || null,
-    }).eq("id", id);
+    if (typeof remaining === "number") {
+      remaining = Math.max(0, remaining - 1);
+    }
+
+    const { error: updateError } = await supabase
+      .from("bijous")
+      .update({
+        messages_restants: remaining,
+        last_used_at: new Date().toISOString(),
+        last_prenom: targetName || null,
+        last_lang: safeLang,
+        last_theme: effectiveTheme || null,
+        last_sous_theme: effectiveSousTheme || null,
+      })
+      .eq("id", id);
+
+    if (updateError) {
+      console.error("Update bijou error:", updateError);
+      // On ne bloque pas la réponse client pour ça
+    }
 
     // ─────────────────────────────
     // 11) Réponse finale
@@ -276,17 +366,19 @@ export default async function handler(
       ok: true,
       preview: false,
       text: generatedText,
-      audio_url,
-      messages_restants: newRemaining,
+      audio_url: audioUrl,
+      messages_restants:
+        typeof remaining === "number" ? remaining : bijou.messages_restants ?? null,
     });
   } catch (err) {
-    console.error("Unexpected error:", err);
+    console.error("Unexpected /api/message error:", err);
     return sendError(
       res,
+      500,
       "UNEXPECTED_ERROR",
       safeLang === "en"
-        ? "Unexpected error."
-        : "Erreur inattendue.",
+        ? "Unexpected error while generating the whisper."
+        : "Erreur inattendue lors de la génération du murmure.",
       isPreview
     );
   }
