@@ -664,10 +664,11 @@
     // ─────────────────────────────────────
 
     function majUrlExemple() {
-      const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
-      urlExemple.textContent = url;
-    }
+  const id = idInput.value.trim() || "BIJOU001";
+  // Ici on suppose que l'ID bijou choisi deviendra le public_id
+  const url = `https://invisible-app-atelier.vercel.app/b.html?public_id=${encodeURIComponent(id)}&lang=fr`;
+  urlExemple.textContent = url;
+}
 
     // ─────────────────────────────────────
     // 5) Pré-remplir l’ID si présent dans l’URL
