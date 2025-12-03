@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Connexion artisan – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       margin: 0;
@@ -100,17 +99,12 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const emailInput = document.getElementById("email");
     const passInput = document.getElementById("password");
     const btnLogin = document.getElementById("btnLogin");
     const msg = document.getElementById("msg");
 
-    btnLogin.addEventListener("click", async () => {
+    async function tryLogin() {
       msg.textContent = "";
       btnLogin.disabled = true;
 
@@ -123,30 +117,51 @@
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      try {
+        const resp = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
 
-      if (error) {
-        console.error(error);
-        msg.textContent = "Connexion impossible : " + error.message;
-        btnLogin.disabled = false;
-        return;
-      }
+        const data = await resp.json().catch(() => ({}));
 
-      msg.textContent = "Connexion réussie, redirection en cours…";
-      // Redirection vers le dashboard
-      window.location.href = "/dashboard.html";
-    });
+        if (!resp.ok || !data.ok) {
+          msg.textContent =
+            data && data.error
+              ? "Connexion impossible : " + data.error
+              : "Connexion impossible. Merci de vérifier vos identifiants.";
+          btnLogin.disabled = false;
+          return;
+        }
 
-    // Si déjà connecté, on redirige directement vers le dashboard
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+        msg.textContent = "Connexion réussie, redirection en cours…";
         window.location.href = "/dashboard.html";
+      } catch (e) {
+        console.error(e);
+        msg.textContent =
+          "Erreur de connexion au serveur. Merci de réessayer plus tard.";
+        btnLogin.disabled = false;
       }
-    })();
+    }
+
+    btnLogin.addEventListener("click", tryLogin);
+
+    // Validation avec Entrée
+    passInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        tryLogin();
+      }
+    });
+    emailInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        tryLogin();
+      }
+    });
   </script>
 </body>
 </html>
