@@ -435,7 +435,28 @@
         e.preventDefault();
         searchBijou();
       }
-    });
+    });searchBtn.addEventListener("click", searchBijou);
+codeInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchBijou();
+  }
+});
+
+// Autofill from ?code= in the URL
+(function prefillFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    const codeFromUrl = url.searchParams.get("code");
+    if (codeFromUrl) {
+      codeInput.value = codeFromUrl;
+      searchBijou();
+    }
+  } catch (e) {
+    console.error("Unable to read 'code' from URL", e);
+  }
+})();
+
   </script>
 </body>
 </html>
