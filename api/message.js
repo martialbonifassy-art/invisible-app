@@ -38,12 +38,12 @@ function sendError(
   message: string,
   preview: boolean
 ) {
-  res.status(status).json({
-    ok: false,
-    preview,
-    error_code: code,
-    error: message,
-  });
+  res.status(200).json({
+  ok: true,
+  text: texte,                    // ton murmure
+  audio_url: audioUrl || null,    // l’URL du MP3 si tu l’as, sinon null
+  messages_restants: restants ?? null // le compteur si tu l’as, sinon null
+});
 }
 
 // ─────────────────────────────
