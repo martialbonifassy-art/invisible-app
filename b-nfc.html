@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Murmure du bijou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f4e7d8" />
+
+  <!-- Police typewriter douce -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-body: #f4e7d8;
+      --bg-card: #fffaf3;
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.5);
+      --radius-xl: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      overflow-y: scroll;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 10px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top, #f9f0e2 0, #f4e7d8 40%, #e7d7c0 100%);
+      color: var(--text-main);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 620px;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.20);
+      padding: 18px 16px 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .logo {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 0.86rem;
+      color: var(--text-soft);
+      margin-top: 3px;
+    }
+
+    /* Switch FR / EN */
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 9px;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+    }
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin: 6px 0 10px;
+      text-align: center;
+    }
+    .status.error {
+      color: #b03a3a;
+    }
+
+    .murmure-box {
+      margin-top: 4px;
+      border-radius: 18px;
+      border: 1px solid #e4d5c3;
+      background: #fffdf8;
+      padding: 14px 12px;
+      min-height: 120px;
+    }
+
+    .murmure {
+      font-family: "Special Elite", "Courier New", monospace;
+      font-size: 1rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text-main);
+    }
+
+    .audio-zone {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    audio {
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .footnote {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      text-align: center;
+      opacity: 0.95;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #f5ebdd;
+      border: 1px solid var(--border-soft);
+      font-size: 0.8rem;
+      margin: 4px auto 2px;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #82a738;
+    }
+
+    @media (max-width: 520px) {
+      .card {
+        border-radius: 18px;
+        padding: 14px 12px 18px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .logo {
+        font-size: 0.8rem;
+      }
+      .subtitle {
+        font-size: 0.82rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <div>
+        <div class="logo">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="subtitle" id="subtitleHeader">
+          Connexion à la voix de votre bijou…
+        </div>
+      </div>
+      <div class="lang-switch">
+        <button class="lang-btn active" type="button" data-lang="fr">FR</button>
+        <button class="lang-btn" type="button" data-lang="en">EN</button>
+      </div>
+    </header>
+
+    <div class="badge" id="badge" style="display:none;">
+      <span class="badge-dot"></span>
+      <span id="badgeText"></span>
+    </div>
+
+    <div class="status" id="status">
+      Lecture du murmure en préparation…
+    </div>
+
+    <div class="murmure-box">
+      <div class="murmure" id="murmure"></div>
+    </div>
+
+    <div class="audio-zone">
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+    </div>
+
+    <div class="footnote" id="footnote">
+      Ce murmure est généré à chaque appel, à partir de la mémoire du bijou et de l’atelier.
+    </div>
+  </div>
+
+  <script>
+    const langButtons = document.querySelectorAll(".lang-btn");
+    const statusEl = document.getElementById("status");
+    const murmureEl = document.getElementById("murmure");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const subtitleHeader = document.getElementById("subtitleHeader");
+    const footnoteEl = document.getElementById("footnote");
+    const badge = document.getElementById("badge");
+    const badgeText = document.getElementById("badgeText");
+
+    let currentLang = "fr";
+    let publicId = null;
+
+    // --- Détection du code depuis l’URL ---
+    function getPublicId() {
+      const url = new URL(window.location.href);
+      const fromQuery =
+        url.searchParams.get("public_id") ||
+        url.searchParams.get("code") ||
+        url.searchParams.get("c");
+      return fromQuery || null;
+    }
+
+    // --- Détection langue initiale ---
+    function detectInitialLang() {
+      const url = new URL(window.location.href);
+      const lp = (url.searchParams.get("lang") || "").toLowerCase();
+      if (lp === "fr" || lp === "en") return lp;
+
+      const nav = navigator.language || navigator.userLanguage || "fr";
+      return nav.toLowerCase().startsWith("fr") ? "fr" : "en";
+    }
+
+    // --- Animation typewriter ---
+    let typingId = 0;
+    function typewriter(el, text, speed = 28) {
+      typingId++;
+      const myId = typingId;
+      el.textContent = "";
+      let i = 0;
+
+      function step() {
+        if (typingId !== myId) return;
+        el.textContent = text.slice(0, i);
+        if (i < text.length) {
+          i++;
+          setTimeout(step, speed);
+        }
+      }
+      step();
+    }
+
+    // --- Textes UI selon langue ---
+    function applyUiTexts() {
+      if (currentLang === "en") {
+        subtitleHeader.textContent = "Connecting to the voice of your jewel…";
+        footnoteEl.textContent =
+          "This whisper is generated each time from the memory of the jewel and the Atelier.";
+        if (!publicId) {
+          statusEl.textContent = "No jewel code detected in this link.";
+        }
+      } else {
+        subtitleHeader.textContent = "Connexion à la voix de votre bijou…";
+        footnoteEl.textContent =
+          "Ce murmure est généré à chaque appel, à partir de la mémoire du bijou et de l’atelier.";
+        if (!publicId) {
+          statusEl.textContent = "Aucun code de bijou détecté dans ce lien.";
+        }
+      }
+    }
+
+    function updateLangButtons() {
+      langButtons.forEach(btn =>
+        btn.classList.toggle("active", btn.dataset.lang === currentLang)
+      );
+    }
+
+    langButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const l = btn.dataset.lang;
+        if (l === currentLang) return;
+        currentLang = l;
+        updateLangButtons();
+        applyUiTexts();
+        if (publicId) {
+          loadWhisper();
+        }
+      });
+    });
+
+    // --- Chargement du murmure ---
+    async function loadWhisper() {
+      if (!publicId) return;
+
+      audioPlayer.style.display = "none";
+      audioPlayer.removeAttribute("src");
+      statusEl.classList.remove("error");
+
+      if (currentLang === "en") {
+        statusEl.textContent = "Contacting the voice of the jewel…";
+      } else {
+        statusEl.textContent = "Connexion à la voix du bijou…";
+      }
+      murmureEl.textContent = "";
+
+      try {
+        const url = `/api/publicMessage?public_id=${encodeURIComponent(
+          publicId
+        )}&lang=${encodeURIComponent(currentLang)}`;
+
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          throw new Error("HTTP " + resp.status);
+        }
+        const data = await resp.json();
+
+        if (!data || data.ok === false) {
+          statusEl.classList.add("error");
+          statusEl.textContent =
+            currentLang === "en"
+              ? "Error: impossible to reach the voice of the jewel."
+              : "Erreur : impossible de joindre la voix du bijou.";
+
+          const fallback =
+            currentLang === "en"
+              ? "I am here, silent, but present for you. (Technical issue.)"
+              : "Je suis là, silencieux, mais présent pour toi. (Problème technique.)";
+          typewriter(murmureEl, fallback);
+          return;
+        }
+
+        statusEl.classList.remove("error");
+        statusEl.textContent =
+          currentLang === "en"
+            ? "Whisper received."
+            : "Murmure reçu.";
+
+        const texte = data.text || "";
+        if (texte) {
+          typewriter(murmureEl, texte);
+        } else {
+          murmureEl.textContent = "";
+        }
+
+        if (data.public_id) {
+          badge.style.display = "inline-flex";
+          badgeText.textContent =
+            (currentLang === "en" ? "Jewel code: " : "Code bijou : ") +
+            data.public_id;
+        }
+
+        if (data.audio) {
+          audioPlayer.src = data.audio;
+          audioPlayer.style.display = "block";
+        }
+
+      } catch (e) {
+        console.error(e);
+        statusEl.classList.add("error");
+        statusEl.textContent =
+          currentLang === "en"
+            ? "An error has occurred. Please try again later."
+            : "Une erreur est survenue. Merci de réessayer plus tard.";
+
+        const fallback =
+          currentLang === "en"
+            ? "I am here, silent, but present for you. (Internal error.)"
+            : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
+        typewriter(murmureEl, fallback);
+      }
+    }
+
+    // --- Init ---
+    (function init() {
+      currentLang = detectInitialLang();
+      updateLangButtons();
+
+      publicId = getPublicId();
+      if (!publicId) {
+        applyUiTexts();
+        return;
+      }
+
+      badge.style.display = "inline-flex";
+      badgeText.textContent =
+        (currentLang === "en" ? "Jewel code: " : "Code bijou : ") + publicId;
+
+      applyUiTexts();
+      loadWhisper();
+    })();
+  </script>
+</body>
+</html>
