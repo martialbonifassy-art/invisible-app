@@ -267,7 +267,7 @@
     </div>
 
     <div class="note-tech">
-      URL NFC associée à ce bijou :
+      URL de test associée à ce bijou (lecture directe par ID interne) :
       <div class="id-url" id="urlExemple"></div>
     </div>
   </div>
@@ -634,7 +634,7 @@
         sousThemeSelect.appendChild(opt);
       });
 
-      // Mettre à jour la fiche d’aide de base (sans sous-thème)
+      // fiche d’aide de base
       helperCard.style.display = "block";
       helperTitle.textContent = themeObj.label;
       helperDesc.textContent = themeObj.description;
@@ -660,15 +660,14 @@
     }
 
     // ─────────────────────────────────────
-    // 4) URL d’exemple pour la puce NFC
+    // 4) URL d’exemple pour la lecture
     // ─────────────────────────────────────
 
     function majUrlExemple() {
-  const id = idInput.value.trim() || "BIJOU001";
-  // Ici on suppose que l'ID bijou choisi deviendra le public_id
-  const url = `https://invisible-app-atelier.vercel.app/b.html?public_id=${encodeURIComponent(id)}&lang=fr`;
-  urlExemple.textContent = url;
-}
+      const id = idInput.value.trim() || "BIJOU001";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
 
     // ─────────────────────────────────────
     // 5) Pré-remplir l’ID si présent dans l’URL
@@ -685,6 +684,7 @@
 
     // ─────────────────────────────────────
     // 6) Prévisualisation du murmure (appel /api/message en mode preview=1)
+    //     → contrat JSON resserré : { ok, text, error, ... }
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
@@ -707,13 +707,26 @@
         detail,
         voix,
         lang: "fr",
-        preview: "1" // 👈 mode prévisualisation : pas de décrément, pas d’audio
+        preview: "1"
       });
+
+      // On ajoute aussi thème / sous-thème comme infos optionnelles
+      if (theme) params.append("theme", theme);
+      if (sousTheme) params.append("sous_theme", sousTheme);
 
       try {
         const r = await fetch(`/api/message?${params.toString()}`);
         const data = await r.json();
-        preview.textContent = data.text || "Je suis là, silencieux, mais présent pour toi.";
+
+        if (!data.ok) {
+          preview.textContent =
+            data.error || "Erreur pendant la génération du murmure.";
+          etat.textContent = "Erreur de génération (prévisualisation).";
+          return;
+        }
+
+        preview.textContent =
+          data.text || "Je suis là, silencieux, mais présent pour toi.";
         etat.textContent = "Murmure généré (prévisualisation).";
       } catch (e) {
         console.error(e);
@@ -725,7 +738,7 @@
     });
 
     // ─────────────────────────────────────
-    // 7) Enregistrement du bijou dans Supabase via /api/saveBijou
+    // 7) Enregistrement du bijou via /api/saveBijou
     // ─────────────────────────────────────
 
     btnSave.addEventListener("click", async () => {
