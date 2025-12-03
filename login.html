@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Artisan Login – Atelier des Liens Invisibles</title>
+  <title>Connexion artisan – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body {
       margin: 0;
@@ -83,34 +84,40 @@
     }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <h1>ARTISAN ACCESS</h1>
-    <p>Sign in to the jewel management space.</p>
+    <h1>ACCÈS ARTISAN</h1>
+    <p>Connexion à l’espace de gestion des bijoux.</p>
 
     <label for="email">Email</label>
-    <input id="email" type="email" placeholder="martialbonifass@gmail.com" />
+    <input id="email" type="email" placeholder="artisan@atelier.com" />
 
-    <label for="password">Password</label>
+    <label for="password">Mot de passe</label>
     <input id="password" type="password" placeholder="••••••••" />
 
-    <button id="btnLogin">Sign in</button>
+    <button id="btnLogin">Se connecter</button>
 
     <div class="msg" id="msg"></div>
   </div>
 
   <script>
+    // ---------------------------------------------
+    // Supabase client
+    // ---------------------------------------------
     const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const emailInput = document.getElementById("email");
-    const passInput = document.getElementById("password");
-    const btnLogin = document.getElementById("btnLogin");
-    const msg = document.getElementById("msg");
+    const passInput  = document.getElementById("password");
+    const btnLogin   = document.getElementById("btnLogin");
+    const msg        = document.getElementById("msg");
 
+    // ---------------------------------------------
+    // Login action
+    // ---------------------------------------------
     btnLogin.addEventListener("click", async () => {
       msg.textContent = "";
       btnLogin.disabled = true;
@@ -119,33 +126,34 @@
       const password = passInput.value.trim();
 
       if (!email || !password) {
-        msg.textContent = "Please fill in both email and password.";
+        msg.textContent = "Merci d’indiquer email et mot de passe.";
         btnLogin.disabled = false;
         return;
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) {
         console.error(error);
-        msg.textContent = "Sign-in failed: " + error.message;
+        msg.textContent = "Connexion impossible : " + error.message;
         btnLogin.disabled = false;
         return;
       }
 
-      msg.textContent = "Sign-in successful, redirecting…";
-      // Redirect to the English dashboard
-      window.location.href = "/dashboard-en.html";
+      msg.textContent = "Connexion réussie. Redirection…";
+      window.location.href = "/dashboard.html";
     });
 
-    // If already logged in, redirect directly to the English dashboard
+    // ---------------------------------------------
+    // Auto-redirect si déjà connecté
+    // ---------------------------------------------
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        window.location.href = "/dashboard-en.html";
+        window.location.href = "/dashboard.html";
       }
     })();
   </script>
