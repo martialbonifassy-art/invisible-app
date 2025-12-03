@@ -437,7 +437,20 @@
         e.preventDefault();
         searchBijou();
       }
-    });
+    });// Pré-remplissage automatique depuis ?code= dans l'URL
+(function prefillFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    const codeFromUrl = url.searchParams.get("code");
+    if (codeFromUrl) {
+      codeInput.value = codeFromUrl;
+      searchBijou();
+    }
+  } catch (e) {
+    console.error("Impossible de lire le paramètre code dans l'URL", e);
+  }
+})();
+
   </script>
 </body>
 </html>
