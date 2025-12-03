@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Dashboard Artisan – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg-card: rgba(255,250,243,0.98);
@@ -142,7 +141,7 @@
       white-space: nowrap;
     }
 
-    /* 🔹 Boutons liens "Créer un bijou" et "Retour site" */
+    /* Boutons "Créer un bijou" et "Retour site" */
     .toolbar a.btn-primary {
       padding: 6px 12px;
       border-radius: 999px;
@@ -306,7 +305,6 @@
         <button id="btnRefresh">🔄 Actualiser</button>
       </div>
 
-      <!-- ⭐ NOUVEAUX BOUTONS : CRÉER + RETOUR SITE ⭐ -->
       <div class="toolbar-group">
         <a href="/create-bijou.html" class="btn-primary">➕ Créer un bijou</a>
         <a href="/index.html" class="btn-secondary">⬅️ Retour au site</a>
@@ -332,11 +330,6 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://mchqysvhgnlixyjeserv.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jaHF5c3ZoZ25saXh5amVzZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDE2OTYsImV4cCI6MjA3OTQxNzY5Nn0.vNE1iDPQeMls7RTqfFNS8Yxdlx_J2Jb9MgK4wcBtjWE";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const msg = document.getElementById("msg");
     const userInfo = document.getElementById("userInfo");
     const searchInput = document.getElementById("search");
@@ -354,27 +347,37 @@
         .replace(/[\u0300-\u036f]/g, "");
     }
 
+    // 🔐 Vérification de la session via /api/me
     async function requireAuth() {
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
+      try {
+        const resp = await fetch("/api/me");
+        if (resp.status === 401) {
+          window.location.href = "/login.html";
+          return;
+        }
+        const data = await resp.json().catch(() => ({}));
+        const email = data && data.email ? data.email : "artisan";
 
-      if (!session) {
+        userInfo.innerHTML = `
+          Connecté en tant que ${email}
+          <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+        `;
+
+        chargerBijoux();
+      } catch (e) {
+        console.error("Erreur /api/me", e);
         window.location.href = "/login.html";
-        return;
       }
-
-      const email = session.user.email;
-      userInfo.innerHTML = `
-        Connecté en tant que ${email}
-        <button class="logout-btn" onclick="logout()">Se déconnecter</button>
-      `;
-
-      chargerBijoux();
     }
 
     async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = "/login.html";
+      try {
+        await fetch("/api/logout", { method: "POST" });
+      } catch (e) {
+        console.error("Erreur logout", e);
+      } finally {
+        window.location.href = "/login.html";
+      }
     }
 
     async function chargerBijoux() {
@@ -384,7 +387,6 @@
         const r = await fetch("/api/listBijoux");
         const data = await r.json();
 
-        // on suppose que l'API renvoie directement un tableau d'objets
         bijouxData = Array.isArray(data) ? data : (data.data || data.bijoux || []);
 
         rendreTable();
