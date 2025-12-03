@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Access your jewel – The Atelier of Invisible Links</title>
+  <title>Access your jewel – Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -21,8 +21,7 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Helvetica Neue", Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -30,7 +29,6 @@
       align-items: center;
       padding: 18px 12px;
       position: relative;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -42,11 +40,12 @@
       transform: scale(1.03);
       z-index: -2;
     }
+
     body::after {
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(246, 236, 220, 0.6);
+      background: rgba(246,236,220,0.6);
       z-index: -1;
     }
 
@@ -61,14 +60,6 @@
       backdrop-filter: blur(10px);
     }
 
-    .top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
     .logo-title {
       font-size: 1.02rem;
       letter-spacing: 0.22em;
@@ -79,31 +70,7 @@
     .logo-sub {
       font-size: 0.9rem;
       color: var(--text-soft);
-      margin-top: 4px;
-    }
-
-    .lang-switch {
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 3px 9px;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-    }
-    .lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
+      margin-bottom: 14px;
     }
 
     h2 {
@@ -111,6 +78,7 @@
       margin: 8px 0 4px;
       font-size: 1.1rem;
     }
+
     .intro {
       text-align: center;
       font-size: 0.94rem;
@@ -133,18 +101,12 @@
       border: 1px solid var(--accent-soft);
       background: #fffdf8;
       font-size: 0.96rem;
-      outline: none;
-    }
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
 
     .main-btn {
       margin-top: 16px;
       width: 100%;
       border-radius: 999px;
-      border: none;
       padding: 13px 18px;
       font-size: 1rem;
       cursor: pointer;
@@ -152,17 +114,6 @@
       color: #fff;
       font-weight: 600;
       box-shadow: 0 12px 24px rgba(0,0,0,0.25);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .main-btn:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-    .main-btn:hover:not(:disabled) {
-      background: #b67622;
     }
 
     .status {
@@ -171,10 +122,8 @@
       color: var(--text-soft);
     }
 
-    .info-bottom {
-      margin-top: 18px;
-      font-size: 0.84rem;
-      color: #8a6c4c;
+    .status.error {
+      color: #b03a3a;
     }
 
     .result {
@@ -195,6 +144,7 @@
       font-size: 0.82rem;
       margin-bottom: 8px;
     }
+
     .badge-dot {
       width: 8px;
       height: 8px;
@@ -202,17 +152,13 @@
       background: #82a738;
     }
 
-    .result-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
     .actions {
       margin-top: 12px;
       display: flex;
+      gap: 10px;
       flex-direction: column;
-      gap: 8px;
     }
+
     @media (min-width: 640px) {
       .actions { flex-direction: row; }
     }
@@ -222,13 +168,9 @@
       padding: 10px 16px;
       font-size: 0.9rem;
       cursor: pointer;
-      border: none;
       text-decoration: none;
       display: inline-flex;
-      align-items: center;
       justify-content: center;
-      gap: 6px;
-      font-weight: 500;
       width: 100%;
     }
 
@@ -238,92 +180,76 @@
       border: 1px solid #a86b1e;
       box-shadow: 0 8px 18px rgba(0,0,0,0.22);
     }
-    .btn-secondary:hover {
-      background: #b67622;
-    }
 
     .btn-ghost {
       background: #fff;
       color: var(--accent);
       border: 1px solid var(--accent-soft);
     }
-    .btn-ghost:hover {
-      background: var(--accent-soft);
-      color: #4a321e;
-    }
 
-    .error { color: #b03a3a; }
+    .info-bottom {
+      margin-top: 18px;
+      font-size: 0.84rem;
+      color: #8a6c4c;
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <div class="top-row">
-      <div>
-        <div class="logo-title">THE ATELIER OF INVISIBLE LINKS</div>
-        <div class="logo-sub">Access the whisper of your jewel.</div>
-      </div>
-
-      <div class="lang-switch">
-        <a class="lang-btn" href="/client.html">FR</a>
-        <button class="lang-btn active" type="button">EN</button>
-      </div>
+    <div>
+      <div class="logo-title">ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-sub">Access the whisper of your jewel.</div>
     </div>
 
-    <h2>Access the whisper of your jewel.</h2>
+    <h2>Find your jewel</h2>
     <p class="intro">
-      Enter the <strong>code of your jewel</strong> (printed on the card, or internal ID),
-      and we will guide you to its whisper or its recharge.
+      Enter the <strong>jewel code</strong> found on the card or inside the wooden piece,
+      and you will be guided to its whisper.
     </p>
 
     <label for="codeInput">Jewel code</label>
-    <input
-      id="codeInput"
-      type="text"
-      placeholder="e.g. 95QN27 or BIJOU001"
-    />
+    <input id="codeInput" type="text" placeholder="e.g. BQ92A1" />
 
-    <button id="searchBtn" class="main-btn">
-      🔍 Find my jewel
-    </button>
+    <button id="searchBtn" class="main-btn">🔍 Find my jewel</button>
 
     <div id="status" class="status">Waiting for your code…</div>
 
     <div id="result" class="result" style="display:none;"></div>
 
     <div class="info-bottom">
-      If you need assistance, you can always contact the Atelier directly.
+      If you need assistance, you can always contact the Atelier.
     </div>
   </div>
 
   <script>
+    const input = document.getElementById("codeInput");
     const statusEl = document.getElementById("status");
-    const resultEl = document.getElementById("result");
-    const searchBtn = document.getElementById("searchBtn");
-    const codeInput = document.getElementById("codeInput");
+    const result = document.getElementById("result");
+    const btn = document.getElementById("searchBtn");
 
     let currentBijou = null;
 
     async function searchBijou() {
-      const code = codeInput.value.trim();
+      const code = input.value.trim();
+
       if (!code) {
-        alert("Please enter a jewel code.");
+        alert("Please enter a code.");
         return;
       }
 
       statusEl.textContent = "Searching for your jewel…";
       statusEl.classList.remove("error");
-      searchBtn.disabled = true;
-      resultEl.style.display = "none";
-      resultEl.innerHTML = "";
+      btn.disabled = true;
+      result.style.display = "none";
+      result.innerHTML = "";
 
       try {
-        const params = new URLSearchParams({ code });
-        const r = await fetch(`/api/getBijou?${params.toString()}`);
+        const r = await fetch(`/api/getBijou?code=${encodeURIComponent(code)}`);
         const data = await r.json();
+        btn.disabled = false;
 
-        searchBtn.disabled = false;
-
-        if (!data || !data.ok || !data.bijou) {
+        if (!data.ok || !data.bijou) {
           statusEl.textContent = "No jewel matches this code.";
           statusEl.classList.add("error");
           return;
@@ -332,103 +258,69 @@
         const bijou = data.bijou;
         currentBijou = bijou;
 
-        const publicId = bijou.public_id || code;
-        const prenom = bijou.prenom || "the person linked to this jewel";
-        const theme = bijou.theme || "not defined";
-        const restants =
-          typeof bijou.messages_restants === "number"
-            ? bijou.messages_restants
-            : null;
-        const max =
-          typeof bijou.messages_max === "number"
-            ? bijou.messages_max
-            : null;
+        const publicId = bijou.public_id;
+        const prenom = bijou.prenom || "someone";
+        const theme = bijou.theme || "Not defined";
+
+        const restants = bijou.messages_restants;
+        const max = bijou.messages_max;
+
+        const counter =
+          restants != null && max != null
+            ? `${restants} whisper(s) remaining out of ${max}.`
+            : "";
 
         statusEl.textContent = "Jewel found.";
 
-        const listenUrl = `/b.html?code=${encodeURIComponent(publicId)}`;
+        const listenUrl = `/b.html?public_id=${encodeURIComponent(publicId)}&lang=en`;
 
-        let remainingText = "";
-        if (restants !== null && max !== null) {
-          remainingText = `There are ${restants} whisper(s) left out of ${max}.`;
-        } else if (restants !== null) {
-          remainingText = `There are ${restants} whisper(s) available.`;
-        }
-
-        resultEl.innerHTML = `
+        result.innerHTML = `
           <div class="badge">
             <div class="badge-dot"></div>
             <span>Jewel code: ${publicId}</span>
           </div>
 
-          <div class="result-title">
-            Jewel linked to ${prenom}.
-          </div>
           <div>
-            Current theme: <strong>${theme}</strong><br/>
-            ${remainingText}
+            Linked to <strong>${prenom}</strong><br/>
+            Theme: <strong>${theme}</strong><br/>
+            ${counter}
           </div>
 
           <div class="actions">
-            <a id="btnListen" class="btn-secondary" href="${listenUrl}">
-              🎧 Listen to the whisper
-            </a>
-            <a id="btnRecharge" class="btn-ghost" href="#">
-              ➕ Recharge this jewel
-            </a>
+            <a class="btn-secondary" href="${listenUrl}">🎧 Listen</a>
+            <a id="rechargeBtn" class="btn-ghost" href="#">➕ Recharge</a>
           </div>
         `;
-        resultEl.style.display = "block";
 
-        const btnRecharge = document.getElementById("btnRecharge");
-        btnRecharge.addEventListener("click", async (e) => {
+        result.style.display = "block";
+
+        document.getElementById("rechargeBtn").onclick = async (e) => {
           e.preventDefault();
-          if (!currentBijou || !currentBijou.public_id) {
-            alert("Unable to identify this jewel for recharge.");
-            return;
+          const resp = await fetch("/api/createCheckoutSession", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ public_id: publicId })
+          });
+          const out = await resp.json();
+          if (out.url) {
+            window.location.href = out.url;
+          } else {
+            alert("Recharge unavailable at the moment.");
           }
-          btnRecharge.textContent = "Please wait…";
-          btnRecharge.disabled = true;
+        };
 
-          try {
-            const resp = await fetch("/api/createCheckoutSession", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                public_id: currentBijou.public_id
-              })
-            });
-            const out = await resp.json();
-            if (out && out.url) {
-              window.location.href = out.url;
-            } else {
-              alert("Recharge unavailable at this moment. Please contact the Atelier.");
-              btnRecharge.textContent = "➕ Recharge this jewel";
-              btnRecharge.disabled = false;
-            }
-          } catch (err) {
-            console.error(err);
-            alert("Connection error. Please try again later.");
-            btnRecharge.textContent = "➕ Recharge this jewel";
-            btnRecharge.disabled = false;
-          }
-        });
-
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent = "Error while searching.";
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        statusEl.textContent = "An error occurred.";
         statusEl.classList.add("error");
-        searchBtn.disabled = false;
       }
     }
 
-    searchBtn.addEventListener("click", searchBijou);
-    codeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        searchBijou();
-      }
-    });
+    btn.onclick = searchBijou;
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") searchBijou();
+    };
   </script>
 </body>
 </html>
