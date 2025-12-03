@@ -1,74 +1,90 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Murmure du bijou – L’Atelier des Liens Invisibles</title>
+  <title>Jewel whisper – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Police machine à écrire -->
-  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
-
   <style>
     :root {
+      --bg-card: rgba(255,250,243,0.98);
       --accent: #b8833a;
       --accent-soft: #eadcc8;
-      --text-main: #2b241c;
-      --text-soft: #7f6248;
-      --card-bg: rgba(255, 250, 243, 0.96);
-      --border-soft: rgba(170, 140, 90, 0.45);
-      --shadow-soft: 0 18px 40px rgba(0,0,0,0.20);
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 26px;
     }
 
+    html { overflow-y: scroll; }
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Helvetica Neue", Arial, sans-serif;
-      background: url("foret-atelier.jpg") center/cover fixed no-repeat;
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px 10px;
-      color: var(--text-main);
+      padding: 18px 12px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    /* voile léger sur la forêt */
+    /* Forest background */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.45), transparent 55%),
-        radial-gradient(circle at 10% 80%, rgba(255,230,200,0.25), transparent 50%),
-        radial-gradient(circle at 90% 70%, rgba(210,190,160,0.25), transparent 50%),
-        rgba(0,0,0,0.30);
-      pointer-events: none;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.6);
       z-index: -1;
     }
 
-    .carte {
-      max-width: 720px;
+    .card {
+      max-width: 900px;
       width: 100%;
-      background: var(--card-bg);
-      border-radius: 28px;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 22px 22px 26px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(8px);
+      padding: 24px 20px 22px;
+      backdrop-filter: blur(10px);
     }
 
-    /* Switch FR/EN local en haut à droite */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .logo-title {
+      font-size: 0.98rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .logo-sub {
+      font-size: 0.88rem;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    /* Lang switch compatible with lang-switch.js */
     .lang-switch {
-      position: absolute;
-      top: 16px;
-      right: 18px;
       display: inline-flex;
       background: #f7ecdd;
       border-radius: 999px;
@@ -76,13 +92,12 @@
       border: 1px solid rgba(170, 140, 90, 0.45);
       gap: 3px;
       align-items: center;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
     }
     .lang-btn {
       border-radius: 999px;
       border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
+      padding: 3px 9px;
       cursor: pointer;
       background: transparent;
       color: #5a4335;
@@ -93,273 +108,302 @@
       font-weight: 600;
     }
 
-    h1 {
-      font-size: 0.95rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin: 0 0 6px;
+    h2 {
+      text-align: center;
+      margin: 8px 0 4px;
+      font-size: 1.2rem;
     }
 
-    .sous-titre {
-      font-size: 0.9rem;
+    .intro {
+      text-align: center;
+      font-size: 0.94rem;
       color: var(--text-soft);
-      margin-bottom: 12px;
+      margin-bottom: 18px;
+      line-height: 1.5;
     }
 
-    .badge-id {
+    .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       border-radius: 999px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       background: #f5ebdd;
       border: 1px solid var(--border-soft);
       font-size: 0.82rem;
       margin-bottom: 10px;
     }
-    .pastille {
+    .badge-dot {
       width: 8px;
       height: 8px;
       border-radius: 999px;
-      background: #4caf50;
-      box-shadow: 0 0 8px rgba(76,175,80,0.8);
+      background: #82a738;
     }
 
-    .etat {
-      font-size: 0.86rem;
-      color: #82644a;
+    .status {
+      font-size: 0.9rem;
+      color: var(--text-soft);
       margin-bottom: 10px;
     }
-
-    /* Zone du murmure – machine à écrire */
-    .murmure-wrapper {
-      position: relative;
-      margin: 16px 0 14px;
+    .status.error {
+      color: #b03a3a;
     }
 
-    .murmure {
-      position: relative;
-      font-family: "Special Elite", "Courier New", Courier, ui-monospace, monospace;
-      font-size: 1.08rem;
+    .whisper-box {
+      margin-top: 4px;
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: #f3e3cc;
+      font-size: 0.98rem;
       line-height: 1.6;
-      letter-spacing: 0.02em;
-      color: var(--text-main);
-      background: rgba(255,250,243,0.9);
-      border-radius: 10px;
-      padding: 14px 16px;
-      border: 1px solid rgba(0,0,0,0.12);
-      box-shadow:
-        inset 0 0 6px rgba(0,0,0,0.06),
-        0 2px 6px rgba(0,0,0,0.12);
-      text-align: left;
-      min-height: 4em;
+      min-height: 3em;
       white-space: pre-wrap;
     }
 
-    .murmure::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
-      background: radial-gradient(circle at 20% 0%, rgba(255, 235, 190, 0.55), transparent 60%);
-      mix-blend-mode: soft-light;
-      opacity: 0.85;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .murmure::after {
-      content: "▌";
-      margin-left: 4px;
-      animation: blink 0.7s infinite;
-      opacity: 1;
-    }
-
-    @keyframes blink {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-
-    /* Petites lumières */
-    .spark {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255, 223, 150, 0.9);
-      box-shadow: 0 0 10px rgba(255, 223, 150, 0.95);
-      opacity: 0.0;
-      animation: floatSpark 6s linear infinite;
-      pointer-events: none;
-    }
-
-    .spark:nth-child(1) { top: 12%; left: 16%; animation-delay: 0s; }
-    .spark:nth-child(2) { top: 20%; right: 12%; animation-delay: 1.2s; }
-    .spark:nth-child(3) { bottom: 18%; left: 26%; animation-delay: 2.4s; }
-    .spark:nth-child(4) { bottom: 10%; right: 22%; animation-delay: 3.6s; }
-
-    @keyframes floatSpark {
-      0%   { transform: translateY(6px); opacity: 0; }
-      10%  { opacity: 0.9; }
-      60%  { opacity: 0.7; }
-      100% { transform: translateY(-10px); opacity: 0; }
-    }
-
-    .compteur {
-      font-size: 0.82rem;
-      color: #7a6450;
-      margin-top: 6px;
-    }
-
-    .note {
-      font-size: 0.78rem;
-      color: #a1896a;
-      margin-top: 10px;
-    }
-
-    .note a {
-      color: #8b6425;
-      text-decoration: none;
-    }
-
-    .note a:hover {
-      text-decoration: underline;
+    .audio-zone {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
     }
 
     audio {
-      margin-top: 10px;
       width: 100%;
+      max-width: 100%;
+    }
+
+    .btn-refresh {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #d39633;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-refresh:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .btn-refresh:hover:not(:disabled) {
+      background: #b67622;
+    }
+
+    .counter {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #8a6c4c;
+    }
+
+    .meta {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #7a5a45;
+    }
+
+    .back-link {
+      margin-top: 18px;
+      font-size: 0.84rem;
+      color: #7a5a45;
+    }
+    .back-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="carte">
-    <div class="lang-switch">
-      <button class="lang-btn active" id="btnFr">FR</button>
-      <button class="lang-btn" id="btnEn">EN</button>
-    </div>
-
-    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="sous-titre">Murmure du bijou relié au bois et à l’IA.</div>
-
-    <div class="badge-id">
-      <span class="pastille"></span>
-      <span id="badgeId">ID : Bijou inconnu</span>
-    </div>
-
-    <div class="etat" id="etat">Le bijou se réveille…</div>
-
-    <div class="murmure-wrapper">
-      <div class="spark"></div>
-      <div class="spark"></div>
-      <div class="spark"></div>
-      <div class="spark"></div>
-
-      <div class="murmure" id="murmure">
-        Le murmure va apparaître ici…
+  <div class="card">
+    <div class="top-row">
+      <div>
+        <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="logo-sub">
+          A wooden jewel linked to a living whisper.
+        </div>
+      </div>
+      <div class="lang-switch">
+        <button class="lang-btn" type="button" data-lang="fr">FR</button>
+        <button class="lang-btn active" type="button" data-lang="en">EN</button>
       </div>
     </div>
 
-    <audio id="murmureAudio" controls style="display:none;">
-      Votre navigateur ne supporte pas la lecture audio.
-    </audio>
+    <h2>Whisper of the jewel</h2>
+    <p class="intro">
+      Each scan lets the jewel breathe a new message. Take a moment,
+      put your headphones on if you can, and let the whisper reach you.
+    </p>
 
-    <div class="compteur" id="compteur"></div>
+    <div class="badge" id="badge">
+      <div class="badge-dot"></div>
+      <span id="badgeText">Connecting to the jewel…</span>
+    </div>
 
-    <div class="note">
-      Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
-      <br />
-      Si quelque chose vous semble anormal, contactez l’atelier.
+    <div id="status" class="status">Preparing the whisper…</div>
+
+    <div id="whisper" class="whisper-box">
+      …
+    </div>
+
+    <div class="audio-zone">
+      <audio id="audio" controls style="display:none;"></audio>
+      <button id="btnNew" class="btn-refresh">
+        🔁 Listen to a new whisper
+      </button>
+    </div>
+
+    <div id="counter" class="counter"></div>
+    <div id="meta" class="meta"></div>
+
+    <div class="back-link">
+      If you experience an issue, you can go back via
+      <a href="/client-en.html">the jewel access page</a>.
     </div>
   </div>
 
+  <script src="/lang-switch.js"></script>
   <script>
-    const murEl = document.getElementById("murmure");
-    const etatEl = document.getElementById("etat");
-    const badgeIdEl = document.getElementById("badgeId");
-    const compteurEl = document.getElementById("compteur");
-    const audioEl = document.getElementById("murmureAudio");
+    const statusEl = document.getElementById("status");
+    const badgeText = document.getElementById("badgeText");
+    const whisperEl = document.getElementById("whisper");
+    const audioEl = document.getElementById("audio");
+    const btnNew = document.getElementById("btnNew");
+    const counterEl = document.getElementById("counter");
+    const metaEl = document.getElementById("meta");
 
-    const btnFr = document.getElementById("btnFr");
-    const btnEn = document.getElementById("btnEn");
+    let isLoading = false;
+    let currentId = null;
+    let currentPublicId = null;
 
-    function getBijouIdFromUrl() {
+    function readParams() {
       const url = new URL(window.location.href);
-      return url.searchParams.get("id") || "BIJOU001";
+      const id = url.searchParams.get("id");
+      const publicId = url.searchParams.get("public_id");
+      currentId = id;
+      currentPublicId = publicId;
     }
 
-    const bijouId = getBijouIdFromUrl();
+    async function loadWhisper() {
+      if (isLoading) return;
+      isLoading = true;
+      btnNew.disabled = true;
+      statusEl.classList.remove("error");
 
-    // Switch vers la version EN en conservant l’ID
-    btnEn.addEventListener("click", () => {
-      const url = new URL(window.location.href);
-      url.pathname = "/bijou-en.html";
-      window.location.href = url.toString();
-    });
-
-    btnFr.addEventListener("click", () => {
-      // on est déjà sur la version FR, rien à faire
-    });
-
-    // Effet machine à écrire
-    function typeWriterEffect(text, speed = 28) {
-      murEl.innerHTML = "";
-      let i = 0;
-
-      function step() {
-        if (i <= text.length) {
-          const partial = text.slice(0, i);
-          murEl.innerHTML = partial
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\n/g, "<br>");
-          i++;
-          setTimeout(step, speed);
-        }
+      if (!currentId && !currentPublicId) {
+        statusEl.textContent = "No jewel identifier was provided in the link.";
+        statusEl.classList.add("error");
+        badgeText.textContent = "Jewel not found";
+        whisperEl.textContent = "This page needs a valid link from the Atelier to work.";
+        audioEl.style.display = "none";
+        btnNew.disabled = false;
+        isLoading = false;
+        return;
       }
-      step();
-    }
 
-    async function chargerMurmure() {
-      const id = bijouId;
-      badgeIdEl.textContent = `ID : ${id}`;
-      etatEl.textContent = "Le bijou écoute votre présence…";
+      statusEl.textContent = "The AI is composing the whisper…";
+      badgeText.textContent = "Connecting to the jewel…";
+      whisperEl.textContent = "…";
 
       try {
-        const params = new URLSearchParams({
-          id,
-          lang: "fr"
-        });
+        const params = new URLSearchParams({ lang: "en" });
+        if (currentId) params.set("id", currentId);
+        if (currentPublicId) params.set("public_id", currentPublicId);
 
-        const r = await fetch(`/api/message?${params.toString()}`);
+        const r = await fetch("/api/message?" + params.toString());
         const data = await r.json();
 
-        const texte = data.text || "Je suis là, silencieux, mais présent pour toi.";
-        typeWriterEffect(texte);
-        etatEl.textContent = "Murmure du jour généré.";
-
-        if (data.audio) {
-          audioEl.style.display = "block";
-          audioEl.src = data.audio;
-        } else {
+        if (!data || data.error || data.ok === false) {
+          console.error("API error:", data);
+          statusEl.textContent = data && data.error
+            ? "Error: " + data.error
+            : "Unable to retrieve the whisper.";
+          statusEl.classList.add("error");
+          badgeText.textContent = "Jewel unreachable";
+          whisperEl.textContent = "The jewel could not answer this time. Please try again in a moment, or contact the Atelier.";
           audioEl.style.display = "none";
-          audioEl.src = "";
+          btnNew.disabled = false;
+          isLoading = false;
+          return;
         }
 
-        compteurEl.textContent = "";
+        const text = data.text || data.message || "";
+        const audioUrl = data.audio_url || data.audio || null;
+
+        // messages counter (names can vary, we try several)
+        const restants =
+          typeof data.messages_restants === "number"
+            ? data.messages_restants
+            : (typeof data.restants === "number" ? data.restants : null);
+        const max =
+          typeof data.messages_max === "number"
+            ? data.messages_max
+            : (typeof data.max === "number" ? data.max : null);
+
+        const bijou = data.bijou || {};
+        const prenom = bijou.prenom || bijou.name || null;
+        const theme = bijou.theme || null;
+
+        badgeText.textContent = prenom
+          ? `Jewel linked to ${prenom}`
+          : "Linked jewel";
+
+        whisperEl.textContent =
+          text ||
+          "I am here, silent for now, but present with you.";
+
+        if (audioUrl) {
+          audioEl.src = audioUrl;
+          audioEl.style.display = "block";
+        } else {
+          audioEl.style.display = "none";
+        }
+
+        if (restants !== null && max !== null) {
+          counterEl.textContent = `There are ${restants} whisper(s) left out of ${max}.`;
+        } else if (restants !== null) {
+          counterEl.textContent = `There are ${restants} whisper(s) available.`;
+        } else {
+          counterEl.textContent = "";
+        }
+
+        if (theme || prenom) {
+          const parts = [];
+          if (theme) parts.push(`Theme: ${theme}`);
+          if (prenom) parts.push(`For: ${prenom}`);
+          metaEl.textContent = parts.join(" · ");
+        } else {
+          metaEl.textContent = "";
+        }
+
+        statusEl.textContent = "Whisper received.";
       } catch (e) {
         console.error(e);
-        etatEl.textContent = "Erreur : impossible de joindre la voix du bijou.";
-        typeWriterEffect("Je suis là, silencieux, mais présent pour toi. (Erreur interne.)");
+        statusEl.textContent = "Connection error. Please try again a bit later.";
+        statusEl.classList.add("error");
+        badgeText.textContent = "Jewel unreachable";
+        whisperEl.textContent = "The jewel could not answer this time. Please try again later, or contact the Atelier.";
         audioEl.style.display = "none";
-        audioEl.src = "";
+      } finally {
+        btnNew.disabled = false;
+        isLoading = false;
       }
     }
 
-    window.addEventListener("load", chargerMurmure);
+    btnNew.addEventListener("click", loadWhisper);
+
+    // Init
+    readParams();
+    loadWhisper();
   </script>
 </body>
 </html>
