@@ -267,16 +267,13 @@
     </div>
 
     <div class="note-tech">
-      NFC URL linked to this jewel:
+      Test URL linked to this jewel (direct read by internal ID):
       <div class="id-url" id="urlExemple"></div>
     </div>
   </div>
 
   <script>
-    // ─────────────────────────────────────
     // 1) Theme data (values kept in French for DB coherence)
-    // ─────────────────────────────────────
-
     const THEMES_EN = [
       {
         id: "amour",
@@ -564,10 +561,7 @@
       }
     ];
 
-    // ─────────────────────────────────────
     // 2) DOM elements
-    // ─────────────────────────────────────
-
     const idInput = document.getElementById("idBijou");
     const prenomInput = document.getElementById("prenom");
     const intentionInput = document.getElementById("intention");
@@ -586,10 +580,7 @@
     const helperDesc = document.getElementById("helperDesc");
     const helperExample = document.getElementById("helperExample");
 
-    // ─────────────────────────────────────
     // 3) Fill theme list
-    // ─────────────────────────────────────
-
     function initThemesEn() {
       themeSelect.innerHTML = "";
       const optionDefault = document.createElement("option");
@@ -628,7 +619,7 @@
 
       themeObj.subthemes.forEach((st) => {
         const opt = document.createElement("option");
-        opt.value = st.value; // also French label stored in DB
+        opt.value = st.value; // French value stored in DB
         opt.textContent = st.label;
         opt.dataset.example = st.example;
         sousThemeSelect.appendChild(opt);
@@ -658,20 +649,14 @@
       helperExample.textContent = subObj?.example || themeObj.subthemes[0]?.example || "";
     }
 
-    // ─────────────────────────────────────
-    // 4) Example NFC URL
-    // ─────────────────────────────────────
-
+    // 4) Example NFC / test URL (ID-based for internal use)
     function majUrlExemple() {
-  const id = idInput.value.trim() || "BIJOU001";
-  const url = `https://invisible-app-atelier.vercel.app/b.html?public_id=${encodeURIComponent(id)}&lang=en`;
-  urlExemple.textContent = url;
-}
+      const id = idInput.value.trim() || "BIJOU001";
+      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
+      urlExemple.textContent = url;
+    }
 
-    // ─────────────────────────────────────
     // 5) Init from URL if id= is present
-    // ─────────────────────────────────────
-
     function initFromUrl() {
       const url = new URL(window.location.href);
       const idParam = url.searchParams.get("id");
@@ -681,16 +666,16 @@
       majUrlExemple();
     }
 
-    // ─────────────────────────────────────
-    // 6) Preview whisper (calls /api/message in preview=1)
-    // ─────────────────────────────────────
-
+    // 6) Preview whisper (calls /api/message with preview=1)
+    //    → expects JSON: { ok, text, error, ... }
     btnTester.addEventListener("click", async () => {
       const id = idInput.value.trim() || "BIJOU001";
       const prenom = prenomInput.value.trim();
       const intention = intentionInput.value.trim();
       const detail = detailInput.value.trim();
       const voix = voixSelect.value;
+      const theme = themeSelect.value;
+      const sousTheme = sousThemeSelect.value;
 
       etat.textContent = "The AI is composing the whisper…";
       btnTester.disabled = true;
@@ -703,13 +688,25 @@
         detail,
         voix,
         lang: "en",
-        preview: "1" // preview mode: no decrement, no audio
+        preview: "1"
       });
+
+      if (theme) params.append("theme", theme);
+      if (sousTheme) params.append("sous_theme", sousTheme);
 
       try {
         const r = await fetch(`/api/message?${params.toString()}`);
         const data = await r.json();
-        preview.textContent = data.text || "I am here, silent, but present for you.";
+
+        if (!data.ok) {
+          preview.textContent =
+            data.error || "Error while generating the whisper.";
+          etat.textContent = "Generation error (preview).";
+          return;
+        }
+
+        preview.textContent =
+          data.text || "I am here, silent, but present for you.";
         etat.textContent = "Whisper generated (preview).";
       } catch (e) {
         console.error(e);
@@ -720,10 +717,7 @@
       }
     });
 
-    // ─────────────────────────────────────
     // 7) Save jewel in Supabase via /api/saveBijou
-    // ─────────────────────────────────────
-
     btnSave.addEventListener("click", async () => {
       const id = idInput.value.trim();
       if (!id) {
@@ -765,10 +759,7 @@
       }
     });
 
-    // ─────────────────────────────────────
     // 8) Initialization
-    // ─────────────────────────────────────
-
     idInput.addEventListener("input", majUrlExemple);
     themeSelect.addEventListener("change", onThemeChange);
     sousThemeSelect.addEventListener("change", onSousThemeChange);
