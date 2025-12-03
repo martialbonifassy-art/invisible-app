@@ -21,8 +21,7 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Helvetica Neue", Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -30,7 +29,6 @@
       align-items: center;
       padding: 18px 12px;
       position: relative;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -42,11 +40,12 @@
       transform: scale(1.03);
       z-index: -2;
     }
+
     body::after {
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(246, 236, 220, 0.6);
+      background: rgba(246,236,220,0.6);
       z-index: -1;
     }
 
@@ -61,14 +60,6 @@
       backdrop-filter: blur(10px);
     }
 
-    .top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
     .logo-title {
       font-size: 1.02rem;
       letter-spacing: 0.22em;
@@ -79,31 +70,7 @@
     .logo-sub {
       font-size: 0.9rem;
       color: var(--text-soft);
-      margin-top: 4px;
-    }
-
-    .lang-switch {
-      display: inline-flex;
-      background: #f7ecdd;
-      border-radius: 999px;
-      padding: 3px;
-      border: 1px solid rgba(170, 140, 90, 0.45);
-      gap: 3px;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-    .lang-btn {
-      border-radius: 999px;
-      border: none;
-      padding: 3px 9px;
-      cursor: pointer;
-      background: transparent;
-      color: #5a4335;
-    }
-    .lang-btn.active {
-      background: #b8833a;
-      color: #fff;
-      font-weight: 600;
+      margin-bottom: 14px;
     }
 
     h2 {
@@ -111,6 +78,7 @@
       margin: 8px 0 4px;
       font-size: 1.1rem;
     }
+
     .intro {
       text-align: center;
       font-size: 0.94rem;
@@ -133,18 +101,12 @@
       border: 1px solid var(--accent-soft);
       background: #fffdf8;
       font-size: 0.96rem;
-      outline: none;
-    }
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(184,131,58,0.25);
     }
 
     .main-btn {
       margin-top: 16px;
       width: 100%;
       border-radius: 999px;
-      border: none;
       padding: 13px 18px;
       font-size: 1rem;
       cursor: pointer;
@@ -152,17 +114,6 @@
       color: #fff;
       font-weight: 600;
       box-shadow: 0 12px 24px rgba(0,0,0,0.25);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .main-btn:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-    .main-btn:hover:not(:disabled) {
-      background: #b67622;
     }
 
     .status {
@@ -171,10 +122,8 @@
       color: var(--text-soft);
     }
 
-    .info-bottom {
-      margin-top: 18px;
-      font-size: 0.84rem;
-      color: #8a6c4c;
+    .status.error {
+      color: #b03a3a;
     }
 
     .result {
@@ -195,6 +144,7 @@
       font-size: 0.82rem;
       margin-bottom: 8px;
     }
+
     .badge-dot {
       width: 8px;
       height: 8px;
@@ -202,17 +152,13 @@
       background: #82a738;
     }
 
-    .result-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
     .actions {
       margin-top: 12px;
       display: flex;
+      gap: 10px;
       flex-direction: column;
-      gap: 8px;
     }
+
     @media (min-width: 640px) {
       .actions { flex-direction: row; }
     }
@@ -222,13 +168,9 @@
       padding: 10px 16px;
       font-size: 0.9rem;
       cursor: pointer;
-      border: none;
       text-decoration: none;
       display: inline-flex;
-      align-items: center;
       justify-content: center;
-      gap: 6px;
-      font-weight: 500;
       width: 100%;
     }
 
@@ -238,92 +180,76 @@
       border: 1px solid #a86b1e;
       box-shadow: 0 8px 18px rgba(0,0,0,0.22);
     }
-    .btn-secondary:hover {
-      background: #b67622;
-    }
 
     .btn-ghost {
       background: #fff;
       color: var(--accent);
       border: 1px solid var(--accent-soft);
     }
-    .btn-ghost:hover {
-      background: var(--accent-soft);
-      color: #4a321e;
-    }
 
-    .error { color: #b03a3a; }
+    .info-bottom {
+      margin-top: 18px;
+      font-size: 0.84rem;
+      color: #8a6c4c;
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <div class="top-row">
-      <div>
-        <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
-        <div class="logo-sub">Accédez au murmure de votre bijou.</div>
-      </div>
-      <div class="lang-switch">
-        <button class="lang-btn active" type="button">FR</button>
-        <a class="lang-btn" href="/client-en.html">EN</a>
-      </div>
+    <div>
+      <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+      <div class="logo-sub">Accédez au murmure de votre bijou.</div>
     </div>
 
-    <h2>Accédez au murmure de votre bijou.</h2>
+    <h2>Retrouvez votre bijou</h2>
     <p class="intro">
-      Indiquez le <strong>code de votre bijou</strong> (code sur la carte, ou identifiant interne), et
-      nous vous guiderons vers son murmure ou sa recharge.
+      Indiquez le <strong>code de votre bijou</strong> (carte ou NFC), et nous vous guiderons vers son murmure.
     </p>
 
     <label for="codeInput">Code du bijou</label>
-    <input
-      id="codeInput"
-      type="text"
-      placeholder="ex : 95QN27 ou BIJOU001"
-    />
+    <input id="codeInput" type="text" placeholder="ex : BQ92A1" />
 
-    <button id="searchBtn" class="main-btn">
-      🔍 Trouver mon bijou
-    </button>
+    <button id="searchBtn" class="main-btn">🔍 Trouver mon bijou</button>
 
     <div id="status" class="status">En attente de votre code…</div>
 
     <div id="result" class="result" style="display:none;"></div>
 
     <div class="info-bottom">
-      En cas de difficulté, vous pouvez toujours contacter l’Atelier directement.
+      En cas de difficulté, contactez l’Atelier.
     </div>
   </div>
 
   <script>
+    const input = document.getElementById("codeInput");
     const statusEl = document.getElementById("status");
-    const resultEl = document.getElementById("result");
-    const searchBtn = document.getElementById("searchBtn");
-    const codeInput = document.getElementById("codeInput");
+    const result = document.getElementById("result");
+    const btn = document.getElementById("searchBtn");
 
-    let currentBijou = null; // pour le bouton de recharge
+    let currentBijou = null;
 
     async function searchBijou() {
-      const code = codeInput.value.trim();
+      const code = input.value.trim();
+
       if (!code) {
-        alert("Merci d’indiquer un code de bijou.");
+        alert("Merci d’indiquer un code.");
         return;
       }
 
-      statusEl.textContent = "Recherche du bijou en cours…";
+      statusEl.textContent = "Recherche du bijou…";
       statusEl.classList.remove("error");
-      searchBtn.disabled = true;
-      resultEl.style.display = "none";
-      resultEl.innerHTML = "";
+      btn.disabled = true;
+      result.style.display = "none";
+      result.innerHTML = "";
 
       try {
-        const params = new URLSearchParams({ code });
-        const r = await fetch(`/api/getBijou?${params.toString()}`);
+        const r = await fetch(`/api/getBijou?code=${encodeURIComponent(code)}`);
         const data = await r.json();
+        btn.disabled = false;
 
-        searchBtn.disabled = false;
-
-        if (!data || !data.ok || !data.bijou) {
-          statusEl.textContent = "Aucun bijou ne correspond à ce code.";
+        if (!data.ok || !data.bijou) {
+          statusEl.textContent = "Aucun bijou trouvé.";
           statusEl.classList.add("error");
           return;
         }
@@ -331,104 +257,70 @@
         const bijou = data.bijou;
         currentBijou = bijou;
 
-        const publicId = bijou.public_id || code;
-        const prenom = bijou.prenom || "la personne reliée à ce bijou";
-        const theme = bijou.theme || "non défini";
-        const restants =
-          typeof bijou.messages_restants === "number"
-            ? bijou.messages_restants
-            : null;
-        const max =
-          typeof bijou.messages_max === "number"
-            ? bijou.messages_max
-            : null;
+        const publicId = bijou.public_id;
+        const prenom = bijou.prenom || "une personne";
+        const theme = bijou.theme || "Non défini";
+
+        const restants = bijou.messages_restants;
+        const max = bijou.messages_max;
+
+        const compteur =
+          restants != null && max != null
+            ? `Il reste ${restants} murmure(s) sur ${max}.`
+            : "";
 
         statusEl.textContent = "Bijou trouvé.";
 
-        const listenUrl = `/b.html?code=${encodeURIComponent(publicId)}`;
+        const listenUrl = `/b.html?public_id=${encodeURIComponent(publicId)}`;
 
-        let compteurTexte = "";
-        if (restants !== null && max !== null) {
-          compteurTexte = `Il reste ${restants} murmure(s) sur ${max}.`;
-        } else if (restants !== null) {
-          compteurTexte = `Il reste ${restants} murmure(s) disponibles.`;
-        }
-
-        resultEl.innerHTML = `
+        result.innerHTML = `
           <div class="badge">
             <div class="badge-dot"></div>
             <span>Code bijou : ${publicId}</span>
           </div>
 
-          <div class="result-title">
-            Bijou relié à ${prenom}.
-          </div>
           <div>
-            Thème actuel : <strong>${theme}</strong><br/>
-            ${compteurTexte}
+            Relié à <strong>${prenom}</strong><br/>
+            Thème : <strong>${theme}</strong><br/>
+            ${compteur}
           </div>
 
           <div class="actions">
-            <a id="btnListen" class="btn-secondary" href="${listenUrl}">
-              🎧 Écouter le murmure
-            </a>
-            <a id="btnRecharge" class="btn-ghost" href="#">
-              ➕ Recharger ce bijou
-            </a>
+            <a class="btn-secondary" href="${listenUrl}">🎧 Écouter</a>
+            <a id="rechargeBtn" class="btn-ghost" href="#">➕ Recharger</a>
           </div>
         `;
-        resultEl.style.display = "block";
 
-        // branchement du bouton recharge (Stripe / paiement)
-        const btnRecharge = document.getElementById("btnRecharge");
-        btnRecharge.addEventListener("click", async (e) => {
+        result.style.display = "block";
+
+        // RECHARGE
+        document.getElementById("rechargeBtn").onclick = async (e) => {
           e.preventDefault();
-          if (!currentBijou || !currentBijou.public_id) {
-            alert("Impossible d’identifier ce bijou pour la recharge.");
-            return;
+          const resp = await fetch("/api/createCheckoutSession", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ public_id: publicId })
+          });
+          const out = await resp.json();
+          if (out.url) {
+            window.location.href = out.url;
+          } else {
+            alert("Service momentanément indisponible.");
           }
-          btnRecharge.textContent = "Patientez…";
-          btnRecharge.disabled = true;
+        };
 
-          try {
-            const resp = await fetch("/api/createCheckoutSession", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                public_id: currentBijou.public_id
-              })
-            });
-            const out = await resp.json();
-            if (out && out.url) {
-              window.location.href = out.url;
-            } else {
-              alert("Recharge impossible pour le moment. Merci de contacter l’Atelier.");
-              btnRecharge.textContent = "➕ Recharger ce bijou";
-              btnRecharge.disabled = false;
-            }
-          } catch (err) {
-            console.error(err);
-            alert("Erreur de connexion. Merci de réessayer plus tard.");
-            btnRecharge.textContent = "➕ Recharger ce bijou";
-            btnRecharge.disabled = false;
-          }
-        });
-
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
         statusEl.textContent = "Erreur lors de la recherche.";
         statusEl.classList.add("error");
-        searchBtn.disabled = false;
       }
     }
 
-    searchBtn.addEventListener("click", searchBijou);
-    codeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        searchBijou();
-      }
-    });
+    btn.onclick = searchBijou;
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") searchBijou();
+    };
   </script>
 </body>
 </html>
