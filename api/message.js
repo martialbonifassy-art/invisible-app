@@ -1,6 +1,6 @@
-// /pages/api/message.js  (Next.js Pages router)
-// ou /api/message.js sur Vercel
+// /pages/api/message.ts  (ou /api/message.js en JS pur sans les types)
 
+import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 
@@ -8,12 +8,9 @@ import OpenAI from "openai";
 // 1) Config Supabase + OpenAI
 // ─────────────────────────────
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // service role côté serveur
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  console.warn("[/api/message] Missing Supabase env vars");
-}
+const SUPABASE_URL = process.env.SUPABASE_URL as string;
+const SUPABASE_SERVICE_KEY = process.env
+  .SUPABASE_SERVICE_KEY as string; // clé service role (côté serveur uniquement)
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -22,27 +19,31 @@ const openai = new OpenAI({
 });
 
 // ─────────────────────────────
-// 2) Contrat JSON + helper erreur
+// 2) Contrat JSON
 // ─────────────────────────────
-// Contrat de réponse (intentionnel) :
-//
-// {
-//   ok: boolean,
-//   preview: boolean,
-//   text?: string,
-//   audio_url?: string | null,
-//   remaining?: number | null,
-//   error?: string,
-//   error_code?: string
-// }
 
-function sendError(res, statusCode, code, message, preview) {
-  // status HTTP utile pour le debug / logs
-  res.status(statusCode).json({
+type MessageResponse = {
+  ok: boolean;
+  preview: boolean;
+  text?: string;
+  audio_url?: string | null;
+  remaining?: number;
+  error?: string;
+  error_code?: string;
+};
+
+function sendError(
+  res: NextApiResponse<MessageResponse>,
+  status: number,
+  code: string,
+  message: string,
+  preview: boolean
+) {
+  return res.status(status).json({
     ok: false,
     preview,
-    error: message,
     error_code: code,
+    error: message,
   });
 }
 
@@ -50,17 +51,21 @@ function sendError(res, statusCode, code, message, preview) {
 // 3) Handler principal
 // ─────────────────────────────
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<MessageResponse>
+) {
   if (req.method !== "GET") {
-    return res.status(405).json({
-      ok: false,
-      preview: true,
-      error_code: "METHOD_NOT_ALLOWED",
-      error: "Only GET is allowed.",
-    });
+    return sendError(
+      res,
+      405,
+      "METHOD_NOT_ALLOWED",
+      "Only GET is allowed.",
+      true
+    );
   }
 
-  // Récupération des query params
+  // Query params
   const {
     id,
     prenom = "",
@@ -71,27 +76,35 @@ export default async function handler(req, res) {
     preview: previewParam,
     theme,
     sous_theme,
-  } = req.query || {};
+  } = req.query as {
+    id?: string;
+    prenom?: string;
+    intention?: string;
+    detail?: string;
+    voix?: string;
+    lang?: string;
+    preview?: string;
+    theme?: string;
+    sous_theme?: string;
+  };
 
   const isPreview = previewParam === "1" || previewParam === "true";
+  const safeLang = lang === "en" ? "en" : "fr";
 
   if (!id) {
     return sendError(
       res,
       400,
       "MISSING_ID",
-      lang === "en" ? "Missing jewel ID." : "ID de bijou manquant.",
+      safeLang === "en" ? "Missing jewel ID." : "ID de bijou manquant.",
       isPreview
     );
   }
-
-  const safeLang = lang === "en" ? "en" : "fr";
 
   try {
     // ─────────────────────────────
     // 4) Récupérer le bijou
     // ─────────────────────────────
-
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select("*")
@@ -99,7 +112,7 @@ export default async function handler(req, res) {
       .maybeSingle();
 
     if (fetchError) {
-      console.error("[/api/message] Supabase fetch error:", fetchError);
+      console.error("Supabase fetch error:", fetchError);
       return sendError(
         res,
         500,
@@ -124,9 +137,8 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────
-    // 5) Vérifier crédit / état (si pas preview)
+    // 5) Vérifier crédit / état (uniquement SI PAS preview)
     // ─────────────────────────────
-
     if (!isPreview) {
       if (bijou.locked) {
         return sendError(
@@ -169,7 +181,7 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────
-    // 6) Construire le prompt pour l’IA
+    // 6) Construire le prompt
     // ─────────────────────────────
 
     const targetName = prenom || bijou.prenom || "";
@@ -189,15 +201,21 @@ export default async function handler(req, res) {
     const themeLine =
       effectiveTheme || effectiveSousTheme
         ? safeLang === "en"
-          ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${effectiveSousTheme || "-"}.`
-          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${effectiveSousTheme || "-"}.`
+          ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${
+              effectiveSousTheme || "-"
+            }.`
+          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${
+              effectiveSousTheme || "-"
+            }.`
         : "";
 
     const intentionLine =
       intention || bijou.intention
         ? safeLang === "en"
           ? `Extra instructions from the giver: ${intention || bijou.intention}.`
-          : `Instructions supplémentaires de la personne qui offre : ${intention || bijou.intention}.`
+          : `Instructions supplémentaires de la personne qui offre : ${
+              intention || bijou.intention
+            }.`
         : "";
 
     const detailLine =
@@ -231,7 +249,7 @@ export default async function handler(req, res) {
       .join("\n");
 
     // ─────────────────────────────
-    // 7) Appel OpenAI (texte)
+    // 7) Génération texte OpenAI
     // ─────────────────────────────
 
     let generatedText = "";
@@ -240,10 +258,7 @@ export default async function handler(req, res) {
       const chat = await openai.chat.completions.create({
         model: "gpt-4.1-mini",
         messages: [
-          {
-            role: "system",
-            content: fullPrompt,
-          },
+          { role: "system", content: fullPrompt },
           {
             role: "user",
             content:
@@ -257,16 +272,12 @@ export default async function handler(req, res) {
       });
 
       generatedText =
-        (chat.choices &&
-          chat.choices[0] &&
-          chat.choices[0].message &&
-          chat.choices[0].message.content &&
-          chat.choices[0].message.content.trim()) ||
+        chat.choices?.[0]?.message?.content?.trim() ||
         (safeLang === "en"
           ? "I am here, silent, but present for you."
           : "Je suis là, silencieux, mais présent pour toi.");
     } catch (err) {
-      console.error("[/api/message] OpenAI text error:", err);
+      console.error("OpenAI text error:", err);
       return sendError(
         res,
         500,
@@ -279,7 +290,7 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────
-    // 8) Si preview → pas de décrément, pas d’audio
+    // 8) MODE PREVIEW → pas de décrément, pas d’audio
     // ─────────────────────────────
 
     if (isPreview) {
@@ -288,18 +299,15 @@ export default async function handler(req, res) {
         preview: true,
         text: generatedText,
         audio_url: null,
-        remaining: bijou.messages_restants ?? null,
       });
     }
 
     // ─────────────────────────────
-    // 9) (Optionnel) TTS & stockage audio
+    // 9) TTS & stockage audio (optionnel, audio_url peut rester null)
     // ─────────────────────────────
-    // Pour l’instant, on laisse audio_url à null pour ne pas complexifier.
-    // Quand tu voudras brancher le stockage (Supabase Storage, S3…), on ajoutera ici.
-    let audioUrl = null;
 
-    /*
+    let audioUrl: string | null = null;
+
     try {
       const speech = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
@@ -312,56 +320,40 @@ export default async function handler(req, res) {
         input: generatedText,
       });
 
-      const audioBuffer = Buffer.from(await speech.arrayBuffer());
-      const filePath = `audio/${id}-${Date.now()}.mp3`;
+      // Ici tu peux, plus tard, uploader le buffer dans Supabase Storage
+      // et remplir audioUrl avec l’URL publique.
+      // Pour l’instant on laisse audioUrl = null.
 
-      const { data: uploaded, error: uploadError } = await supabase.storage
-        .from("audio")
-        .upload(filePath, audioBuffer, { contentType: "audio/mpeg" });
-
-      if (!uploadError) {
-        const { data: publicUrl } = supabase.storage
-          .from("audio")
-          .getPublicUrl(filePath);
-        audioUrl = publicUrl.publicUrl;
-      }
-    } catch (err) {
-      console.error("[/api/message] TTS error:", err);
       audioUrl = null;
+    } catch (err) {
+      console.error("TTS error:", err);
+      audioUrl = null; // on ne bloque pas la réponse
     }
-    */
 
     // ─────────────────────────────
-    // 10) Décrément des crédits + metadata
+    // 10) Décrément des crédits
     // ─────────────────────────────
 
     let remaining = bijou.messages_restants;
-
     if (typeof remaining === "number") {
       remaining = Math.max(0, remaining - 1);
-    } else {
-      remaining = null;
     }
 
-    try {
-      const { error: updateError } = await supabase
-        .from("bijous")
-        .update({
-          messages_restants: remaining,
-          last_used_at: new Date().toISOString(),
-          last_prenom: targetName || null,
-          last_lang: safeLang,
-          last_theme: effectiveTheme || null,
-          last_sous_theme: effectiveSousTheme || null,
-        })
-        .eq("id", id);
+    const { error: updateError } = await supabase
+      .from("bijous")
+      .update({
+        messages_restants: remaining,
+        last_used_at: new Date().toISOString(),
+        last_prenom: targetName || null,
+        last_lang: safeLang,
+        last_theme: effectiveTheme || null,
+        last_sous_theme: effectiveSousTheme || null,
+      })
+      .eq("id", id);
 
-      if (updateError) {
-        console.error("[/api/message] Update bijou error:", updateError);
-        // On ne bloque pas la réponse côté client pour ça.
-      }
-    } catch (err) {
-      console.error("[/api/message] Unexpected update error:", err);
+    if (updateError) {
+      console.error("Update bijou error:", updateError);
+      // on ne bloque pas pour l’utilisateur
     }
 
     // ─────────────────────────────
@@ -373,10 +365,10 @@ export default async function handler(req, res) {
       preview: false,
       text: generatedText,
       audio_url: audioUrl,
-      remaining,
+      remaining: typeof remaining === "number" ? remaining : undefined,
     });
   } catch (err) {
-    console.error("[/api/message] Unexpected error:", err);
+    console.error("Unexpected /api/message error:", err);
     return sendError(
       res,
       500,
