@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paramétrer votre bijou – L’Atelier des Liens Invisibles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --bg-card: rgba(255,250,243,0.98);
+      --accent: #b8833a;
+      --accent-soft: #eadcc8;
+      --text-main: #2e241b;
+      --text-soft: #5a4335;
+      --border-soft: rgba(170, 140, 90, 0.55);
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("foret-atelier.jpg") center center / cover no-repeat fixed;
+      filter: blur(3px) brightness(0.7);
+      transform: scale(1.03);
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(246, 236, 220, 0.65);
+      z-index: -1;
+    }
+
+    .card {
+      max-width: 780px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      padding: 20px 18px 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .logo-title {
+      font-size: 1.02rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .logo-sub {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 9px;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+    }
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 6px 0 4px;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .intro {
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      text-align: center;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: #f5ebdd;
+      border: 1px solid var(--border-soft);
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #82a738;
+    }
+
+    form {
+      margin-top: 4px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #856549;
+      margin-bottom: 4px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(133,101,73,0.4);
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      background: #fffdf8;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      border-radius: 16px;
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .row > div {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .submit-btn {
+      margin-top: 6px;
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 12px 18px;
+      font-size: 0.98rem;
+      cursor: pointer;
+      background: #d39633;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: #b67622;
+    }
+
+    .state {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #8a6c4c;
+    }
+    .state.error { color: #b83a3a; }
+    .state.success { color: #357a3a; }
+
+    .after {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(170,140,90,0.6);
+      font-size: 0.88rem;
+      color: var(--text-soft);
+    }
+
+    .after a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .after a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-row">
+      <div>
+        <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="logo-sub">
+          Première activation du murmure de votre bijou.
+        </div>
+      </div>
+      <div class="lang-switch">
+        <button class="lang-btn active" type="button" data-lang="fr">FR</button>
+        <button class="lang-btn" type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <h2>Paramétrer votre bijou</h2>
+    <p class="intro">
+      Quelques détails suffisent pour que le bijou compose un murmure unique pour la personne qui le portera.
+      Vous pourrez ensuite l’écouter autant de fois que le permet le bijou.
+    </p>
+
+    <div id="badgeCode" class="badge" style="display:none;">
+      <span class="badge-dot"></span>
+      <span id="codeText"></span>
+    </div>
+
+    <form id="formSetup">
+      <div class="row">
+        <div>
+          <label for="prenom">Prénom de la personne qui reçoit le bijou</label>
+          <input id="prenom" type="text" placeholder="ex : Lucie" />
+        </div>
+        <div>
+          <label for="voix">Tonalité de la voix</label>
+          <select id="voix">
+            <option value="neutre">Neutre</option>
+            <option value="feminine">Plutôt féminine</option>
+            <option value="masculine">Plutôt masculine</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="intention">Intention générale du murmure</label>
+      <textarea
+        id="intention"
+        placeholder="ex : L’encourager dans un nouveau chapitre de vie, avec douceur et confiance."
+      ></textarea>
+
+      <label for="detail">Un souvenir ou un détail à intégrer (optionnel)</label>
+      <input
+        id="detail"
+        type="text"
+        placeholder="ex : La soirée sur le pont de pierre, notre danse sous la pluie…"
+      />
+
+      <button id="submitBtn" type="submit" class="submit-btn">
+        ✨ Créer le murmure du bijou
+      </button>
+    </form>
+
+    <div id="state" class="state">Connexion au bijou en cours…</div>
+
+    <div id="afterBlock" class="after" style="display:none;">
+      Votre bijou est prêt. Vous pouvez maintenant
+      <a id="listenLink" href="#">écouter le murmure</a>.
+    </div>
+  </div>
+
+  <script>
+    let currentBijou = null;
+    let currentLang = "fr";
+
+    const stateEl = document.getElementById("state");
+    const badgeCode = document.getElementById("badgeCode");
+    const codeText = document.getElementById("codeText");
+    const form = document.getElementById("formSetup");
+    const submitBtn = document.getElementById("submitBtn");
+    const afterBlock = document.getElementById("afterBlock");
+    const listenLink = document.getElementById("listenLink");
+
+    const prenomInput = document.getElementById("prenom");
+    const intentionInput = document.getElementById("intention");
+    const detailInput = document.getElementById("detail");
+    const voixSelect = document.getElementById("voix");
+
+    // Lang switch (simple redirection)
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.lang;
+        if (lang === "fr") return;
+        const url = new URL(window.location.href);
+        const publicId = url.searchParams.get("public_id") || "";
+        window.location.href =
+          "/client-setup-en.html" +
+          (publicId ? `?public_id=${encodeURIComponent(publicId)}` : "");
+      });
+    });
+
+    async function loadBijou() {
+      try {
+        const url = new URL(window.location.href);
+        const publicId = url.searchParams.get("public_id");
+
+        if (!publicId) {
+          stateEl.textContent =
+            "Aucun code bijou dans le lien. Merci de scanner la puce ou le QR de nouveau.";
+          stateEl.classList.add("error");
+          return;
+        }
+
+        const params = new URLSearchParams({ code: publicId });
+        const resp = await fetch("/api/getBijou?" + params.toString());
+        const data = await resp.json();
+
+        if (!data || !data.ok || !data.bijou) {
+          stateEl.textContent =
+            "Impossible de retrouver ce bijou. Merci de contacter l’Atelier.";
+          stateEl.classList.add("error");
+          return;
+        }
+
+        const bijou = data.bijou;
+        currentBijou = bijou;
+
+        badgeCode.style.display = "inline-flex";
+        codeText.textContent = "Code bijou : " + (bijou.public_id || publicId);
+
+        // Pré-remplir si quelque chose existe déjà (recharge par ex.)
+        if (bijou.prenom) prenomInput.value = bijou.prenom;
+        if (bijou.intention) intentionInput.value = bijou.intention;
+        if (bijou.detail) detailInput.value = bijou.detail;
+        if (bijou.voix) voixSelect.value = bijou.voix;
+
+        stateEl.textContent =
+          "Bijou trouvé. Vous pouvez maintenant remplir le formulaire puis valider.";
+      } catch (err) {
+        console.error(err);
+        stateEl.textContent =
+          "Erreur de connexion. Merci de réessayer un peu plus tard.";
+        stateEl.classList.add("error");
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentBijou) return;
+
+      const prenom = prenomInput.value.trim();
+      const intention = intentionInput.value.trim();
+      const detail = detailInput.value.trim();
+      const voix = voixSelect.value;
+
+      if (!prenom) {
+        stateEl.textContent = "Merci d’indiquer au moins un prénom.";
+        stateEl.classList.add("error");
+        return;
+      }
+
+      stateEl.textContent = "Création du murmure en cours…";
+      stateEl.classList.remove("error", "success");
+      submitBtn.disabled = true;
+
+      try {
+        const body = {
+          id: currentBijou.id,
+          prenom,
+          intention,
+          detail,
+          voix,
+          theme: null,
+          sous_theme: null,
+          langue: "fr",
+        };
+
+        const resp = await fetch("/api/saveBijou", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        const out = await resp.json();
+
+        if (!out || !out.ok) {
+          console.error("/api/saveBijou error:", out);
+          stateEl.textContent =
+            out && out.error
+              ? out.error
+              : "Impossible d’enregistrer le bijou. Merci de réessayer.";
+          stateEl.classList.add("error");
+          submitBtn.disabled = false;
+          return;
+        }
+
+        stateEl.textContent =
+          "Paramètres enregistrés. Le bijou peut maintenant murmurer.";
+        stateEl.classList.add("success");
+
+        const listenUrl =
+          "/bijou.html?id=" +
+          encodeURIComponent(currentBijou.id) +
+          "&lang=fr";
+        listenLink.href = listenUrl;
+        afterBlock.style.display = "block";
+      } catch (err) {
+        console.error(err);
+        stateEl.textContent =
+          "Erreur de connexion. Merci de réessayer un peu plus tard.";
+        stateEl.classList.add("error");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadBijou();
+  </script>
+</body>
+</html>
