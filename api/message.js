@@ -1,8 +1,8 @@
-// /pages/api/message.ts
+// /api/message.js
+// Fonction serverless Vercel en CommonJS (Node)
 
-import type { NextApiRequest, NextApiResponse } from "next";
-import { createClient } from "@supabase/supabase-js";
-import OpenAI from "openai";
+const { createClient } = require("@supabase/supabase-js");
+const OpenAI = require("openai");
 
 // ─────────────────────────────
 // 1) Config Supabase + OpenAI
@@ -12,37 +12,27 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-type MessageResponse = {
-  ok: boolean;
-  preview: boolean;
-  text?: string;
-  audio_url?: string | null;
-  remaining?: number | null;
-  error?: string;
-  error_code?: string;
-};
-
-// petit helper pour créer une instance OpenAI seulement si la clé existe
-function getOpenAI() {
-  if (!OPENAI_API_KEY) return null;
-  return new OpenAI({ apiKey: OPENAI_API_KEY });
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error("[/api/message] Missing Supabase env vars");
 }
+if (!OPENAI_API_KEY) {
+  console.error("[/api/message] Missing OPENAI_API_KEY env var");
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // ─────────────────────────────
 // 2) Helper: réponse d’erreur
 // ─────────────────────────────
 
-function sendError(
-  res: NextApiResponse<MessageResponse>,
-  status: number,
-  code: string,
-  message: string,
-  preview: boolean
-) {
-  console.error("[/api/message] ERROR", status, code, message);
+function sendError(res, status, code, message, preview) {
+  console.error("[/api/message] error:", status, code, message);
+
+  // On répond toujours en JSON avec le même contrat
   res.status(status).json({
     ok: false,
-    preview,
+    preview: !!preview,
     error_code: code,
     error: message,
   });
@@ -52,10 +42,7 @@ function sendError(
 // 3) Handler principal
 // ─────────────────────────────
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<MessageResponse>
-) {
+module.exports = async function handler(req, res) {
   if (req.method !== "GET") {
     return sendError(
       res,
@@ -76,67 +63,22 @@ export default async function handler(
     preview: previewParam,
     theme,
     sous_theme,
-  } = req.query as {
-    id?: string;
-    prenom?: string;
-    intention?: string;
-    detail?: string;
-    voix?: string;
-    lang?: string;
-    preview?: string;
-    theme?: string;
-    sous_theme?: string;
-  };
+  } = req.query || {};
 
   const isPreview = previewParam === "1" || previewParam === "true";
-  const safeLang = lang === "en" ? "en" : "fr";
-
-  // ─────────────────────────────
-  // 0) Vérif config serveur
-  // ─────────────────────────────
-
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    return sendError(
-      res,
-      500,
-      "SERVER_CONFIG",
-      safeLang === "en"
-        ? "Server is not correctly configured (Supabase)."
-        : "Le serveur n’est pas correctement configuré (Supabase).",
-      isPreview
-    );
-  }
-
-  const openai = getOpenAI();
-  if (!openai) {
-    return sendError(
-      res,
-      500,
-      "NO_OPENAI_KEY",
-      safeLang === "en"
-        ? "OpenAI API key is missing on the server."
-        : "La clé OpenAI est absente sur le serveur.",
-      isPreview
-    );
-  }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
   if (!id) {
-    return sendError(
-      res,
-      400,
-      "MISSING_ID",
-      safeLang === "en" ? "Missing jewel ID." : "ID de bijou manquant.",
-      isPreview
-    );
+    const msg =
+      lang === "en" ? "Missing jewel ID." : "ID de bijou manquant.";
+    return sendError(res, 400, "MISSING_ID", msg, isPreview);
   }
+
+  const safeLang = lang === "en" ? "en" : "fr";
 
   try {
     // ─────────────────────────────
     // 4) Récupérer le bijou
     // ─────────────────────────────
-
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select("*")
@@ -144,78 +86,58 @@ export default async function handler(
       .maybeSingle();
 
     if (fetchError) {
-      console.error("Supabase fetch error:", fetchError);
-      return sendError(
-        res,
-        500,
-        "DB_ERROR",
+      console.error("[/api/message] Supabase fetch error:", fetchError);
+      const msg =
         safeLang === "en"
           ? "Error while fetching the jewel."
-          : "Erreur lors de la récupération du bijou.",
-        isPreview
-      );
+          : "Erreur lors de la récupération du bijou.";
+      return sendError(res, 500, "DB_ERROR", msg, isPreview);
     }
 
     if (!bijou) {
-      return sendError(
-        res,
-        404,
-        "NOT_FOUND",
+      const msg =
         safeLang === "en"
           ? "No jewel found with this ID."
-          : "Aucun bijou trouvé avec cet ID.",
-        isPreview
-      );
+          : "Aucun bijou trouvé avec cet ID.";
+      return sendError(res, 404, "NOT_FOUND", msg, isPreview);
     }
 
     // ─────────────────────────────
-    // 5) Vérifier le crédit / état (si pas en preview)
+    // 5) Vérifier crédit / état (si PAS preview)
     // ─────────────────────────────
-
     if (!isPreview) {
       if (bijou.locked) {
-        return sendError(
-          res,
-          403,
-          "LOCKED",
+        const msg =
           safeLang === "en"
             ? "This jewel is locked. Please contact the Atelier."
-            : "Ce bijou est verrouillé. Merci de contacter l’Atelier.",
-          false
-        );
+            : "Ce bijou est verrouillé. Merci de contacter l’Atelier.";
+        return sendError(res, 403, "LOCKED", msg, false);
       }
 
-      // ici on peut commenter ce bloc si tu veux autoriser même sans paid
-      if (!bijou.paid) {
-        return sendError(
-          res,
-          402,
-          "UNPAID",
+      // Si tu veux que les bijoux non payés fonctionnent quand même,
+      // commente ce bloc "UNPAID".
+      if (bijou.paid === false) {
+        const msg =
           safeLang === "en"
             ? "This jewel has not been activated yet."
-            : "Ce bijou n’a pas encore été activé.",
-          false
-        );
+            : "Ce bijou n’a pas encore été activé.";
+        return sendError(res, 402, "UNPAID", msg, false);
       }
 
       if (
         typeof bijou.messages_restants === "number" &&
         bijou.messages_restants <= 0
       ) {
-        return sendError(
-          res,
-          403,
-          "NO_CREDIT",
+        const msg =
           safeLang === "en"
             ? "No whispers left on this jewel."
-            : "Il ne reste plus de murmures sur ce bijou.",
-          false
-        );
+            : "Il ne reste plus de murmures sur ce bijou.";
+        return sendError(res, 403, "NO_CREDIT", msg, false);
       }
     }
 
     // ─────────────────────────────
-    // 6) Construire le prompt pour l’IA
+    // 6) Construire le prompt
     // ─────────────────────────────
 
     const targetName = prenom || bijou.prenom || "";
@@ -224,7 +146,7 @@ export default async function handler(
 
     const langueDescription =
       safeLang === "en"
-        ? "Write the response in natural, poetic but simple English, spoken in the first person as a whisper addressed directly to the listener."
+        ? "Write the response in natural, simple, intimate English, in the first person, as a whisper addressed directly to the listener."
         : "Écris la réponse en français, dans un ton simple, poétique et intime, à la première personne, comme un murmure adressé directement à la personne qui écoute.";
 
     const baseContext =
@@ -261,8 +183,8 @@ export default async function handler(
 
     const lengthInstruction =
       safeLang === "en"
-        ? "Length: about 1 spoken minute. No introduction about being an AI."
-        : "Longueur : environ 1 minute à l’oral. Ne te présentes pas comme une IA.";
+        ? "Length: about 1 to 2 spoken minutes. Do not say that you are an AI."
+        : "Longueur : environ 1 à 2 minutes à l’oral. Ne te présentes pas comme une IA.";
 
     const fullPrompt = [
       baseContext,
@@ -305,20 +227,16 @@ export default async function handler(
           ? "I am here, silent, but present for you."
           : "Je suis là, silencieux, mais présent pour toi.");
     } catch (err) {
-      console.error("OpenAI text error:", err);
-      return sendError(
-        res,
-        500,
-        "GENERATION_ERROR",
+      console.error("[/api/message] OpenAI text error:", err);
+      const msg =
         safeLang === "en"
           ? "Error while generating the whisper."
-          : "Erreur lors de la génération du murmure.",
-        isPreview
-      );
+          : "Erreur lors de la génération du murmure.";
+      return sendError(res, 500, "GENERATION_ERROR", msg, isPreview);
     }
 
     // ─────────────────────────────
-    // 8) Si preview → pas de décrément, pas d’audio
+    // 8) Mode preview → pas de décrément
     // ─────────────────────────────
 
     if (isPreview) {
@@ -327,26 +245,16 @@ export default async function handler(
         preview: true,
         text: generatedText,
         audio_url: null,
-        remaining: bijou.messages_restants ?? null,
       });
     }
 
     // ─────────────────────────────
-    // 9) (Optionnel) TTS & stockage audio
-    // ─────────────────────────────
-
-    let audioUrl: string | null = null;
-    // tu pourras brancher Supabase Storage ici plus tard
-
-    // ─────────────────────────────
-    // 10) Décrément des crédits + metadata
+    // 9) Décrément des crédits
     // ─────────────────────────────
 
     let remaining = bijou.messages_restants;
     if (typeof remaining === "number") {
       remaining = Math.max(0, remaining - 1);
-    } else {
-      remaining = null;
     }
 
     const { error: updateError } = await supabase
@@ -362,27 +270,27 @@ export default async function handler(
       .eq("id", id);
 
     if (updateError) {
-      console.error("Update bijou error:", updateError);
-      // On ne bloque pas la réponse pour ça
+      console.error("[/api/message] Update bijou error:", updateError);
+      // on ne bloque pas la réponse pour ça
     }
+
+    // ─────────────────────────────
+    // 10) Réponse finale OK
+    // ─────────────────────────────
 
     return res.status(200).json({
       ok: true,
       preview: false,
       text: generatedText,
-      audio_url: audioUrl,
-      remaining,
+      audio_url: null, // pas d’audio pour l’instant
+      remaining: typeof remaining === "number" ? remaining : undefined,
     });
   } catch (err) {
-    console.error("Unexpected /api/message error:", err);
-    return sendError(
-      res,
-      500,
-      "UNEXPECTED_ERROR",
+    console.error("[/api/message] Unexpected error:", err);
+    const msg =
       safeLang === "en"
         ? "Unexpected error while generating the whisper."
-        : "Erreur inattendue lors de la génération du murmure.",
-      isPreview
-    );
+        : "Erreur inattendue lors de la génération du murmure.";
+    return sendError(res, 500, "UNEXPECTED_ERROR", msg, isPreview);
   }
-}
+};
