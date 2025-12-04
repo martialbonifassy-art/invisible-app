@@ -10,6 +10,15 @@
   // Normalisation de l'URL d'accueil (" / " ou "/index.html ")
   const normalized =
     path === "/" ? "/index.html" : path;
+    // Paramétrage client (première activation)
+    "/client-setup.html": {
+      fr: "/client-setup.html",
+      en: "/client-setup-en.html",
+    },
+    "/client-setup-en.html": {
+      fr: "/client-setup.html",
+      en: "/client-setup-en.html",
+    },
 
   // Cartographie des pages FR/EN
   const MAP = {
