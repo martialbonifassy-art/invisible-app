@@ -92,6 +92,7 @@
       align-items: center;
       font-size: 0.8rem;
     }
+
     .lang-btn {
       border-radius: 999px;
       border: none;
@@ -99,8 +100,8 @@
       cursor: pointer;
       background: transparent;
       color: #5a4335;
-      text-decoration: none;
     }
+
     .lang-btn.active {
       background: #b8833a;
       color: #fff;
@@ -112,6 +113,7 @@
       margin: 8px 0 4px;
       font-size: 1.1rem;
     }
+
     .intro {
       text-align: center;
       font-size: 0.94rem;
@@ -196,6 +198,7 @@
       font-size: 0.82rem;
       margin-bottom: 8px;
     }
+
     .badge-dot {
       width: 8px;
       height: 8px;
@@ -214,6 +217,7 @@
       flex-direction: column;
       gap: 8px;
     }
+
     @media (min-width: 640px) {
       .actions { flex-direction: row; }
     }
@@ -239,6 +243,7 @@
       border: 1px solid #a86b1e;
       box-shadow: 0 8px 18px rgba(0,0,0,0.22);
     }
+
     .btn-secondary:hover {
       background: #b67622;
     }
@@ -248,12 +253,15 @@
       color: var(--accent);
       border: 1px solid var(--accent-soft);
     }
+
     .btn-ghost:hover {
       background: var(--accent-soft);
       color: #4a321e;
     }
 
-    .error { color: #b03a3a; }
+    .error {
+      color: #b03a3a;
+    }
   </style>
 </head>
 <body>
@@ -266,8 +274,8 @@
         </div>
       </div>
       <div class="lang-switch">
-        <a class="lang-btn" href="/client.html">FR</a>
-        <button class="lang-btn active" type="button">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
       </div>
     </div>
 
@@ -435,28 +443,23 @@
         e.preventDefault();
         searchBijou();
       }
-    });searchBtn.addEventListener("click", searchBijou);
-codeInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    searchBijou();
-  }
-});
+    });
 
-// Autofill from ?code= in the URL
-(function prefillFromUrl() {
-  try {
-    const url = new URL(window.location.href);
-    const codeFromUrl = url.searchParams.get("code");
-    if (codeFromUrl) {
-      codeInput.value = codeFromUrl;
-      searchBijou();
-    }
-  } catch (e) {
-    console.error("Unable to read 'code' from URL", e);
-  }
-})();
-
+    // Autofill from ?code= in the URL
+    (function prefillFromUrl() {
+      try {
+        const url = new URL(window.location.href);
+        const codeFromUrl = url.searchParams.get("code");
+        if (codeFromUrl) {
+          codeInput.value = codeFromUrl;
+          searchBijou();
+        }
+      } catch (e) {
+        console.error("Unable to read 'code' from URL", e);
+      }
+    })();
   </script>
+
+  <script src="/lang-switch.js"></script>
 </body>
 </html>
