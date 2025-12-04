@@ -1,5 +1,4 @@
-// /pages/api/message.ts   (Next.js Pages Router)
-// ou /app/api/message/route.ts à adapter (req/res changent légèrement)
+// /pages/api/message.ts
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
@@ -9,38 +8,39 @@ import OpenAI from "openai";
 // 1) Config Supabase + OpenAI
 // ─────────────────────────────
 
-const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY as string;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// ─────────────────────────────
-// 2) Contrat JSON unique
-// ─────────────────────────────
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 type MessageResponse = {
   ok: boolean;
   preview: boolean;
   text?: string;
   audio_url?: string | null;
-  remaining?: number;
+  remaining?: number | null;
   error?: string;
   error_code?: string;
 };
 
+// petit helper pour créer une instance OpenAI seulement si la clé existe
+function getOpenAI() {
+  if (!OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: OPENAI_API_KEY });
+}
+
+// ─────────────────────────────
+// 2) Helper: réponse d’erreur
+// ─────────────────────────────
+
 function sendError(
   res: NextApiResponse<MessageResponse>,
-  _status: number, // on ne s’en sert plus
+  status: number,
   code: string,
   message: string,
   preview: boolean
 ) {
-  // 🔒 Toujours status 200 pour ne jamais déclencher le catch côté front
-  return res.status(200).json({
+  console.error("[/api/message] ERROR", status, code, message);
+  res.status(status).json({
     ok: false,
     preview,
     error_code: code,
@@ -91,6 +91,37 @@ export default async function handler(
   const isPreview = previewParam === "1" || previewParam === "true";
   const safeLang = lang === "en" ? "en" : "fr";
 
+  // ─────────────────────────────
+  // 0) Vérif config serveur
+  // ─────────────────────────────
+
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    return sendError(
+      res,
+      500,
+      "SERVER_CONFIG",
+      safeLang === "en"
+        ? "Server is not correctly configured (Supabase)."
+        : "Le serveur n’est pas correctement configuré (Supabase).",
+      isPreview
+    );
+  }
+
+  const openai = getOpenAI();
+  if (!openai) {
+    return sendError(
+      res,
+      500,
+      "NO_OPENAI_KEY",
+      safeLang === "en"
+        ? "OpenAI API key is missing on the server."
+        : "La clé OpenAI est absente sur le serveur.",
+      isPreview
+    );
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
   if (!id) {
     return sendError(
       res,
@@ -138,7 +169,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 5) Vérifier crédit / état (seulement si PAS preview)
+    // 5) Vérifier le crédit / état (si pas en preview)
     // ─────────────────────────────
 
     if (!isPreview) {
@@ -154,6 +185,7 @@ export default async function handler(
         );
       }
 
+      // ici on peut commenter ce bloc si tu veux autoriser même sans paid
       if (!bijou.paid) {
         return sendError(
           res,
@@ -183,7 +215,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 6) Construire le prompt
+    // 6) Construire le prompt pour l’IA
     // ─────────────────────────────
 
     const targetName = prenom || bijou.prenom || "";
@@ -203,21 +235,15 @@ export default async function handler(
     const themeLine =
       effectiveTheme || effectiveSousTheme
         ? safeLang === "en"
-          ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${
-              effectiveSousTheme || "-"
-            }.`
-          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${
-              effectiveSousTheme || "-"
-            }.`
+          ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${effectiveSousTheme || "-"}.`
+          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${effectiveSousTheme || "-"}.`
         : "";
 
     const intentionLine =
       intention || bijou.intention
         ? safeLang === "en"
           ? `Extra instructions from the giver: ${intention || bijou.intention}.`
-          : `Instructions supplémentaires de la personne qui offre : ${
-              intention || bijou.intention
-            }.`
+          : `Instructions supplémentaires de la personne qui offre : ${intention || bijou.intention}.`
         : "";
 
     const detailLine =
@@ -235,8 +261,8 @@ export default async function handler(
 
     const lengthInstruction =
       safeLang === "en"
-        ? "Length: about 1 to 2 spoken minutes. No introduction about being an AI."
-        : "Longueur : environ 1 à 2 minutes à l’oral. Ne te présentes pas comme une IA.";
+        ? "Length: about 1 spoken minute. No introduction about being an AI."
+        : "Longueur : environ 1 minute à l’oral. Ne te présentes pas comme une IA.";
 
     const fullPrompt = [
       baseContext,
@@ -251,7 +277,7 @@ export default async function handler(
       .join("\n");
 
     // ─────────────────────────────
-    // 7) Génération texte
+    // 7) Appel OpenAI (texte)
     // ─────────────────────────────
 
     let generatedText = "";
@@ -292,7 +318,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 8) MODE PREVIEW : pas de décrément, pas d’audio
+    // 8) Si preview → pas de décrément, pas d’audio
     // ─────────────────────────────
 
     if (isPreview) {
@@ -301,42 +327,26 @@ export default async function handler(
         preview: true,
         text: generatedText,
         audio_url: null,
+        remaining: bijou.messages_restants ?? null,
       });
     }
 
     // ─────────────────────────────
-    // 9) TTS optionnel (audio_url peut rester null)
+    // 9) (Optionnel) TTS & stockage audio
     // ─────────────────────────────
 
     let audioUrl: string | null = null;
-
-    try {
-      const speech = await openai.audio.speech.create({
-        model: "gpt-4o-mini-tts",
-        voice:
-          voix === "feminine"
-            ? "alloy"
-            : voix === "masculine"
-            ? "verse"
-            : "alloy",
-        input: generatedText,
-      });
-
-      // Ici tu pourras plus tard uploader le buffer dans Supabase Storage / S3
-      // et remplir audioUrl avec l’URL publique.
-      audioUrl = null;
-    } catch (err) {
-      console.error("TTS error:", err);
-      audioUrl = null;
-    }
+    // tu pourras brancher Supabase Storage ici plus tard
 
     // ─────────────────────────────
-    // 10) Décrément des crédits (uniquement hors preview)
+    // 10) Décrément des crédits + metadata
     // ─────────────────────────────
 
     let remaining = bijou.messages_restants;
     if (typeof remaining === "number") {
       remaining = Math.max(0, remaining - 1);
+    } else {
+      remaining = null;
     }
 
     const { error: updateError } = await supabase
@@ -353,7 +363,7 @@ export default async function handler(
 
     if (updateError) {
       console.error("Update bijou error:", updateError);
-      // on ne bloque pas pour l’utilisateur
+      // On ne bloque pas la réponse pour ça
     }
 
     return res.status(200).json({
@@ -361,7 +371,7 @@ export default async function handler(
       preview: false,
       text: generatedText,
       audio_url: audioUrl,
-      remaining: typeof remaining === "number" ? remaining : undefined,
+      remaining,
     });
   } catch (err) {
     console.error("Unexpected /api/message error:", err);
