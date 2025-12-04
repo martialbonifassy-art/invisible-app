@@ -2,15 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Votre murmure – L’Atelier des Liens Invisibles</title>
+  <title>Connexion au bijou – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#b8833a" />
-
-  <!-- Police typewriter douce -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
-
   <style>
     :root {
       --bg-card: rgba(255,250,243,0.98);
@@ -20,11 +13,7 @@
       --text-soft: #5a4335;
       --border-soft: rgba(170, 140, 90, 0.55);
       --shadow-soft: 0 16px 40px rgba(0,0,0,0.32);
-      --radius-xl: 26px;
-    }
-
-    html {
-      overflow-y: scroll;
+      --radius-xl: 24px;
     }
 
     * { box-sizing: border-box; }
@@ -32,7 +21,7 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Helvetica Neue", Arial, sans-serif;
+      "Helvetica Neue", Arial, sans-serif;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -41,10 +30,8 @@
       padding: 18px 12px;
       position: relative;
       overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
     }
 
-    /* Fond forêt */
     body::before {
       content: "";
       position: fixed;
@@ -58,41 +45,44 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(246, 236, 220, 0.6);
+      background: rgba(246, 236, 220, 0.65);
       z-index: -1;
     }
 
     .card {
-      max-width: 980px;
+      max-width: 780px;
       width: 100%;
       background: var(--bg-card);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-soft);
-      padding: 20px 18px 22px;
+      padding: 20px 18px 24px;
       backdrop-filter: blur(10px);
+      text-align: center;
     }
 
-    header {
+    .top-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      align-items: flex-start;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
     .logo-title {
-      font-size: 0.95rem;
+      font-size: 1.02rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
     }
+
     .logo-sub {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
+      margin-top: 4px;
+      text-align: left;
     }
 
-    /* Switch FR / EN global */
     .lang-switch {
       display: inline-flex;
       background: #f7ecdd;
@@ -101,12 +91,12 @@
       border: 1px solid rgba(170, 140, 90, 0.45);
       gap: 3px;
       align-items: center;
+      font-size: 0.8rem;
     }
     .lang-btn {
       border-radius: 999px;
       border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
+      padding: 3px 9px;
       cursor: pointer;
       background: transparent;
       color: #5a4335;
@@ -117,339 +107,291 @@
       font-weight: 600;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.95rem;
-      color: var(--text-soft);
-      margin-bottom: 4px;
+    h2 {
+      margin: 10px 0 6px;
+      font-size: 1.25rem;
     }
 
-    .public-id {
+    .intro {
+      font-size: 0.93rem;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .badge {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 8px 16px;
       border-radius: 999px;
-      padding: 7px 14px;
       background: #f5ebdd;
       border: 1px solid var(--border-soft);
       font-size: 0.86rem;
-      margin: 6px auto 10px;
+      margin-bottom: 14px;
     }
-    .dot {
-      width: 8px;
-      height: 8px;
+    .badge-dot {
+      width: 10px;
+      height: 10px;
       border-radius: 999px;
       background: #82a738;
     }
+    .badge-dot.error {
+      background: #c53c3c;
+    }
 
-    .status {
-      text-align: center;
+    .status-main {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .status-sub {
       font-size: 0.9rem;
+      color: #b14444;
+      margin-bottom: 18px;
+    }
+
+    .hint {
+      font-size: 0.86rem;
       color: var(--text-soft);
-      margin-bottom: 14px;
-    }
-    .status.error {
-      color: #b03a3a;
+      line-height: 1.4;
     }
 
-    .murmure-box {
-      margin-top: 8px;
-      padding: 16px 14px;
-      border-radius: 18px;
-      background: #fffdf8;
-      border: 1px solid #e4d5c3;
-      min-height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .hint a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .hint a:hover {
+      text-decoration: underline;
     }
 
-    .murmure {
-      font-family: "Special Elite", "Courier New", monospace;
-      font-size: 1rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .audio-zone {
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .audio-zone audio {
-      width: 100%;
-      max-width: 640px;
-    }
-
-    .footnote {
-      margin-top: 16px;
-      font-size: 0.78rem;
-      color: var(--text-soft);
-      text-align: center;
-    }
-
-    @media (max-width: 700px) {
-      .card { border-radius: 18px; padding: 16px 14px 20px; }
-      .logo-title { font-size: 0.9rem; }
-      .murmure-box { padding: 12px; }
+    @media (max-width: 720px) {
+      .top-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .logo-sub {
+        text-align: left;
+      }
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <header>
+    <div class="top-row">
       <div>
         <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
-        <div class="logo-sub" id="headerSub">
-          Murmure du bijou relié au bois et à l’IA.
+        <div class="logo-sub" id="subtitle">
+          Connexion à votre bijou en cours…
         </div>
       </div>
       <div class="lang-switch">
-        <button class="lang-btn active" data-lang="fr" type="button">FR</button>
-        <button class="lang-btn" data-lang="en" type="button">EN</button>
+        <button class="lang-btn active" type="button" data-lang="fr">FR</button>
+        <button class="lang-btn" type="button" data-lang="en">EN</button>
       </div>
-    </header>
-
-    <div class="subtitle" id="subtitle">
-      Connexion au bijou en cours…
     </div>
 
-    <div class="public-id" id="codeBadge" style="display:none;">
-      <span class="dot"></span>
-      <span id="codeLabel">Code bijou : …</span>
+    <h2 id="title">Connexion au bijou</h2>
+
+    <p class="intro" id="intro">
+      Le bijou se prépare. Un instant, le temps de retrouver son murmure dans l’atelier…
+    </p>
+
+    <div class="badge" id="badge">
+      <span class="badge-dot" id="badgeDot"></span>
+      <span id="badgeText">Connexion au bijou en cours…</span>
     </div>
 
-    <div class="status" id="status">
-      Lecture du murmure en préparation…
-    </div>
+    <div class="status-main" id="statusMain"></div>
+    <div class="status-sub" id="statusSub"></div>
 
-    <div class="murmure-box">
-      <div class="murmure" id="murmure"></div>
-    </div>
-
-    <div class="audio-zone">
-      <audio id="audioPlayer" controls style="display:none;"></audio>
-    </div>
-
-    <div class="footnote" id="footnote">
-      Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou.
-      Si quelque chose vous semble anormal, contactez l’atelier.
+    <div class="hint" id="hint">
+      Si rien ne se passe, vous pouvez fermer cette page et réessayer en rescannant le bijou.
     </div>
   </div>
 
   <script>
-    // ----- Références DOM -----
-    const langButtons = document.querySelectorAll(".lang-btn");
-    const headerSub = document.getElementById("headerSub");
-    const subtitleEl = document.getElementById("subtitle");
-    const statusEl = document.getElementById("status");
-    const footnoteEl = document.getElementById("footnote");
-    const codeBadge = document.getElementById("codeBadge");
-    const codeLabel = document.getElementById("codeLabel");
-    const murmureEl = document.getElementById("murmure");
-    const audioPlayer = document.getElementById("audioPlayer");
+    // ─────────────────────────────
+    // 1) Utilitaires
+    // ─────────────────────────────
 
-    let currentLang = "fr";
-    let currentPublicId = null;
-
-    // ----- Textes d’interface selon la langue -----
-    function applyTranslations() {
-      if (currentLang === "en") {
-        headerSub.textContent = "Whisper of the jewel linked to wood and AI.";
-        if (!currentPublicId) {
-          subtitleEl.textContent = "Waiting for the jewel code…";
-          statusEl.textContent = "No code detected yet.";
-        } else {
-          subtitleEl.textContent = "Connecting to your jewel…";
-          if (!statusEl.classList.contains("error")) {
-            statusEl.textContent = "Calling the voice of the jewel…";
-          }
-        }
-        footnoteEl.textContent =
-          "This whisper is unique, generated from the parameters chosen when the jewel was created. If something feels wrong, please contact the Atelier.";
-        if (currentPublicId) {
-          codeLabel.textContent = "Jewel code: " + currentPublicId;
-        }
-      } else {
-        headerSub.textContent = "Murmure du bijou relié au bois et à l’IA.";
-        if (!currentPublicId) {
-          subtitleEl.textContent = "En attente du code du bijou…";
-          statusEl.textContent = "Aucun code détecté pour l’instant.";
-        } else {
-          subtitleEl.textContent = "Connexion au bijou en cours…";
-          if (!statusEl.classList.contains("error")) {
-            statusEl.textContent = "Connexion à la voix du bijou…";
-          }
-        }
-        footnoteEl.textContent =
-          "Ce murmure est unique, généré à partir des paramètres choisis lors de la création du bijou. Si quelque chose vous semble anormal, contactez l’atelier.";
-        if (currentPublicId) {
-          codeLabel.textContent = "Code bijou : " + currentPublicId;
-        }
-      }
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
     }
 
-    function updateLangButtons() {
-      langButtons.forEach(btn =>
-        btn.classList.toggle("active", btn.dataset.lang === currentLang)
-      );
+    function setTexts(lang) {
+      const isEn = lang === "en";
+
+      document.documentElement.lang = isEn ? "en" : "fr";
+
+      document.getElementById("title").textContent = isEn
+        ? "Connecting to the jewel"
+        : "Connexion au bijou";
+
+      document.getElementById("subtitle").textContent = isEn
+        ? "Connecting to your wooden jewel…"
+        : "Connexion à votre bijou en bois…";
+
+      document.getElementById("intro").textContent = isEn
+        ? "The jewel is getting ready. Just a moment, while we find its whisper in the Atelier…"
+        : "Le bijou se prépare. Un instant, le temps de retrouver son murmure dans l’atelier…";
+
+      document.getElementById("badgeText").textContent = isEn
+        ? "Connecting to the jewel…"
+        : "Connexion au bijou en cours…";
+
+      document.getElementById("statusMain").textContent = "";
+      document.getElementById("statusSub").textContent = "";
+
+      document.getElementById("hint").innerHTML = isEn
+        ? 'If nothing happens, you can close this page and try again by rescanning the jewel.'
+        : 'Si rien ne se passe, vous pouvez fermer cette page et réessayer en rescannant le bijou.';
     }
 
-    langButtons.forEach(btn => {
+    function setError(lang, main, sub) {
+      const isEn = lang === "en";
+      const badgeDot = document.getElementById("badgeDot");
+      const badgeText = document.getElementById("badgeText");
+
+      badgeDot.classList.add("error");
+
+      badgeText.textContent =
+        main ||
+        (isEn
+          ? "Jewel unreachable."
+          : "Joyau inaccessible.");
+
+      document.getElementById("statusMain").textContent = sub || "";
+      document.getElementById("statusSub").textContent = isEn
+        ? "If the problem persists, please contact the Atelier."
+        : "Si le problème persiste, merci de contacter l’Atelier.";
+    }
+
+    // ─────────────────────────────
+    // 2) Gestion langue (boutons FR / EN)
+    // ─────────────────────────────
+
+    const initialLang = (getQueryParam("lang") === "en") ? "en" : "fr";
+    let currentLang = initialLang;
+
+    setTexts(currentLang);
+
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      if (btn.dataset.lang === currentLang) btn.classList.add("active");
       btn.addEventListener("click", () => {
-        const chosen = btn.dataset.lang;
-        if (chosen === currentLang) return;
-        currentLang = chosen;
-        updateLangButtons();
-        applyTranslations();
-        if (currentPublicId) {
-          loadWhisper();
-        }
+        const lang = btn.dataset.lang;
+        if (lang === currentLang) return;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", lang);
+        window.location.href = url.toString();
       });
     });
 
-    // ----- Récupération du code bijou depuis l’URL -----
-    function getPublicIdFromUrl() {
-      const url = new URL(window.location.href);
+    // ─────────────────────────────
+    // 3) Connexion au bijou
+    // ─────────────────────────────
 
-      const fromQuery =
-        url.searchParams.get("public_id") ||
-        url.searchParams.get("code") ||
-        url.searchParams.get("c");
-      if (fromQuery) return fromQuery;
+    async function connectToJewel() {
+      const publicId = getQueryParam("public_id");
 
-      const parts = window.location.pathname.split("/").filter(Boolean);
-      if (parts.length >= 2 && parts[0] === "b") {
-        return parts[1];
-      }
-      return null;
-    }
-
-    // ----- Animation "machine à écrire" -----
-    let currentTypingId = 0;
-    function typewriter(el, text, speed = 28) {
-      currentTypingId++;
-      const myId = currentTypingId;
-      el.textContent = "";
-      let i = 0;
-
-      function step() {
-        if (myId !== currentTypingId) return; // annulé par un nouveau texte
-        el.textContent = text.slice(0, i);
-        if (i < text.length) {
-          i++;
-          setTimeout(step, speed);
-        }
-      }
-      step();
-    }
-
-    // ----- Chargement du murmure via l’API publique -----
-    async function loadWhisper() {
-      if (!currentPublicId) return;
-
-      audioPlayer.style.display = "none";
-      audioPlayer.removeAttribute("src");
-      statusEl.classList.remove("error");
-
-      if (currentLang === "en") {
-        subtitleEl.textContent = "Connecting to your jewel…";
-        statusEl.textContent = "Calling the voice of the jewel…";
-      } else {
-        subtitleEl.textContent = "Connexion au bijou en cours…";
-        statusEl.textContent = "Connexion à la voix du bijou…";
-      }
-
-      murmureEl.textContent = "";
-
-      try {
-        const url = `/api/publicMessage?public_id=${encodeURIComponent(
-          currentPublicId
-        )}&lang=${encodeURIComponent(currentLang)}`;
-
-        const resp = await fetch(url, { cache: "no-store" });
-        if (!resp.ok) {
-          throw new Error("HTTP " + resp.status);
-        }
-        const data = await resp.json();
-
-        if (!data || data.ok === false) {
-          statusEl.classList.add("error");
-          statusEl.textContent =
-            currentLang === "en"
-              ? "Error: impossible to reach the voice of the jewel."
-              : "Erreur : impossible de joindre la voix du bijou.";
-
-          const msg =
-            currentLang === "en"
-              ? "I am here, silent, but present for you. (Internal error.)"
-              : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
-          typewriter(murmureEl, msg);
-          return;
-        }
-
-        statusEl.classList.remove("error");
-        statusEl.textContent =
+      if (!publicId) {
+        setError(
+          currentLang,
           currentLang === "en"
-            ? "Whisper generated from this jewel."
-            : "Murmure généré à partir de ce bijou.";
-
-        const texte = data.text || "";
-        if (texte) {
-          typewriter(murmureEl, texte);
-        } else {
-          murmureEl.textContent = "";
-        }
-
-        if (data.audio) {
-          audioPlayer.src = data.audio;
-          audioPlayer.style.display = "block";
-        }
-      } catch (err) {
-        console.error("Erreur loadWhisper:", err);
-        statusEl.classList.add("error");
-        statusEl.textContent =
+            ? "No jewel code in this link."
+            : "Aucun code bijou dans ce lien.",
           currentLang === "en"
-            ? "An error has occurred. Please try again later."
-            : "Une erreur est survenue. Merci de réessayer plus tard.";
-
-        const msg =
-          currentLang === "en"
-            ? "I am here, silent, but present for you. (Internal error.)"
-            : "Je suis là, silencieux, mais présent pour toi. (Erreur interne.)";
-        typewriter(murmureEl, msg);
-      }
-    }
-
-    // ----- Initialisation -----
-    (function init() {
-      const url = new URL(window.location.href);
-      const langParam = (url.searchParams.get("lang") || "").toLowerCase();
-      if (langParam === "en" || langParam === "fr") {
-        currentLang = langParam;
-      }
-
-      updateLangButtons();
-
-      currentPublicId = getPublicIdFromUrl();
-      if (currentPublicId) {
-        codeBadge.style.display = "inline-flex";
-      }
-
-      applyTranslations();
-
-      if (!currentPublicId) {
-        statusEl.classList.add("error");
-        statusEl.textContent =
-          currentLang === "en"
-            ? "No jewel code was detected in this link."
-            : "Aucun code de bijou n’a été détecté dans ce lien.";
+            ? "Please scan the chip or QR code again."
+            : "Merci de rescanner la puce ou le QR depuis le bijou."
+        );
         return;
       }
 
-      loadWhisper();
-    })();
+      try {
+        const params = new URLSearchParams({ code: publicId });
+        const resp = await fetch("/api/getBijou?" + params.toString());
+        const data = await resp.json();
+
+        if (!data || !data.ok || !data.bijou) {
+          setError(
+            currentLang,
+            currentLang === "en"
+              ? "Jewel unreachable."
+              : "Joyau inaccessible.",
+            currentLang === "en"
+              ? "We could not find a jewel linked to this code."
+              : "Aucun bijou ne semble lié à ce code."
+          );
+          return;
+        }
+
+        const bijou = data.bijou;
+
+        const hasParams =
+          (bijou.prenom && bijou.prenom.trim() !== "") ||
+          (bijou.intention && bijou.intention.trim() !== "") ||
+          (bijou.detail && bijou.detail.trim() !== "") ||
+          (bijou.theme && bijou.theme.trim && bijou.theme.trim() !== "") ||
+          (bijou.sous_theme && bijou.sous_theme.trim && bijou.sous_theme.trim() !== "");
+
+        const noCredit =
+          typeof bijou.messages_restants === "number" &&
+          bijou.messages_restants <= 0;
+
+        const needsSetup = !hasParams || noCredit || bijou.etat === "non configuré";
+
+        if (needsSetup) {
+          // Première personnalisation ou recharge
+          const setupPath =
+            currentLang === "en" ? "/client-setup-en.html" : "/client-setup.html";
+
+          const targetUrl =
+            setupPath + "?public_id=" + encodeURIComponent(publicId);
+
+          document.getElementById("badgeText").textContent =
+            currentLang === "en"
+              ? "Opening the jewel setup page…"
+              : "Ouverture de la page de paramétrage du bijou…";
+
+          window.location.href = targetUrl;
+          return;
+        }
+
+        // Bijou déjà paramétré → on envoie vers la page d’accès / écoute
+        const clientPath =
+          currentLang === "en" ? "/client-en.html" : "/client.html";
+
+        const targetUrl =
+          clientPath +
+          "?code=" +
+          encodeURIComponent(publicId) +
+          "&lang=" +
+          currentLang;
+
+        document.getElementById("badgeText").textContent =
+          currentLang === "en"
+            ? "Opening the jewel page…"
+            : "Ouverture de la page du bijou…";
+
+        window.location.href = targetUrl;
+      } catch (err) {
+        console.error(err);
+        setError(
+          currentLang,
+          currentLang === "en"
+            ? "Connection error."
+            : "Erreur de connexion.",
+          currentLang === "en"
+            ? "Please try again a bit later."
+            : "Veuillez réessayer un peu plus tard."
+        );
+      }
+    }
+
+    connectToJewel();
   </script>
 </body>
 </html>
