@@ -92,6 +92,7 @@
       align-items: center;
       font-size: 0.8rem;
     }
+
     .lang-btn {
       border-radius: 999px;
       border: none;
@@ -99,8 +100,8 @@
       cursor: pointer;
       background: transparent;
       color: #5a4335;
-      text-decoration: none;
     }
+
     .lang-btn.active {
       background: #b8833a;
       color: #fff;
@@ -112,6 +113,7 @@
       margin: 8px 0 4px;
       font-size: 1.1rem;
     }
+
     .intro {
       text-align: center;
       font-size: 0.94rem;
@@ -266,8 +268,8 @@
         </div>
       </div>
       <div class="lang-switch">
-        <button class="lang-btn active" type="button">FR</button>
-        <a class="lang-btn" href="/client-en.html">EN</a>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
       </div>
     </div>
 
@@ -337,7 +339,7 @@
         const bijou = data.bijou;
         currentBijou = bijou;
 
-        // on privilégie toujours public_id pour l’écoute NFC
+        // On privilégie toujours public_id pour l’écoute NFC
         const publicId = bijou.public_id || code;
         const prenom = bijou.prenom || "la personne reliée à ce bijou";
         const theme = bijou.theme || "non défini";
@@ -388,7 +390,7 @@
         `;
         resultEl.style.display = "block";
 
-        // branchement du bouton recharge (paiement / Stripe)
+        // Branchement du bouton recharge (paiement / Stripe)
         const btnRecharge = document.getElementById("btnRecharge");
         btnRecharge.addEventListener("click", async (e) => {
           e.preventDefault();
@@ -437,20 +439,23 @@
         e.preventDefault();
         searchBijou();
       }
-    });// Pré-remplissage automatique depuis ?code= dans l'URL
-(function prefillFromUrl() {
-  try {
-    const url = new URL(window.location.href);
-    const codeFromUrl = url.searchParams.get("code");
-    if (codeFromUrl) {
-      codeInput.value = codeFromUrl;
-      searchBijou();
-    }
-  } catch (e) {
-    console.error("Impossible de lire le paramètre code dans l'URL", e);
-  }
-})();
+    });
 
+    // Pré-remplissage automatique depuis ?code= dans l'URL
+    (function prefillFromUrl() {
+      try {
+        const url = new URL(window.location.href);
+        const codeFromUrl = url.searchParams.get("code");
+        if (codeFromUrl) {
+          codeInput.value = codeFromUrl;
+          searchBijou();
+        }
+      } catch (e) {
+        console.error("Impossible de lire le paramètre code dans l'URL", e);
+      }
+    })();
   </script>
+
+  <script src="/lang-switch.js"></script>
 </body>
 </html>
