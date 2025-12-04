@@ -284,7 +284,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // 9) Décrément des crédits
+    // ─────────────────────────────
+// 9) Décrément des crédits
 // ─────────────────────────────
 
 let remaining = bijou.messages_restants;
@@ -296,8 +297,12 @@ if (typeof remaining === "number") {
 const { error: updateError } = await supabase
   .from("bijous")
   .update({
-    // on ne met à jour que le compteur
     messages_restants: remaining,
+    last_used_at: new Date().toISOString(),
+    last_prenom: targetName || null,
+    last_lang: safeLang,
+    last_theme: effectiveTheme || null,
+    last_sous_theme: effectiveSousTheme || null,
   })
   .eq("id", id);
 
