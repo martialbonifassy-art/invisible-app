@@ -1,4 +1,5 @@
-// /pages/api/message.ts  (ou /api/message.js en JS pur sans les types)
+// /pages/api/message.ts   (Next.js Pages Router)
+// ou /app/api/message/route.ts à adapter (req/res changent légèrement)
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
@@ -9,8 +10,7 @@ import OpenAI from "openai";
 // ─────────────────────────────
 
 const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_KEY = process.env
-  .SUPABASE_SERVICE_KEY as string; // clé service role (côté serveur uniquement)
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY as string;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -19,7 +19,7 @@ const openai = new OpenAI({
 });
 
 // ─────────────────────────────
-// 2) Contrat JSON
+// 2) Contrat JSON unique
 // ─────────────────────────────
 
 type MessageResponse = {
@@ -34,12 +34,13 @@ type MessageResponse = {
 
 function sendError(
   res: NextApiResponse<MessageResponse>,
-  status: number,
+  _status: number, // on ne s’en sert plus
   code: string,
   message: string,
   preview: boolean
 ) {
-  return res.status(status).json({
+  // 🔒 Toujours status 200 pour ne jamais déclencher le catch côté front
+  return res.status(200).json({
     ok: false,
     preview,
     error_code: code,
@@ -65,7 +66,6 @@ export default async function handler(
     );
   }
 
-  // Query params
   const {
     id,
     prenom = "",
@@ -105,6 +105,7 @@ export default async function handler(
     // ─────────────────────────────
     // 4) Récupérer le bijou
     // ─────────────────────────────
+
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select("*")
@@ -137,8 +138,9 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 5) Vérifier crédit / état (uniquement SI PAS preview)
+    // 5) Vérifier crédit / état (seulement si PAS preview)
     // ─────────────────────────────
+
     if (!isPreview) {
       if (bijou.locked) {
         return sendError(
@@ -249,7 +251,7 @@ export default async function handler(
       .join("\n");
 
     // ─────────────────────────────
-    // 7) Génération texte OpenAI
+    // 7) Génération texte
     // ─────────────────────────────
 
     let generatedText = "";
@@ -290,7 +292,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 8) MODE PREVIEW → pas de décrément, pas d’audio
+    // 8) MODE PREVIEW : pas de décrément, pas d’audio
     // ─────────────────────────────
 
     if (isPreview) {
@@ -303,7 +305,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 9) TTS & stockage audio (optionnel, audio_url peut rester null)
+    // 9) TTS optionnel (audio_url peut rester null)
     // ─────────────────────────────
 
     let audioUrl: string | null = null;
@@ -320,18 +322,16 @@ export default async function handler(
         input: generatedText,
       });
 
-      // Ici tu peux, plus tard, uploader le buffer dans Supabase Storage
+      // Ici tu pourras plus tard uploader le buffer dans Supabase Storage / S3
       // et remplir audioUrl avec l’URL publique.
-      // Pour l’instant on laisse audioUrl = null.
-
       audioUrl = null;
     } catch (err) {
       console.error("TTS error:", err);
-      audioUrl = null; // on ne bloque pas la réponse
+      audioUrl = null;
     }
 
     // ─────────────────────────────
-    // 10) Décrément des crédits
+    // 10) Décrément des crédits (uniquement hors preview)
     // ─────────────────────────────
 
     let remaining = bijou.messages_restants;
@@ -355,10 +355,6 @@ export default async function handler(
       console.error("Update bijou error:", updateError);
       // on ne bloque pas pour l’utilisateur
     }
-
-    // ─────────────────────────────
-    // 11) Réponse finale
-    // ─────────────────────────────
 
     return res.status(200).json({
       ok: true,
