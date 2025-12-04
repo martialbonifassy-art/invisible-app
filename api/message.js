@@ -1,6 +1,5 @@
-// pages/api/message.ts
+// api/message.js
 
-import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 
@@ -8,10 +7,9 @@ import OpenAI from "openai";
 // 1) Config Supabase + OpenAI
 // ─────────────────────────────
 
-const SUPABASE_URL = process.env.SUPABASE_URL as string | undefined;
-const SUPABASE_SERVICE_KEY = process.env
-  .SUPABASE_SERVICE_KEY as string | undefined;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY as string | undefined;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   console.warn("[/api/message] SUPABASE_URL ou SUPABASE_SERVICE_KEY manquant(e)s");
@@ -28,27 +26,10 @@ const supabase =
 const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null;
 
 // ─────────────────────────────
-// 2) Type de réponse JSON
+// 2) Helper erreur
 // ─────────────────────────────
 
-type MessageResponse = {
-  ok: boolean;
-  preview: boolean;
-  text?: string;
-  audio_url?: string | null;
-  remaining?: number;
-  error?: string;
-  error_code?: string;
-};
-
-// Helper erreur
-function sendError(
-  res: NextApiResponse<MessageResponse>,
-  status: number,
-  code: string,
-  message: string,
-  preview: boolean
-) {
+function sendError(res, status, code, message, preview) {
   console.error("[/api/message] error:", status, code, message);
   res.status(status).json({
     ok: false,
@@ -62,18 +43,9 @@ function sendError(
 // 3) Handler principal
 // ─────────────────────────────
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<MessageResponse>
-) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
-    return sendError(
-      res,
-      405,
-      "METHOD_NOT_ALLOWED",
-      "Only GET is allowed.",
-      true
-    );
+    return sendError(res, 405, "METHOD_NOT_ALLOWED", "Only GET is allowed.", true);
   }
 
   const {
@@ -86,17 +58,7 @@ export default async function handler(
     preview: previewParam,
     theme,
     sous_theme,
-  } = req.query as {
-    id?: string;
-    prenom?: string;
-    intention?: string;
-    detail?: string;
-    voix?: string;
-    lang?: string;
-    preview?: string;
-    theme?: string;
-    sous_theme?: string;
-  };
+  } = req.query;
 
   const isPreview = previewParam === "1" || previewParam === "true";
   const safeLang = lang === "en" ? "en" : "fr";
@@ -127,6 +89,7 @@ export default async function handler(
     // ─────────────────────────────
     // 4) Récupérer le bijou
     // ─────────────────────────────
+
     const { data: bijou, error: fetchError } = await supabase
       .from("bijous")
       .select("*")
@@ -161,6 +124,7 @@ export default async function handler(
     // ─────────────────────────────
     // 5) Vérifier crédits / état (si pas preview)
     // ─────────────────────────────
+
     if (!isPreview) {
       if (bijou.locked) {
         return sendError(
@@ -267,9 +231,9 @@ export default async function handler(
 
     // ─────────────────────────────
     // 7) Appel OpenAI (texte)
-    // ─────────────────────────────
+// ─────────────────────────────
 
-    let generatedText: string;
+    let generatedText;
 
     try {
       const chat = await openai.chat.completions.create({
@@ -323,7 +287,7 @@ export default async function handler(
     // 9) Décrément des crédits
     // ─────────────────────────────
 
-    let remaining = bijou.messages_restants as number | null;
+    let remaining = bijou.messages_restants;
 
     if (typeof remaining === "number") {
       remaining = Math.max(0, remaining - 1);
@@ -343,7 +307,7 @@ export default async function handler(
 
     if (updateError) {
       console.error("[/api/message] Update bijou error:", updateError);
-      // On n’empêche pas la réponse au client pour autant
+      // on ne bloque pas la réponse au client pour ça
     }
 
     // ─────────────────────────────
