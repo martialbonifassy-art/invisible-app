@@ -294,21 +294,19 @@ if (typeof remaining === "number") {
   remaining = Math.max(0, remaining - 1);
 }
 
-const { error: updateError } = await supabase
-  .from("bijous")
-  .update({
-    messages_restants: remaining,
-    last_used_at: new Date().toISOString(),
-    last_prenom: targetName || null,
-    last_lang: safeLang,
-    last_theme: effectiveTheme || null,
-    last_sous_theme: effectiveSousTheme || null,
-  })
-  .eq("id", id);
+try {
+  const { error: updateError } = await supabase
+    .from("bijous")
+    .update({
+      messages_restants: remaining,   // on ne met à jour que ça
+    })
+    .eq("id", id);
 
-if (updateError) {
-  console.error("[/api/message] Update bijou error:", updateError);
-  // on ne bloque pas la réponse au client pour ça
+  if (updateError) {
+    console.error("[/api/message] Update bijou error:", updateError);
+  }
+} catch (e) {
+  console.error("[/api/message] Update bijou exception:", e);
 }
 
     // ─────────────────────────────
