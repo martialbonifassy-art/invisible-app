@@ -68,7 +68,7 @@
       cursor: pointer;
       background: transparent;
       color: #5a4335;
-      text-decoration: none;
+      border: none;
     }
 
     .lang-btn.active {
@@ -104,6 +104,12 @@
     .logo-sub {
       font-size: 0.82rem;
       color: var(--text-soft);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     nav {
@@ -180,6 +186,7 @@
       text-transform: uppercase;
       color: var(--text-soft);
       margin-bottom: 8px;
+      align-items: center;
     }
 
     .hero-badge-dot {
@@ -347,17 +354,19 @@
       <div class="logo-sub">Wooden objects augmented with an intimate voice.</div>
     </div>
 
-    <nav>
-      <a href="#concept" class="nav-link">Concept</a>
-      <a href="#how" class="nav-link">How it works</a>
-      <a href="/client-en.html" class="nav-link">I already have a jewel</a>
-      <a href="/login.html" class="nav-link nav-artisan">Artisan space</a>
+    <div class="header-right">
+      <nav>
+        <a href="#concept" class="nav-link">Concept</a>
+        <a href="#how" class="nav-link">How it works</a>
+        <a href="/client-en.html" class="nav-link">I already have a jewel</a>
+        <a href="/login.html" class="nav-link nav-artisan">Artisan space</a>
+      </nav>
 
       <div class="lang-switch">
-        <a href="/index.html" class="lang-btn" data-lang="fr">FR</a>
-        <a href="/index-en.html" class="lang-btn active" data-lang="en">EN</a>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
       </div>
-    </nav>
+    </div>
   </header>
 
   <main>
