@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Personnaliser le murmure – L’Atelier des Liens Invisibles</title>
+  <title>Paramétrer le murmure – L’Atelier des Liens Invisibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -13,8 +13,8 @@
       --text-main: #3c2f25;
       --text-soft: #7f6248;
       --border-soft: rgba(170, 140, 90, 0.35);
-      --shadow-soft: 0 14px 30px rgba(0,0,0,0.12);
-      --radius-xl: 24px;
+      --shadow-soft: 0 16px 40px rgba(0,0,0,0.22);
+      --radius-xl: 26px;
     }
 
     * { box-sizing: border-box; }
@@ -25,13 +25,15 @@
         "Helvetica Neue", Arial, sans-serif;
       background: var(--bg-page);
       color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 24px 12px 40px;
+      align-items: center;
+      padding: 18px 12px 32px;
     }
 
     .page {
-      max-width: 720px;
+      max-width: 900px;
       width: 100%;
       background: var(--bg-card);
       border-radius: var(--radius-xl);
@@ -40,24 +42,82 @@
       border: 1px solid var(--border-soft);
     }
 
-    h1 {
-      font-size: 1.1rem;
-      letter-spacing: 0.16em;
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-title {
+      font-size: 1.02rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
-      margin: 0 0 4px;
     }
 
-    .slogan {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      margin-bottom: 14px;
-    }
-
-    .intro {
+    .logo-sub {
       font-size: 0.88rem;
-      margin-bottom: 16px;
       color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: #f7ecdd;
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(170, 140, 90, 0.45);
+      gap: 3px;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .lang-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 9px;
+      cursor: pointer;
+      background: transparent;
+      color: #5a4335;
+      text-decoration: none;
+    }
+    .lang-btn.active {
+      background: #b8833a;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 10px 0 4px;
+      font-size: 1.4rem;
+    }
+    .intro {
+      text-align: center;
+      font-size: 0.94rem;
+      color: var(--text-soft);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* Badge code bijou */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 14px;
+      background: #f5ebdd;
+      border: 1px solid var(--border-soft);
+      font-size: 0.86rem;
+      margin-bottom: 16px;
+    }
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #82a738;
     }
 
     label {
@@ -74,8 +134,8 @@
       box-sizing: border-box;
       border-radius: 999px;
       border: 1px solid rgba(133,101,73,0.4);
-      padding: 8px 12px;
-      font-size: 0.9rem;
+      padding: 10px 14px;
+      font-size: 0.93rem;
       margin-bottom: 12px;
       background: #fffdf8;
       outline: none;
@@ -83,7 +143,7 @@
 
     textarea {
       border-radius: 16px;
-      min-height: 70px;
+      min-height: 90px;
       resize: vertical;
     }
 
@@ -104,82 +164,18 @@
     .ligne {
       display: flex;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .ligne > div { flex: 1; }
 
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: #d6a85a;
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
-      margin-top: 6px;
-      width: 100%;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-
-    .buttons-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 4px;
-    }
-    @media (min-width: 600px) {
-      .buttons-row {
-        flex-direction: row;
-      }
-      .buttons-row button {
-        width: auto;
-        flex: 1;
-      }
-    }
-
-    .preview {
-      margin-top: 18px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #f3e3cc;
-      font-size: 0.94rem;
-      min-height: 3em;
-      white-space: pre-wrap;
-    }
-
-    .etat {
-      font-size: 0.8rem;
-      color: #a08967;
-      margin-top: 8px;
-    }
-
-    .note-tech {
-      margin-top: 16px;
-      font-size: 0.8rem;
-      color: #8a735a;
-    }
-
-    .id-url {
-      font-family: monospace;
-      font-size: 0.78rem;
-      background: #f0e3cf;
-      padding: 6px 8px;
-      border-radius: 8px;
-      margin-top: 4px;
-      word-break: break-all;
-    }
-
     .helper-card {
-      margin-top: 8px;
+      margin-top: 4px;
       padding: 10px 12px;
       border-radius: 14px;
       background: #f8ecda;
       border: 1px solid #e0c8a2;
       font-size: 0.84rem;
+      margin-bottom: 10px;
     }
     .helper-title {
       font-size: 0.8rem;
@@ -201,26 +197,103 @@
       font-style: italic;
       color: #4a3523;
     }
+
+    .buttons-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    @media (min-width: 640px) {
+      .buttons-row {
+        flex-direction: row;
+      }
+      .buttons-row button {
+        width: auto;
+        flex: 1;
+      }
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 13px 18px;
+      font-size: 0.98rem;
+      cursor: pointer;
+      background: #d39633;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.2);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      background: #b67622;
+    }
+
+    .preview {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #f3e3cc;
+      font-size: 0.95rem;
+      min-height: 3em;
+      white-space: pre-wrap;
+    }
+
+    .etat {
+      font-size: 0.86rem;
+      color: #a08967;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: #b03a3a;
+    }
+
+    .note-bottom {
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: #8a735a;
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <h1>L’ATELIER DES LIENS INVISIBLES</h1>
-    <div class="slogan">Personnalisation du murmure du bijou.</div>
+    <div class="top-row">
+      <div>
+        <div class="logo-title">L’ATELIER DES LIENS INVISIBLES</div>
+        <div class="logo-sub">
+          Première activation du murmure de votre bijou.
+        </div>
+      </div>
+      <div class="lang-switch" id="langSwitch">
+        <button class="lang-btn active" type="button">FR</button>
+        <a class="lang-btn" id="langEnLink" href="#">EN</a>
+      </div>
+    </div>
 
+    <h2>Paramétrer votre bijou</h2>
     <p class="intro">
-      Ces informations permettent à l’IA de composer un murmure unique pour la personne
-      qui recevra l’objet. Choisissez un thème, un sous-thème, puis donnez quelques détails
-      simples : l’IA se charge du reste.
+      Quelques détails suffisent pour que le bijou compose un murmure unique pour la personne qui le portera.
+      Vous pourrez ensuite l’écouter autant de fois que le permet le bijou.
     </p>
+
+    <div class="badge" id="badgeCode">
+      <div class="badge-dot"></div>
+      <span id="badgeCodeText">Code bijou : —</span>
+    </div>
 
     <div class="ligne">
       <div>
-        <label for="idBijou">ID du bijou</label>
-        <input id="idBijou" type="text" placeholder="ex : BIJOU001" />
+        <label for="prenom">Prénom de la personne qui reçoit le bijou</label>
+        <input id="prenom" type="text" placeholder="ex : Lucie" />
       </div>
       <div>
-        <label for="voix">Voix</label>
+        <label for="voix">Tonalité de la voix</label>
         <select id="voix">
           <option value="neutre">Neutre</option>
           <option value="feminine">Féminine</option>
@@ -229,12 +302,12 @@
       </div>
     </div>
 
-    <label for="theme">Thème principal</label>
+    <label for="theme">Thème principal du murmure</label>
     <select id="theme">
       <!-- rempli en JS -->
     </select>
 
-    <div class="helper-card" id="helperCard" style="display:none; margin-bottom: 10px;">
+    <div class="helper-card" id="helperCard" style="display:none;">
       <div class="helper-title" id="helperTitle"></div>
       <div class="helper-desc" id="helperDesc"></div>
       <div class="helper-example-label">Exemple de façon de l’utiliser :</div>
@@ -246,29 +319,33 @@
       <option value="">Choisissez d’abord un thème…</option>
     </select>
 
-    <label for="prenom">Prénom de la personne</label>
-    <input id="prenom" type="text" placeholder="ex : Marie" />
+    <label for="intention">Intention générale du murmure</label>
+    <textarea
+      id="intention"
+      placeholder="ex : L’encourager dans un nouveau chapitre de vie, avec douceur et confiance."
+    ></textarea>
 
-    <label for="intention">Texte libre pour l’IA</label>
-    <textarea id="intention" placeholder="ex : Un message pour l’encourager dans un nouveau départ à Toulouse."></textarea>
-
-    <label for="detail">Un détail ou un souvenir à intégrer</label>
-    <input id="detail" type="text" placeholder="ex : Nuit sur la plage de Graissant, notre première danse, le vieux chêne du jardin" />
+    <label for="detail">Un souvenir ou un détail à intégrer (optionnel)</label>
+    <input
+      id="detail"
+      type="text"
+      placeholder="ex : La soirée sur le pont de pierre, notre danse sous la pluie…"
+    />
 
     <div class="buttons-row">
-      <button id="btnTester">Tester le murmure</button>
-      <button id="saveBtn">Enregistrer ce bijou</button>
+      <button id="btnTester">✨ Tester le murmure</button>
+      <button id="btnSave">✨ Créer le murmure du bijou</button>
     </div>
 
-    <div class="etat" id="etat">En attente de vos informations…</div>
+    <div class="etat" id="etat">Bijou trouvé. Vous pouvez maintenant remplir le formulaire puis valider.</div>
 
     <div class="preview" id="preview">
       Le murmure apparaîtra ici après le test.
     </div>
 
-    <div class="note-tech">
-      URL de test associée à ce bijou (lecture directe par ID interne) :
-      <div class="id-url" id="urlExemple"></div>
+    <div class="note-bottom">
+      Une fois le murmure créé, chaque scan du bijou composera un nouveau message dans ce même esprit,
+      jusqu’à épuisement de ses murmures.
     </div>
   </div>
 
@@ -568,7 +645,6 @@
     // 2) Récupération des éléments du DOM
     // ─────────────────────────────────────
 
-    const idInput = document.getElementById("idBijou");
     const prenomInput = document.getElementById("prenom");
     const intentionInput = document.getElementById("intention");
     const detailInput = document.getElementById("detail");
@@ -576,18 +652,53 @@
     const themeSelect = document.getElementById("theme");
     const sousThemeSelect = document.getElementById("sousTheme");
     const btnTester = document.getElementById("btnTester");
-    const btnSave = document.getElementById("saveBtn");
+    const btnSave = document.getElementById("btnSave");
     const etat = document.getElementById("etat");
     const preview = document.getElementById("preview");
-    const urlExemple = document.getElementById("urlExemple");
+    const badgeCodeText = document.getElementById("badgeCodeText");
+    const langEnLink = document.getElementById("langEnLink");
 
     const helperCard = document.getElementById("helperCard");
     const helperTitle = document.getElementById("helperTitle");
     const helperDesc = document.getElementById("helperDesc");
     const helperExample = document.getElementById("helperExample");
 
+    let bijouId = null;      // ID interne (BIJOUxxx)
+    let bijouCodePublic = null; // ex : 100BM100
+
     // ─────────────────────────────────────
-    // 3) Remplir la liste des thèmes
+    // 3) Init depuis l’URL (id + code)
+    // ─────────────────────────────────────
+
+    (function initFromUrl() {
+      try {
+        const url = new URL(window.location.href);
+        bijouId = url.searchParams.get("id");
+        bijouCodePublic = url.searchParams.get("code");
+
+        if (!bijouId) {
+          etat.textContent = "Erreur : aucun identifiant de bijou n’a été transmis. Merci de revenir depuis la page d’accès au bijou.";
+          etat.classList.add("error");
+          btnTester.disabled = true;
+          btnSave.disabled = true;
+        }
+
+        const affichage = bijouCodePublic || bijouId || "—";
+        badgeCodeText.textContent = "Code bijou : " + affichage;
+
+        // lien EN en conservant les paramètres
+        const params = new URLSearchParams();
+        if (bijouId) params.set("id", bijouId);
+        if (bijouCodePublic) params.set("code", bijouCodePublic);
+        langEnLink.href = "/personnalisation-en.html?" + params.toString();
+
+      } catch (e) {
+        console.error("Erreur de lecture des paramètres d’URL", e);
+      }
+    })();
+
+    // ─────────────────────────────────────
+    // 4) Remplir la liste des thèmes
     // ─────────────────────────────────────
 
     function initThemes() {
@@ -599,7 +710,7 @@
 
       THEMES.forEach((t) => {
         const opt = document.createElement("option");
-        opt.value = t.value; // ce qui sera enregistré en base
+        opt.value = t.value; // enregistré en base
         opt.textContent = t.label;
         opt.dataset.id = t.id;
         themeSelect.appendChild(opt);
@@ -634,7 +745,6 @@
         sousThemeSelect.appendChild(opt);
       });
 
-      // fiche d’aide de base
       helperCard.style.display = "block";
       helperTitle.textContent = themeObj.label;
       helperDesc.textContent = themeObj.description;
@@ -660,35 +770,13 @@
     }
 
     // ─────────────────────────────────────
-    // 4) URL d’exemple pour la lecture
-    // ─────────────────────────────────────
-
-    function majUrlExemple() {
-      const id = idInput.value.trim() || "BIJOU001";
-      const url = `https://invisible-app-atelier.vercel.app/bijou.html?id=${encodeURIComponent(id)}`;
-      urlExemple.textContent = url;
-    }
-
-    // ─────────────────────────────────────
-    // 5) Pré-remplir l’ID si présent dans l’URL
-    // ─────────────────────────────────────
-
-    function initFromUrl() {
-      const url = new URL(window.location.href);
-      const idParam = url.searchParams.get("id");
-      if (idParam) {
-        idInput.value = idParam;
-      }
-      majUrlExemple();
-    }
-
-    // ─────────────────────────────────────
-    // 6) Prévisualisation du murmure (appel /api/message en mode preview=1)
-    //     → contrat JSON resserré : { ok, text, error, ... }
+    // 5) Tester le murmure (preview)
     // ─────────────────────────────────────
 
     btnTester.addEventListener("click", async () => {
-      const id = idInput.value.trim() || "BIJOU001";
+      if (!bijouId) return;
+
+      const id = bijouId;
       const prenom = prenomInput.value.trim();
       const intention = intentionInput.value.trim();
       const detail = detailInput.value.trim();
@@ -697,6 +785,7 @@
       const sousTheme = sousThemeSelect.value;
 
       etat.textContent = "L’IA compose le murmure…";
+      etat.classList.remove("error");
       btnTester.disabled = true;
       preview.textContent = "";
 
@@ -710,7 +799,6 @@
         preview: "1"
       });
 
-      // On ajoute aussi thème / sous-thème comme infos optionnelles
       if (theme) params.append("theme", theme);
       if (sousTheme) params.append("sous_theme", sousTheme);
 
@@ -722,6 +810,7 @@
           preview.textContent =
             data.error || "Erreur pendant la génération du murmure.";
           etat.textContent = "Erreur de génération (prévisualisation).";
+          etat.classList.add("error");
           return;
         }
 
@@ -732,24 +821,21 @@
         console.error(e);
         preview.textContent = "Erreur : impossible de joindre la voix du bijou.";
         etat.textContent = "Erreur de connexion à l’IA.";
+        etat.classList.add("error");
       } finally {
         btnTester.disabled = false;
       }
     });
 
     // ─────────────────────────────────────
-    // 7) Enregistrement du bijou via /api/saveBijou
+    // 6) Enregistrer le bijou via /api/saveBijou
     // ─────────────────────────────────────
 
     btnSave.addEventListener("click", async () => {
-      const id = idInput.value.trim();
-      if (!id) {
-        alert("Veuillez entrer un ID de bijou.");
-        return;
-      }
+      if (!bijouId) return;
 
       const body = {
-        id,
+        id: bijouId,
         prenom: prenomInput.value.trim(),
         intention: intentionInput.value.trim(),
         detail: detailInput.value.trim(),
@@ -759,39 +845,44 @@
         langue: "fr"
       };
 
+      btnSave.disabled = true;
+
       try {
         const r = await fetch("/api/saveBijou", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body)
         });
 
         const result = await r.json();
 
         if (result.ok) {
-          alert("Bijou enregistré avec succès !");
-          etat.textContent = "Paramètres sauvegardés dans l’atelier.";
+          alert("Le murmure du bijou a été créé avec succès.");
+          etat.textContent = "Paramètres sauvegardés dans l’atelier. Votre bijou est prêt à murmurer.";
+          etat.classList.remove("error");
         } else {
           alert("Erreur : " + (result.error || "Impossible d’enregistrer le bijou."));
+          etat.textContent = "Erreur lors de l’enregistrement du bijou.";
+          etat.classList.add("error");
         }
       } catch (e) {
         console.error(e);
         alert("Erreur réseau : impossible d’enregistrer le bijou.");
+        etat.textContent = "Erreur réseau pendant l’enregistrement.";
+        etat.classList.add("error");
+      } finally {
+        btnSave.disabled = false;
       }
     });
 
     // ─────────────────────────────────────
-    // 8) Initialisation
+    // 7) Initialisation
     // ─────────────────────────────────────
 
-    idInput.addEventListener("input", majUrlExemple);
     themeSelect.addEventListener("change", onThemeChange);
     sousThemeSelect.addEventListener("change", onSousThemeChange);
 
     initThemes();
-    initFromUrl();
   </script>
 </body>
 </html>
