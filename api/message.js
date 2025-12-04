@@ -1,6 +1,6 @@
-// /pages/api/message.ts (Next.js) ou /api/message.js (Vercel)
+// /pages/api/message.js  (Next.js Pages router)
+// ou /api/message.js sur Vercel
 
-import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 
@@ -8,8 +8,12 @@ import OpenAI from "openai";
 // 1) Config Supabase + OpenAI
 // ─────────────────────────────
 
-const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY as string; // service role conseillé côté serveur
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // service role côté serveur
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.warn("[/api/message] Missing Supabase env vars");
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -18,33 +22,27 @@ const openai = new OpenAI({
 });
 
 // ─────────────────────────────
-// 2) Type de la réponse JSON
+// 2) Contrat JSON + helper erreur
 // ─────────────────────────────
+// Contrat de réponse (intentionnel) :
+//
+// {
+//   ok: boolean,
+//   preview: boolean,
+//   text?: string,
+//   audio_url?: string | null,
+//   remaining?: number | null,
+//   error?: string,
+//   error_code?: string
+// }
 
-type MessageResponse = {
-  ok: boolean;
-  preview: boolean;
-  text?: string;
-  audio_url?: string | null;
-  messages_restants?: number | null;
-  error?: string;
-  error_code?: string;
-};
-
-// Helper erreur avec contrat JSON cohérent
-function sendError(
-  res: NextApiResponse<MessageResponse>,
-  status: number,
-  code: string,
-  message: string,
-  preview: boolean
-) {
-  res.status(status).json({
+function sendError(res, statusCode, code, message, preview) {
+  // status HTTP utile pour le debug / logs
+  res.status(statusCode).json({
     ok: false,
     preview,
-    error_code: code,
     error: message,
-    audio_url: null,
+    error_code: code,
   });
 }
 
@@ -52,18 +50,14 @@ function sendError(
 // 3) Handler principal
 // ─────────────────────────────
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<MessageResponse>
-) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
-    return sendError(
-      res,
-      405,
-      "METHOD_NOT_ALLOWED",
-      "Only GET is allowed.",
-      true
-    );
+    return res.status(405).json({
+      ok: false,
+      preview: true,
+      error_code: "METHOD_NOT_ALLOWED",
+      error: "Only GET is allowed.",
+    });
   }
 
   // Récupération des query params
@@ -77,17 +71,7 @@ export default async function handler(
     preview: previewParam,
     theme,
     sous_theme,
-  } = req.query as {
-    id?: string;
-    prenom?: string;
-    intention?: string;
-    detail?: string;
-    voix?: string;
-    lang?: string;
-    preview?: string;
-    theme?: string;
-    sous_theme?: string;
-  };
+  } = req.query || {};
 
   const isPreview = previewParam === "1" || previewParam === "true";
 
@@ -115,7 +99,7 @@ export default async function handler(
       .maybeSingle();
 
     if (fetchError) {
-      console.error("Supabase fetch error:", fetchError);
+      console.error("[/api/message] Supabase fetch error:", fetchError);
       return sendError(
         res,
         500,
@@ -140,7 +124,7 @@ export default async function handler(
     }
 
     // ─────────────────────────────
-    // 5) Vérifier le crédit / état (si pas en preview)
+    // 5) Vérifier crédit / état (si pas preview)
     // ─────────────────────────────
 
     if (!isPreview) {
@@ -273,12 +257,16 @@ export default async function handler(
       });
 
       generatedText =
-        chat.choices?.[0]?.message?.content?.trim() ||
+        (chat.choices &&
+          chat.choices[0] &&
+          chat.choices[0].message &&
+          chat.choices[0].message.content &&
+          chat.choices[0].message.content.trim()) ||
         (safeLang === "en"
           ? "I am here, silent, but present for you."
           : "Je suis là, silencieux, mais présent pour toi.");
     } catch (err) {
-      console.error("OpenAI text error:", err);
+      console.error("[/api/message] OpenAI text error:", err);
       return sendError(
         res,
         500,
@@ -300,18 +288,19 @@ export default async function handler(
         preview: true,
         text: generatedText,
         audio_url: null,
-        messages_restants: bijou.messages_restants ?? null,
+        remaining: bijou.messages_restants ?? null,
       });
     }
 
     // ─────────────────────────────
-    // 9) TTS & stockage audio (à adapter)
+    // 9) (Optionnel) TTS & stockage audio
     // ─────────────────────────────
+    // Pour l’instant, on laisse audio_url à null pour ne pas complexifier.
+    // Quand tu voudras brancher le stockage (Supabase Storage, S3…), on ajoutera ici.
+    let audioUrl = null;
 
-    let audioUrl: string | null = null;
-
+    /*
     try {
-      // Exemple avec OpenAI TTS (tu peux adapter stockage dans Supabase Storage, S3, etc.)
       const speech = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
         voice:
@@ -323,13 +312,24 @@ export default async function handler(
         input: generatedText,
       });
 
-      // À toi d’implémenter l’upload du buffer dans Supabase Storage ou autre
-      // Pour l’instant, on laisse audioUrl = null pour ne pas casser le front
-      audioUrl = null;
+      const audioBuffer = Buffer.from(await speech.arrayBuffer());
+      const filePath = `audio/${id}-${Date.now()}.mp3`;
+
+      const { data: uploaded, error: uploadError } = await supabase.storage
+        .from("audio")
+        .upload(filePath, audioBuffer, { contentType: "audio/mpeg" });
+
+      if (!uploadError) {
+        const { data: publicUrl } = supabase.storage
+          .from("audio")
+          .getPublicUrl(filePath);
+        audioUrl = publicUrl.publicUrl;
+      }
     } catch (err) {
-      console.error("TTS error:", err);
-      audioUrl = null; // on renvoie quand même le texte
+      console.error("[/api/message] TTS error:", err);
+      audioUrl = null;
     }
+    */
 
     // ─────────────────────────────
     // 10) Décrément des crédits + metadata
@@ -339,23 +339,29 @@ export default async function handler(
 
     if (typeof remaining === "number") {
       remaining = Math.max(0, remaining - 1);
+    } else {
+      remaining = null;
     }
 
-    const { error: updateError } = await supabase
-      .from("bijous")
-      .update({
-        messages_restants: remaining,
-        last_used_at: new Date().toISOString(),
-        last_prenom: targetName || null,
-        last_lang: safeLang,
-        last_theme: effectiveTheme || null,
-        last_sous_theme: effectiveSousTheme || null,
-      })
-      .eq("id", id);
+    try {
+      const { error: updateError } = await supabase
+        .from("bijous")
+        .update({
+          messages_restants: remaining,
+          last_used_at: new Date().toISOString(),
+          last_prenom: targetName || null,
+          last_lang: safeLang,
+          last_theme: effectiveTheme || null,
+          last_sous_theme: effectiveSousTheme || null,
+        })
+        .eq("id", id);
 
-    if (updateError) {
-      console.error("Update bijou error:", updateError);
-      // On ne bloque pas la réponse client pour ça
+      if (updateError) {
+        console.error("[/api/message] Update bijou error:", updateError);
+        // On ne bloque pas la réponse côté client pour ça.
+      }
+    } catch (err) {
+      console.error("[/api/message] Unexpected update error:", err);
     }
 
     // ─────────────────────────────
@@ -367,11 +373,10 @@ export default async function handler(
       preview: false,
       text: generatedText,
       audio_url: audioUrl,
-      messages_restants:
-        typeof remaining === "number" ? remaining : bijou.messages_restants ?? null,
+      remaining,
     });
   } catch (err) {
-    console.error("Unexpected /api/message error:", err);
+    console.error("[/api/message] Unexpected error:", err);
     return sendError(
       res,
       500,
