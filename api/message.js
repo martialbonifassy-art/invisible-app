@@ -8,7 +8,8 @@ import OpenAI from "openai";
 // ─────────────────────────────
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+// ⚠️ IMPORTANT : on lit bien SUPABASE_SERVICE_ROLE_KEY (nom présent dans Vercel)
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
@@ -189,7 +190,7 @@ export default async function handler(req, res) {
       effectiveTheme || effectiveSousTheme
         ? safeLang === "en"
           ? `Main theme: ${effectiveTheme || "-"}, sub-theme: ${effectiveSousTheme || "-"}.`
-          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${effectiveSousTheme || "-"}.`
+          : `Thème principal : ${effectiveTheme || "-"}, sous-thème : ${effectiveSousTheme || "-"} .`
         : "";
 
     const intentionLine =
@@ -231,7 +232,7 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────
     // 7) Appel OpenAI (texte)
-// ─────────────────────────────
+    // ─────────────────────────────
 
     let generatedText;
 
